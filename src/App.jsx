@@ -1,0 +1,35 @@
+import React from 'react'
+import Navbar from "./components/Navbar";
+import Login from "./pages/Login";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Register from './pages/Register';
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import Home from "./pages/Home";
+import CategoryProducts from "./pages/CategoryProducts";
+import ProductDetails from "./pages/ProductDetails";
+
+
+
+
+function App() {
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Router>
+      <Routes>
+        <Route path="/" element={<Navbar />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+         <Route path="/home" element={<Home />} />
+          <Route path="/products/:category" element={<CategoryProducts />} />
+          <Route path="/product/:asin" element={<ProductDetails />} />
+        
+
+      </Routes>
+    </Router>
+      
+    </div>
+
+  )
+}
+
+export default App
