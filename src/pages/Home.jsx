@@ -4,7 +4,7 @@ import { FaSearch, FaUserCircle } from "react-icons/fa";
 import api from "../api/axios";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 
 // 🧠 Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,6 +22,7 @@ const Home = () => {
   // ✅ Handle card click to go to category page
   const handleCategoryClick = (category) => {
     navigate(`/products/${category}`);
+    
   };
 
   useEffect(() => {
@@ -186,60 +187,81 @@ const Home = () => {
           </h2>
 
           <Swiper
-            modules={[Autoplay, Navigation, Pagination]}
-            spaceBetween={20}
-            slidesPerView={1}
-            navigation
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 2500, disableOnInteraction: false }}
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 4 },
-            }}
-          >
-            {(products.slice(0, 10) || []).map((item) => (
-              <SwiperSlide key={item.asin || item.id}>
-                <div className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
-                  <img
-                    src={item.image_url || "https://via.placeholder.com/300"}
-                    alt={item.title}
-                    className="w-full h-52 object-contain bg-gray-100"
-                  />
-                  <div className="p-4">
-                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {item.brand || "Brand"}
-                    </p>
-                                         {/* ⭐ Rating Stars */}
-                      <div className="flex items-center mt-2">
-                        {Array.from({ length: 5 }, (_, i) => {
-                          const rating = item.rating || 4.2; // default rating if not available
-                          if (rating >= i + 1) {
-                            return <FaStar key={i} className="text-yellow-400 text-sm" />;
-                          } else if (rating >= i + 0.5) {
-                            return <FaStarHalfAlt key={i} className="text-yellow-400 text-sm" />;
-                          } else {
-                            return <FaRegStar key={i} className="text-yellow-400 text-sm" />;
-                          }
-                        })}
-                        <span className="text-gray-600 text-xs ml-2">
-                          ({item.rating || "4.2"})
-                        </span>
-                      </div>
-                    <p className="text-lg font-bold text-gray-900 mt-2">
-                      ₹{item.price || "—"}
-                    </p>
+  modules={[Autoplay, Navigation, Pagination]}
+  spaceBetween={20}
+  slidesPerView={1}
+  navigation={true}
+  pagination={{ clickable: true }}
+  autoplay={{
+    delay: 2500,
+    disableOnInteraction: false,
+  }}
+  loop={true} // 🔁 makes it infinite
+  grabCursor={true} // 👆 better UX when swiping
+  breakpoints={{
+    640: { slidesPerView: 2 },
+    768: { slidesPerView: 3 },
+    1024: { slidesPerView: 4 },
+    1280: { slidesPerView: 5 },
+  }}
+  className="mySwiper"
+>
+  {(products.slice(0, 10) || []).map((item) => (
+    <SwiperSlide key={item.asin || item.id}>
+      <Link
+        to={`/popular-product/${item.asin || item.id}`}
+        state={{ product: item }} // ✅ send selected product
+      >
+        <div className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+          <img
+            src={item.image_url || "https://via.placeholder.com/300"}
+            alt={item.title}
+            className="w-full h-56 object-contain bg-gray-100"
+          />
+          <div className="p-4">
+            <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
+              {item.title}
+            </h3>
+            <p className="text-gray-500 text-xs mt-1">
+              {item.brand || "Brand"}
+            </p>
 
-                  </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+            {/* ⭐ Rating Stars */}
+            <div className="flex items-center mt-2">
+              {Array.from({ length: 5 }, (_, i) => {
+                const rating = item.rating || 4.2;
+                if (rating >= i + 1) {
+                  return <FaStar key={i} className="text-yellow-400 text-sm" />;
+                } else if (rating >= i + 0.5) {
+                  return (
+                    <FaStarHalfAlt key={i} className="text-yellow-400 text-sm" />
+                  );
+                } else {
+                  return (
+                    <FaRegStar key={i} className="text-yellow-400 text-sm" />
+                  );
+                }
+              })}
+              <span className="text-gray-600 text-xs ml-2">
+                ({item.rating || "4.2"})
+              </span>
+            </div>
+
+            <p className="text-lg font-bold text-gray-900 mt-2">
+              ₹{item.price || "—"}
+            </p>
+          </div>
         </div>
+      </Link>
+    </SwiperSlide>
+  ))}
+</Swiper>
+
+        </div>
+
       </div>
 
+      {/* 🦄 Footer Section */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
   {/* 🌈 Gradient Top Border */}
   <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>

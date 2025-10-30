@@ -72,7 +72,7 @@ const ProductDetail = () => {
               {product.title}
             </h1>
             <p className="text-indigo-600 text-sm mb-2">
-              Visit the {product.brand || "Brand"} Store
+              {product.brand || "Brand"}
             </p>
 
             {/* Ratings */}
@@ -126,14 +126,14 @@ const ProductDetail = () => {
               href={product.product_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block bg-gray-500 text-gray-900 font-medium px-6 py-3 rounded-lg hover:bg-yellow-400 transition-all"
+              className="inline-block mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               Buy Now
             </a>
           </div>
         </div>
       </div>
-      
+
 
         {/* 🦶 Footer */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
