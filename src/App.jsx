@@ -27,7 +27,7 @@ function App() {
           <Route path="/product/:asin" element={<ProductDetails />} />
            <Route path="/brand/:brandName" element={<BrandProducts />} />
            <Route path="/popular-product/:id" element={<PopularProduct />} />
-        
+          <Route path="/" element={<Home />} />
 
       </Routes>
     </Router>

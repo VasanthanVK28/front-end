@@ -1,36 +1,112 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import api from "../api/axios";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import {
+  FaStar,
+  FaStarHalfAlt,
+  FaRegStar,
+  FaThLarge,
+  FaList,
+} from "react-icons/fa";
 import NavbarWithSidebar from "./NavbarWithSidebar";
-import { Link } from "react-router-dom";
 
+const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => (
+  <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+    <button
+      onClick={onPrev}
+      disabled={currentPage === 1}
+      className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
+        currentPage === 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
+      }`}
+    >
+      Prev
+    </button>
+
+    {[...Array(lastPage)].map((_, i) => {
+      const page = i + 1;
+      const isActive = page === currentPage;
+      return (
+        <button
+          key={page}
+          onClick={() => onPageSelect(page)}
+          className={`px-3 py-1 rounded-md text-sm font-medium border transition-all duration-200 ${
+            isActive
+              ? "bg-indigo-600 text-white border-indigo-600"
+              : "bg-white text-gray-700 border-gray-300 hover:bg-indigo-100"
+          }`}
+        >
+          {page}
+        </button>
+      );
+    })}
+
+    <button
+      onClick={onNext}
+      disabled={currentPage === lastPage}
+      className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
+        currentPage === lastPage
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
+      }`}
+    >
+      Next
+    </button>
+  </div>
+);
 
 const CategoryProducts = () => {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 100000 });
+  const [sortOrder, setSortOrder] = useState("title-asc");
+  const [view, setView] = useState("grid");
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [view, setView] = useState("list");
- const [totalProducts, setTotalProducts] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  // ✅ Fetch category products (all pages if brand selected)
   useEffect(() => {
-    const fetchCategoryProducts = async (page = 1) => {
+    const fetchCategoryProducts = async () => {
       setLoading(true);
       try {
-        const res = await api.get(
-          `/external/products/filter?category=${category}&page=${page}`
-        );
-        const { data, current_page, per_page, total } = res.data;
-       
+        // When no brand is selected, use pagination (normal API call)
+        if (selectedBrands.length === 0) {
+          const res = await api.get(
+            `/external/products/filter?category=${category}&page=${currentPage}`
+          );
+          const { data, brand_counts, current_page, per_page, total } =
+            res.data;
 
+          setProducts(data || []);
+          setBrands(Object.entries(brand_counts || {}));
+          setCurrentPage(current_page || 1);
+          setLastPage(Math.ceil(total / per_page));
+          setTotalProducts(total || 0);
+        } else {
+          // When brand(s) are selected, fetch all pages of that category
+          let allData = [];
+          let page = 1;
+          let hasMore = true;
 
-        setProducts(data || []);
-        setCurrentPage(current_page || 1);
-        setLastPage(Math.ceil(total / per_page));
-        setTotalProducts(total || 0);
+          while (hasMore) {
+            const res = await api.get(
+              `/external/products/filter?category=${category}&page=${page}`
+            );
+            const { data, brand_counts, total, per_page } = res.data;
+            allData = [...allData, ...data];
+            setBrands(Object.entries(brand_counts || {}));
+            if (data.length < per_page) hasMore = false;
+            page++;
+          }
+          setProducts(allData);
+          setTotalProducts(allData.length);
+        }
       } catch (err) {
         console.error("Error fetching category products:", err);
       } finally {
@@ -38,13 +114,47 @@ const CategoryProducts = () => {
       }
     };
 
-    fetchCategoryProducts(currentPage);
-  }, [category, currentPage]);
+    fetchCategoryProducts();
+  }, [category, currentPage, selectedBrands]);
 
+  // ✅ Handle brand filter toggle
+  const handleBrandChange = (brand) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
+    );
+  };
+
+  // ✅ Apply brand, price, and sort filters
+  useEffect(() => {
+    let filtered = [...products];
+
+    if (selectedBrands.length > 0) {
+      filtered = filtered.filter((p) =>
+        selectedBrands.includes(p.brand?.toLowerCase())
+      );
+    }
+
+    filtered = filtered.filter(
+      (p) => p.price >= priceRange.min && p.price <= priceRange.max
+    );
+
+    if (sortOrder === "title-asc") {
+      filtered.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder === "title-desc") {
+      filtered.sort((a, b) => b.title.localeCompare(a.title));
+    } else if (sortOrder === "price-asc") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "price-desc") {
+      filtered.sort((a, b) => b.price - a.price);
+    }
+
+    setFilteredProducts(filtered);
+  }, [selectedBrands, priceRange, sortOrder, products]);
+
+  // ✅ Pagination handlers (active only when no brand filter)
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
-
   const handleNextPage = () => {
     if (currentPage < lastPage) setCurrentPage((prev) => prev + 1);
   };
@@ -52,354 +162,289 @@ const CategoryProducts = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavbarWithSidebar />
-      <div className="p-10 max-w-6xl mx-auto">
-        <h2 className="text-2xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text animate-gradient">
-  Result Search: {category.charAt(0).toUpperCase() + category.slice(1)}
-</h2>
+      <div className="p-10 max-w-7xl mx-auto">
+        <h2 className="text-2xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text animate-gradient">
+          {category.charAt(0).toUpperCase() + category.slice(1)} Products
+        </h2>
 
-{/* 🧭 Controls: Sort | View | Top Pagination */}
-<div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-4 mt-4 mb-6">
-
-  {/* 🔢 Total Products */}
-  <p className="text-gray-600 text-sm whitespace-nowrap">
-    Showing{" "}
-    <span className="font-semibold">{products.length}</span>{" "}
-    of <span className="font-semibold">{totalProducts}</span> products
-  </p>
-
-  {/* 🔽 Sort Dropdown */}
-  <div className="flex items-center gap-2 whitespace-nowrap">
-    <label className="text-sm font-medium text-gray-700">Sort by:</label>
-    <select
-      onChange={(e) => setSortOrder(e.target.value)}
-      value={sortOrder}
-      className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    >
-      <option value="asc">Asc Order</option>
-      <option value="desc">Des Order</option>
-    </select>
-  </div>
-
-  {/* 🗂 View Toggle */}
-  <div className="flex items-center gap-2 whitespace-nowrap">
-    <button
-      onClick={() => setView("grid")}
-      className={`p-2 rounded-md border text-sm transition-all duration-200 ${
-        view === "grid"
-          ? "bg-indigo-600 text-white border-indigo-600"
-          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-      }`}
-    >
-      Grid View
-    </button>
-    <button
-      onClick={() => setView("list")}
-      className={`p-2 rounded-md border text-sm transition-all duration-200 ${
-        view === "list"
-          ? "bg-indigo-600 text-white border-indigo-600"
-          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-      }`}
-    >
-      List View
-    </button>
-  </div>
-
-  {/* 🔝 Pagination */}
-  <div className="flex items-center gap-2 whitespace-nowrap">
-    {/* Prev */}
-    <button
-      onClick={handlePrevPage}
-      disabled={currentPage === 1}
-      className={`px-3 py-2 rounded-md text-sm font-medium ${
-        currentPage === 1
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-indigo-600 text-white hover:bg-indigo-700"
-      }`}
-    >
-      ← Prev
-    </button>
-
-    {currentPage > 3 && (
-      <>
-        <button
-          onClick={() => setCurrentPage(1)}
-          className="px-3 py-2 rounded-md text-sm font-semibold bg-white text-gray-700 border hover:bg-indigo-50"
-        >
-          1
-        </button>
-        <span className="text-gray-500">...</span>
-      </>
-    )}
-
-    {Array.from({ length: lastPage }, (_, i) => i + 1)
-      .slice(
-        Math.max(0, currentPage - 2),
-        Math.min(lastPage, currentPage + 1)
-      )
-      .map((page) => (
-        <button
-          key={page}
-          onClick={() => setCurrentPage(page)}
-          className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 ${
-            page === currentPage
-              ? "bg-indigo-600 text-white shadow-md scale-105"
-              : "bg-white text-gray-700 border hover:bg-indigo-50"
-          }`}
-        >
-          {page}
-        </button>
-      ))}
-
-    {currentPage < lastPage - 2 && (
-      <>
-        <span className="text-gray-500">...</span>
-        <button
-          onClick={() => setCurrentPage(lastPage)}
-          className="px-3 py-2 rounded-md text-sm font-semibold bg-white text-gray-700 border hover:bg-indigo-50"
-        >
-          {lastPage}
-        </button>
-      </>
-    )}
-
-    {/* Next */}
-    <button
-      onClick={handleNextPage}
-      disabled={currentPage === lastPage}
-      className={`px-3 py-2 rounded-md text-sm font-medium ${
-        currentPage === lastPage
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-indigo-600 text-white hover:bg-indigo-700"
-      }`}
-    >
-      Next →
-    </button>
-  </div>
-</div>
-
-
-        {loading ? (
-          <p className="text-center text-gray-500">Loading products...</p>
-        ) : products.length === 0 ? (
-          <p className="text-gray-500">No products found in this category.</p>
-        ) : (
-          <>
-            {/* 🛍 Product List (Amazon Style) */}
-            <div
-  className={
-    view === "grid"
-      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-      : "space-y-6"
-  }
->
-  {products
-    .sort((a, b) =>
-      sortOrder === "asc" ? a.price - b.price : b.price - a.price
-    )
-    .map((p) => {
-      const fullStars = Math.floor(p.rating);
-      const hasHalfStar = p.rating % 1 >= 0.5;
-      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-      return (
-        <Link
-          to={`/product/${p.asin}`}
-          key={p.asin}
-          className={`block hover:shadow-lg transition-all duration-300 ${
-            view === "grid"
-              ? "bg-white rounded-xl shadow-sm hover:shadow-md p-4 border border-gray-200"
-              : ""
-          }`}
-        >
-          {/* 🖼 Product Card */}
-          <div
-            className={
-              view === "grid"
-                ? "flex flex-col items-center text-center"
-                : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm hover:shadow-md p-4 border border-gray-200"
-            }
-          >
-            {/* Left: Product Image */}
-            <div
-              className={
-                view === "grid"
-                  ? "w-full flex justify-center items-center mb-4"
-                  : "sm:w-1/3 flex justify-center items-center"
-              }
-            >
-              <img
-                src={p.image_url}
-                alt={p.title}
-                className={`object-contain rounded-md ${
-                  view === "grid" ? "w-48 h-48" : "w-64 h-64"
-                }`}
-              />
-            </div>
-
-            {/* Right: Product Info */}
-            <div
-              className={
-                view === "grid"
-                  ? "flex flex-col items-center"
-                  : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
-              }
-            >
-              {/* Title */}
-              <h3
-                className={`font-semibold text-gray-800 hover:text-indigo-600 ${
-                  view === "grid" ? "text-base line-clamp-2" : "text-lg line-clamp-2"
-                }`}
-              >
-                {p.title}
-              </h3>
-
-              {/* Brand */}
-              <p className="text-gray-500 text-sm mt-1">
-                {p.brand || "Unknown Brand"}
-              </p>
-
-              {/* Rating */}
-              <div
-                className={`flex items-center mt-2 ${
-                  view === "grid" ? "justify-center" : ""
-                }`}
-              >
-                <div className="flex text-yellow-400 mr-2">
-                  {[...Array(fullStars)].map((_, i) => (
-                    <FaStar key={`full-${i}`} />
-                  ))}
-                  {hasHalfStar && <FaStarHalfAlt key="half" />}
-                  {[...Array(emptyStars)].map((_, i) => (
-                    <FaRegStar key={`empty-${i}`} />
-                  ))}
-                </div>
-                <span className="text-gray-600 text-sm">
-                  {p.rating.toFixed(1)} ({p.reviews})
-                </span>
-              </div>
-
-              {/* Price Section */}
-              <div className={`mt-3 ${view === "grid" ? "text-center" : ""}`}>
-                <p className="text-2xl font-semibold text-gray-900">
-                  ₹{p.price}
-                </p>
-                {p.original_price && (
-                  <p className="text-sm text-gray-500 line-through">
-                    ₹{p.original_price}
-                  </p>
-                )}
-                {p.discount && (
-                  <p className="text-green-600 font-medium">{p.discount}% off</p>
-                )}
-                <a
-                  href={p.product_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+        <div className="flex w-full">
+          {/* Sidebar */}
+          <aside className="hidden md:block w-64 bg-white p-5 border-r border-gray-200 shadow-md fixed left-0 top-20 bottom-0 overflow-y-auto">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+              Filter by Brand
+            </h3>
+            <ul className="space-y-2 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {brands.map(([brand, count]) => (
+                <li
+                  key={brand}
+                  className="flex items-center justify-between text-sm"
                 >
-                  Buy Now
-                </a>
-              </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={brand}
+                      checked={selectedBrands.includes(brand)}
+                      onChange={() => handleBrandChange(brand)}
+                      className="rounded text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label
+                      htmlFor={brand}
+                      className="text-gray-700 cursor-pointer hover:text-indigo-600 capitalize"
+                    >
+                      {brand}
+                    </label>
+                  </div>
+                  <span className="text-gray-500 text-xs">({count})</span>
+                </li>
+              ))}
+            </ul>
 
-              {/* Delivery Info */}
-              {view === "list" && (
-                <div className="mt-3">
-                  <p className="text-sm text-gray-700">
-                    FREE delivery{" "}
-                    <span className="font-medium text-gray-900">
-                      Tomorrow, 31 Oct
-                    </span>
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Or fastest delivery Today
-                  </p>
-                </div>
-              )}
+            {/* Price Range */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                Filter by Price
+              </h3>
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>₹{priceRange.min}</span>
+                <span>₹{priceRange.max}</span>
+              </div>
+              <div className="relative h-2 mb-6">
+                <div className="absolute inset-0 bg-gray-200 rounded-full"></div>
+                <div
+                  className="absolute h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                  style={{
+                    left: `${(priceRange.min / 100000) * 100}%`,
+                    right: `${100 - (priceRange.max / 100000) * 100}%`,
+                  }}
+                ></div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100000"
+                  step="500"
+                  value={priceRange.min}
+                  onChange={(e) =>
+                    setPriceRange((prev) => ({
+                      ...prev,
+                      min: Math.min(Number(e.target.value), prev.max - 1000),
+                    }))
+                  }
+                  className="absolute w-full appearance-none bg-transparent pointer-events-auto"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="100000"
+                  step="500"
+                  value={priceRange.max}
+                  onChange={(e) =>
+                    setPriceRange((prev) => ({
+                      ...prev,
+                      max: Math.max(Number(e.target.value), prev.min + 1000),
+                    }))
+                  }
+                  className="absolute w-full appearance-none bg-transparent pointer-events-auto"
+                />
+              </div>
             </div>
-          </div>
-        </Link>
-      );
-    })}
+          </aside>
+
+          {/* Products Section */}
+          <main className="flex-1 ml-64 p-10">
+            {/* Top Bar Section */}
+<div className="flex flex-col gap-4 mb-6">
+  {/* First Row: Product Info, Sort, View Toggle */}
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    {/* Product Count */}
+    <p className="text-gray-600 text-sm">
+      Showing{" "}
+      <span className="font-semibold">{filteredProducts.length}</span>{" "}
+      of{" "}
+      <span className="font-semibold">{totalProducts}</span>{" "}
+      products
+    </p>
+
+    {/* Sort Dropdown */}
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium text-gray-700">Sort by:</label>
+      <select
+        onChange={(e) => setSortOrder(e.target.value)}
+        value={sortOrder}
+        className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <option value="title-asc">Name: A → Z</option>
+        <option value="title-desc">Name: Z → A</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+      </select>
+    </div>
+
+    {/* View Toggle Buttons */}
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => setView("grid")}
+        title="Grid View"
+        className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
+          view === "grid"
+            ? "bg-indigo-600 text-white border-indigo-600"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+        }`}
+      >
+        <FaThLarge size={16} />
+      </button>
+
+      <button
+        onClick={() => setView("list")}
+        title="List View"
+        className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
+          view === "list"
+            ? "bg-indigo-600 text-white border-indigo-600"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+        }`}
+      >
+        <FaList size={16} />
+      </button>
+    </div>
+  </div>
+
+  {/* Second Row: Pagination (only if no brand selected) */}
+  {selectedBrands.length === 0 && (
+    <div className="flex justify-center">
+      <Pagination
+        currentPage={currentPage}
+        lastPage={lastPage}
+        onPrev={handlePrevPage}
+        onNext={handleNextPage}
+        onPageSelect={(page) => setCurrentPage(page)}
+      />
+    </div>
+  )}
 </div>
 
-            {/* 📄 Pagination */}
-            <div className="flex justify-center items-center gap-2 mt-10">
-              {/* Prev */}
-              <button
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-indigo-600 text-white hover:bg-indigo-700"
-                }`}
-              >
-                ← Prev
-              </button>
 
-              {/* Page Numbers with Ellipsis */}
-              {currentPage > 3 && (
-                <>
-                  <button
-                    onClick={() => setCurrentPage(1)}
-                    className="px-3 py-2 rounded-md text-sm font-semibold bg-white text-gray-700 border hover:bg-indigo-50"
-                  >
-                    1
-                  </button>
-                  <span className="text-gray-500">...</span>
-                </>
-              )}
+            {loading ? (
+              <p className="text-center text-gray-500">Loading products...</p>
+            ) : filteredProducts.length === 0 ? (
+              <p className="text-center text-gray-500">No products found.</p>
+            ) : (
+              <>
+                <div
+                  className={
+                    view === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                      : "space-y-6"
+                  }
+                >
+                  {filteredProducts.map((p) => {
+                    const fullStars = Math.floor(p.rating);
+                    const hasHalfStar = p.rating % 1 >= 0.5;
+                    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                    return (
+                      <Link
+                        to={`/product/${p.asin}`}
+                        key={p.asin}
+                        className={`block hover:shadow-lg transition-all duration-300 ${
+                          view === "grid"
+                            ? "bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+                            : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+                        }`}
+                      >
+                        <div
+                          className={
+                            view === "grid"
+                              ? "w-full flex justify-center mb-4"
+                              : "sm:w-1/3 flex justify-center items-center"
+                          }
+                        >
+                          <img
+                            src={p.image_url}
+                            alt={p.title}
+                            className={`object-contain rounded-md ${
+                              view === "grid" ? "w-48 h-48" : "w-64 h-64"
+                            }`}
+                          />
+                        </div>
+                        <div
+                          className={
+                            view === "grid"
+                              ? "flex flex-col items-center"
+                              : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
+                          }
+                        >
+                          <h3
+                            className={`font-semibold text-gray-800 hover:text-indigo-600 ${
+                              view === "grid" ? "text-base" : "text-lg"
+                            } line-clamp-2`}
+                          >
+                            {p.title}
+                          </h3>
+                          <p className="text-gray-500 text-sm mt-1">
+                            {p.brand || "Unknown Brand"}
+                          </p>
 
-              {Array.from({ length: lastPage }, (_, i) => i + 1)
-                .slice(
-                  Math.max(0, currentPage - 2),
-                  Math.min(lastPage, currentPage + 1)
-                )
-                .map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 ${
-                      page === currentPage
-                        ? "bg-indigo-600 text-white shadow-md scale-105"
-                        : "bg-white text-gray-700 border hover:bg-indigo-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                          <div
+                            className={`flex items-center mt-2 ${
+                              view === "grid" ? "justify-center" : ""
+                            }`}
+                          >
+                            <div className="flex text-yellow-400 mr-2">
+                              {[...Array(fullStars)].map((_, i) => (
+                                <FaStar key={`f-${i}`} />
+                              ))}
+                              {hasHalfStar && <FaStarHalfAlt />}
+                              {[...Array(emptyStars)].map((_, i) => (
+                                <FaRegStar key={`e-${i}`} />
+                              ))}
+                            </div>
+                            <span className="text-gray-600 text-sm">
+                              {p.rating.toFixed(1)} ({p.reviews})
+                            </span>
+                          </div>
 
-              {currentPage < lastPage - 2 && (
-                <>
-                  <span className="text-gray-500">...</span>
-                  <button
-                    onClick={() => setCurrentPage(lastPage)}
-                    className="px-3 py-2 rounded-md text-sm font-semibold bg-white text-gray-700 border hover:bg-indigo-50"
-                  >
-                    {lastPage}
-                  </button>
-                </>
-              )}
+                          <div
+                            className={`mt-3 ${
+                              view === "grid" ? "text-center" : ""
+                            }`}
+                          >
+                            <p className="text-2xl font-semibold text-gray-900">
+                              ₹{p.price}
+                            </p>
+                            {p.discount && (
+                              <p className="text-green-600 font-medium">
+                                {p.discount}% off
+                              </p>
+                            )}
+                            <a
+                              href={p.product_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+                            >
+                              Buy Now
+                            </a>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
 
-              {/* Next */}
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === lastPage}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === lastPage
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-indigo-600 text-white hover:bg-indigo-700"
-                }`}
-              >
-                Next →
-              </button>
-            </div>
-
-          </>
-        )}
+                {/* ✅ Hide pagination if brand is selected */}
+                {selectedBrands.length === 0 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    lastPage={lastPage}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                    onPageSelect={(page) => setCurrentPage(page)}
+                  />
+                )}
+              </>
+            )}
+          </main>
+        </div>
       </div>
 
-      {/* Animated gradient keyframes */}
       <style>
         {`
           @keyframes gradient {
@@ -412,67 +457,8 @@ const CategoryProducts = () => {
             animation: gradient 4s ease infinite;
           }
         `}
-        
       </style>
-      <footer className="w-full bg-gray-900 text-gray-300 mt-20">
-  {/* 🌈 Gradient Top Border */}
-  <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
-
-  {/* 🔹 Main Footer Grid */}
-  <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-    {/* 🏪 About Section */}
-    <div>
-      <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
-      <p className="text-sm leading-relaxed text-gray-400">
-        We bring you the trendiest and most loved products — from stylish shirts to cozy sofas and exciting toys. 
-        Quality and style, all in one place!
-      </p>
     </div>
-
-    {/* 🔗 Quick Links */}
-    <div>
-      <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
-      <ul className="space-y-2 text-sm">
-        <li><a href="#" className="hover:text-yellow-400 transition">Home</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Shop</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Trending</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Contact</a></li>
-      </ul>
-    </div>
-
-    {/* 🤝 Customer Service */}
-    <div>
-      <h3 className="text-lg font-semibold text-white mb-4">Customer Service</h3>
-      <ul className="space-y-2 text-sm">
-        <li><a href="#" className="hover:text-yellow-400 transition">Help Center</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Returns</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Shipping Info</a></li>
-        <li><a href="#" className="hover:text-yellow-400 transition">Privacy Policy</a></li>
-      </ul>
-    </div>
-
-    {/* 📱 Social Links */}
-    <div>
-      <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
-      <div className="flex space-x-4 text-2xl">
-        <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
-        <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>
-        <a href="#" className="hover:text-sky-400 transition"><i className="fab fa-twitter"></i></a>
-        <a href="#" className="hover:text-red-500 transition"><i className="fab fa-youtube"></i></a>
-      </div>
-    </div>
-  </div>
-
-  {/* ⚫ Bottom Bar */}
-  <div className="w-full border-t border-gray-700 py-4 text-center text-sm">
-    <p>
-      © {new Date().getFullYear()} <span className="text-yellow-400 font-semibold">TrendyMart</span>. All rights reserved.
-    </p>
-  </div>
-</footer>
-
-    </div>
-    
   );
 };
 

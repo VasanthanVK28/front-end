@@ -26,7 +26,7 @@ const Login = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Welcome Back 👋",
+        title: "Welcome Back",
         text: "Login successful!",
         confirmButtonColor: "#6366f1",
         timer: 1500,
@@ -49,7 +49,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-white to-gray-200 p-4">
       <div className="relative bg-white/60 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-10 w-full max-w-md transition-transform transform hover:scale-[1.02] duration-300">
         <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-3">
-          Welcome Back 👋
+          Welcome Back
         </h2>
         <p className="text-center text-gray-600 mb-8">
           Log in to your{" "}
