@@ -9,6 +9,9 @@ import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails";
 import BrandProducts from "./pages/BrandProducts";
 import PopularProduct from "./pages/PopularProduct";
+import Dashboard from './admin/Dashboard';
+import AdminAuth from './admin/AdminLogin';
+import { ssrImportKey } from 'vite/module-runner';
 
 
 
@@ -27,6 +30,8 @@ function App() {
           <Route path="/product/:asin" element={<ProductDetails />} />
            <Route path="/brand/:brandName" element={<BrandProducts />} />
            <Route path="/popular-product/:id" element={<PopularProduct />} />
+           <Route path='/admin' element={<AdminAuth/>}/>
+           <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />
 
       </Routes>
