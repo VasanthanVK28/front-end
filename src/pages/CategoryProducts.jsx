@@ -346,110 +346,112 @@ useEffect(() => {
 
             {/* Products List */}
             {loading ? (
-              <p className="text-center text-gray-500">Loading products...</p>
-            ) : filteredProducts.length === 0 ? (
-              <p className="text-center text-gray-500">No products found.</p>
-            ) : (
-              <div
-                className={
-                  view === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                    : "space-y-6"
-                }
-              >
-                {filteredProducts.map((p) => {
-                  const fullStars = Math.floor(p.rating);
-                  const hasHalfStar = p.rating % 1 >= 0.5;
-                  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                  return (
-                    <Link
-                      to={`/product/${p.asin}`}
-                      key={p.asin}
-                      onClick={() => {
-                          api.post("/analytics/track-click", {
-                            product_id: p._id?.$oid || p.asin || p._id,
-                          }).catch((err) => console.error("Click error:", err));
-                        }}
-                      className={`block hover:shadow-lg transition-all duration-300 ${
-                        view === "grid"
-                          ? "bg-white rounded-xl shadow-sm p-4 border border-gray-200"
-                          : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm p-4 border border-gray-200"
-                      }`}
-                    >
-                      <div
-                        className={
-                          view === "grid"
-                            ? "w-full flex justify-center mb-4"
-                            : "sm:w-1/3 flex justify-center items-center"
-                        }
-                      >
-                        <img
-                          src={p.image_url}
-                          alt={p.title}
-                          className={`object-contain rounded-md ${
-                            view === "grid" ? "w-48 h-48" : "w-64 h-64"
-                          }`}
-                        />
-                      </div>
-                      <div
-                        className={
-                          view === "grid"
-                            ? "flex flex-col items-center"
-                            : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
-                        }
-                      >
-                        <h3
-                          className={`font-semibold text-gray-800 hover:text-indigo-600 ${
-                            view === "grid" ? "text-base" : "text-lg"
-                          } line-clamp-2`}
-                        >
-                          {p.title}
-                        </h3>
-                        <p className="text-gray-500 text-sm mt-1">
-                          {p.brand || "Unknown Brand"}
-                        </p>
+  // ✅ Loading spinner container
+  <div className="flex flex-col justify-center items-center h-64">
+    <div className="w-16 h-16 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
+    <span className="mt-4 text-gray-500 text-lg font-medium">Loading products...</span>
+  </div>
+) : filteredProducts.length === 0 ? (
+  <p className="text-center text-gray-500 text-lg">No products found.</p>
+) : (
+  <div
+    className={
+      view === "grid"
+        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        : "space-y-6"
+    }
+  >
+    {filteredProducts.map((p) => {
+      const fullStars = Math.floor(p.rating);
+      const hasHalfStar = p.rating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      return (
+        <Link
+          to={`/product/${p.asin}`}
+          key={p.asin}
+          onClick={() => {
+            api.post("/analytics/track-click", {
+              product_id: p._id?.$oid || p.asin || p._id,
+            }).catch((err) => console.error("Click error:", err));
+          }}
+          className={`block hover:shadow-lg transition-all duration-300 ${
+            view === "grid"
+              ? "bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+              : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+          }`}
+        >
+          <div
+            className={
+              view === "grid"
+                ? "w-full flex justify-center mb-4"
+                : "sm:w-1/3 flex justify-center items-center"
+            }
+          >
+            <img
+              src={p.image_url}
+              alt={p.title}
+              className={`object-contain rounded-md ${
+                view === "grid" ? "w-48 h-48" : "w-64 h-64"
+              }`}
+            />
+          </div>
+          <div
+            className={
+              view === "grid"
+                ? "flex flex-col items-center"
+                : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
+            }
+          >
+            <h3
+              className={`font-semibold text-gray-800 hover:text-indigo-600 ${
+                view === "grid" ? "text-base" : "text-lg"
+              } line-clamp-2`}
+            >
+              {p.title}
+            </h3>
+            <p className="text-gray-500 text-sm mt-1">
+              {p.brand || "Unknown Brand"}
+            </p>
 
-                        <div
-                          className={`flex items-center mt-2 ${
-                            view === "grid" ? "justify-center" : ""
-                          }`}
-                        >
-                          <div className="flex text-yellow-400 mr-2">
-                            {[...Array(fullStars)].map((_, i) => (
-                              <FaStar key={`f-${i}`} />
-                            ))}
-                            {hasHalfStar && <FaStarHalfAlt />}
-                            {[...Array(emptyStars)].map((_, i) => (
-                              <FaRegStar key={`e-${i}`} />
-                            ))}
-                          </div>
-                          <span className="text-gray-600 text-sm">
-                            {p.rating.toFixed(1)} ({p.reviews})
-                          </span>
-                        </div>
-
-                        <div className={`mt-3 ${view === "grid" ? "text-center" : ""}`}>
-                          <p className="text-2xl font-semibold text-gray-900">
-                            ₹{p.price}
-                          </p>
-                          {p.discount && (
-                            <p className="text-green-600 font-medium">{p.discount}% off</p>
-                          )}
-                          <a
-                            href={p.product_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
-                          >
-                            Buy Now
-                          </a>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+            <div
+              className={`flex items-center mt-2 ${
+                view === "grid" ? "justify-center" : ""
+              }`}
+            >
+              <div className="flex text-yellow-400 mr-2">
+                {[...Array(fullStars)].map((_, i) => (
+                  <FaStar key={`f-${i}`} />
+                ))}
+                {hasHalfStar && <FaStarHalfAlt />}
+                {[...Array(emptyStars)].map((_, i) => (
+                  <FaRegStar key={`e-${i}`} />
+                ))}
               </div>
-            )}
+              <span className="text-gray-600 text-sm">
+                {p.rating.toFixed(1)} ({p.reviews})
+              </span>
+            </div>
+
+            <div className={`mt-3 ${view === "grid" ? "text-center" : ""}`}>
+              <p className="text-2xl font-semibold text-gray-900">₹{p.price}</p>
+              {p.discount && (
+                <p className="text-green-600 font-medium">{p.discount}% off</p>
+              )}
+              <a
+                href={p.product_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                Buy Now
+              </a>
+            </div>
+          </div>
+        </Link>
+      );
+    })}
+  </div>
+)}
 
             {/* Pagination bottom */}
             {selectedBrands.length === 0 && (
