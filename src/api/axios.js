@@ -21,5 +21,20 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+const trackImpression = async (productId) => {
+  try {
+    await api.post("/analytics/track-impression", { product_id: productId });
+  } catch (error) {
+    console.error("❌ Impression track failed:", error.response?.data || error.message);
+  }
+};
+
+const trackClick = async (productId) => {
+  try {
+    await api.post("/analytics/track-click", { product_id: productId });
+  } catch (error) {
+    console.error("❌ Click track failed:", error.response?.data || error.message);
+  }
+};
 
 export default api;

@@ -10,52 +10,74 @@ import {
 } from "react-icons/fa";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
-const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => (
-  <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
-    <button
-      onClick={onPrev}
-      disabled={currentPage === 1}
-      className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
-        currentPage === 1
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
-      }`}
-    >
-      Prev
-    </button>
+// ---------------- Pagination Component ----------------
+const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => {
+  const getPageNumbers = () => {
+    const pages = [];
+    if (lastPage <= 7) {
+      for (let i = 1; i <= lastPage; i++) pages.push(i);
+    } else {
+      if (currentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, "...", lastPage);
+      } else if (currentPage > lastPage - 4) {
+        pages.push(1, "...", lastPage - 4, lastPage - 3, lastPage - 2, lastPage - 1, lastPage);
+      } else {
+        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", lastPage);
+      }
+    }
+    return pages;
+  };
 
-    {[...Array(lastPage)].map((_, i) => {
-      const page = i + 1;
-      const isActive = page === currentPage;
-      return (
-        <button
-          key={page}
-          onClick={() => onPageSelect(page)}
-          className={`px-3 py-1 rounded-md text-sm font-medium border transition-all duration-200 ${
-            isActive
-              ? "bg-indigo-600 text-white border-indigo-600"
-              : "bg-white text-gray-700 border-gray-300 hover:bg-indigo-100"
-          }`}
-        >
-          {page}
-        </button>
-      );
-    })}
+  return (
+    <div className="flex flex-wrap justify-center gap-2 mt-6">
+      <button
+        onClick={onPrev}
+        disabled={currentPage === 1}
+        className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
+          currentPage === 1
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
+        }`}
+      >
+        Prev
+      </button>
 
-    <button
-      onClick={onNext}
-      disabled={currentPage === lastPage}
-      className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
-        currentPage === lastPage
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
-      }`}
-    >
-      Next
-    </button>
-  </div>
-);
+      {getPageNumbers().map((page, idx) =>
+        page === "..." ? (
+          <span key={idx} className="px-3 py-1 text-gray-500">
+            ...
+          </span>
+        ) : (
+          <button
+            key={idx}
+            onClick={() => onPageSelect(page)}
+            className={`px-3 py-1 rounded-md text-sm font-medium border transition-all duration-200 ${
+              page === currentPage
+                ? "bg-indigo-600 text-white border-indigo-600"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-indigo-100"
+            }`}
+          >
+            {page}
+          </button>
+        )
+      )}
 
+      <button
+        onClick={onNext}
+        disabled={currentPage === lastPage}
+        className={`px-4 py-2 rounded-md border text-sm font-medium transition-all duration-200 ${
+          currentPage === lastPage
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
+        }`}
+      >
+        Next
+      </button>
+    </div>
+  );
+};
+
+// ---------------- Category Products ----------------
 const CategoryProducts = () => {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
@@ -70,18 +92,16 @@ const CategoryProducts = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // ✅ Fetch category products (all pages if brand selected)
+  // ✅ Fetch category products
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       setLoading(true);
       try {
-        // When no brand is selected, use pagination (normal API call)
         if (selectedBrands.length === 0) {
           const res = await api.get(
             `/external/products/filter?category=${category}&page=${currentPage}`
           );
-          const { data, brand_counts, current_page, per_page, total } =
-            res.data;
+          const { data, brand_counts, current_page, per_page, total } = res.data;
 
           setProducts(data || []);
           setBrands(Object.entries(brand_counts || {}));
@@ -89,7 +109,6 @@ const CategoryProducts = () => {
           setLastPage(Math.ceil(total / per_page));
           setTotalProducts(total || 0);
         } else {
-          // When brand(s) are selected, fetch all pages of that category
           let allData = [];
           let page = 1;
           let hasMore = true;
@@ -117,14 +136,14 @@ const CategoryProducts = () => {
     fetchCategoryProducts();
   }, [category, currentPage, selectedBrands]);
 
-  // ✅ Handle brand filter toggle
+  // ✅ Brand filter
   const handleBrandChange = (brand) => {
     setSelectedBrands((prev) =>
       prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
     );
   };
 
-  // ✅ Apply brand, price, and sort filters
+  // ✅ Apply filters
   useEffect(() => {
     let filtered = [...products];
 
@@ -151,7 +170,20 @@ const CategoryProducts = () => {
     setFilteredProducts(filtered);
   }, [selectedBrands, priceRange, sortOrder, products]);
 
-  // ✅ Pagination handlers (active only when no brand filter)
+  // ✅ Add this useEffect RIGHT HERE, after filteredProducts is updated
+useEffect(() => {
+  if (filteredProducts.length > 0) {
+    filteredProducts.forEach((product) => {
+      api
+        .post("/analytics/track-impression", {
+          product_id: product._id?.$oid || product._id || product.asin,
+        })
+        .catch((err) => console.error("Impression error:", err));
+    });
+  }
+}, [filteredProducts]);
+
+  // ✅ Pagination handlers
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
@@ -175,10 +207,7 @@ const CategoryProducts = () => {
             </h3>
             <ul className="space-y-2 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {brands.map(([brand, count]) => (
-                <li
-                  key={brand}
-                  className="flex items-center justify-between text-sm"
-                >
+                <li key={brand} className="flex items-center justify-between text-sm">
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -251,195 +280,186 @@ const CategoryProducts = () => {
 
           {/* Products Section */}
           <main className="flex-1 ml-64 p-10">
-            {/* Top Bar Section */}
-<div className="flex flex-col gap-4 mb-6">
-  {/* First Row: Product Info, Sort, View Toggle */}
-  <div className="flex flex-wrap items-center justify-between gap-4">
-    {/* Product Count */}
-    <p className="text-gray-600 text-sm">
-      Showing{" "}
-      <span className="font-semibold">{filteredProducts.length}</span>{" "}
-      of{" "}
-      <span className="font-semibold">{totalProducts}</span>{" "}
-      products
-    </p>
+            {/* Top Bar */}
+            <div className="flex flex-col gap-4 mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <p className="text-gray-600 text-sm">
+                  Showing{" "}
+                  <span className="font-semibold">{filteredProducts.length}</span>{" "}
+                  of{" "}
+                  <span className="font-semibold">{totalProducts}</span>{" "}
+                  products
+                </p>
 
-    {/* Sort Dropdown */}
-    <div className="flex items-center gap-2">
-      <label className="text-sm font-medium text-gray-700">Sort by:</label>
-      <select
-        onChange={(e) => setSortOrder(e.target.value)}
-        value={sortOrder}
-        className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      >
-        <option value="title-asc">Name: A → Z</option>
-        <option value="title-desc">Name: Z → A</option>
-        <option value="price-asc">Price: Low → High</option>
-        <option value="price-desc">Price: High → Low</option>
-      </select>
-    </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Sort by:</label>
+                  <select
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    value={sortOrder}
+                    className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="title-asc">Name: A → Z</option>
+                    <option value="title-desc">Name: Z → A</option>
+                    <option value="price-asc">Price: Low → High</option>
+                    <option value="price-desc">Price: High → Low</option>
+                  </select>
+                </div>
 
-    {/* View Toggle Buttons */}
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => setView("grid")}
-        title="Grid View"
-        className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
-          view === "grid"
-            ? "bg-indigo-600 text-white border-indigo-600"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        <FaThLarge size={16} />
-      </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setView("grid")}
+                    title="Grid View"
+                    className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
+                      view === "grid"
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <FaThLarge size={16} />
+                  </button>
 
-      <button
-        onClick={() => setView("list")}
-        title="List View"
-        className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
-          view === "list"
-            ? "bg-indigo-600 text-white border-indigo-600"
-            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-        }`}
-      >
-        <FaList size={16} />
-      </button>
-    </div>
-  </div>
+                  <button
+                    onClick={() => setView("list")}
+                    title="List View"
+                    className={`p-2 rounded-md border text-sm transition-colors duration-200 ${
+                      view === "list"
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <FaList size={16} />
+                  </button>
+                </div>
+              </div>
 
-  {/* Second Row: Pagination (only if no brand selected) */}
-  {selectedBrands.length === 0 && (
-    <div className="flex justify-center">
-      <Pagination
-        currentPage={currentPage}
-        lastPage={lastPage}
-        onPrev={handlePrevPage}
-        onNext={handleNextPage}
-        onPageSelect={(page) => setCurrentPage(page)}
-      />
-    </div>
-  )}
-</div>
+              {/* Pagination */}
+              {selectedBrands.length === 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  lastPage={lastPage}
+                  onPrev={handlePrevPage}
+                  onNext={handleNextPage}
+                  onPageSelect={(page) => setCurrentPage(page)}
+                />
+              )}
+            </div>
 
-
+            {/* Products List */}
             {loading ? (
               <p className="text-center text-gray-500">Loading products...</p>
             ) : filteredProducts.length === 0 ? (
               <p className="text-center text-gray-500">No products found.</p>
             ) : (
-              <>
-                <div
-                  className={
-                    view === "grid"
-                      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                      : "space-y-6"
-                  }
-                >
-                  {filteredProducts.map((p) => {
-                    const fullStars = Math.floor(p.rating);
-                    const hasHalfStar = p.rating % 1 >= 0.5;
-                    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                    return (
-                      <Link
-                        to={`/product/${p.asin}`}
-                        key={p.asin}
-                        className={`block hover:shadow-lg transition-all duration-300 ${
+              <div
+                className={
+                  view === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    : "space-y-6"
+                }
+              >
+                {filteredProducts.map((p) => {
+                  const fullStars = Math.floor(p.rating);
+                  const hasHalfStar = p.rating % 1 >= 0.5;
+                  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                  return (
+                    <Link
+                      to={`/product/${p.asin}`}
+                      key={p.asin}
+                      onClick={() => {
+                          api.post("/analytics/track-click", {
+                            product_id: p._id?.$oid || p.asin || p._id,
+                          }).catch((err) => console.error("Click error:", err));
+                        }}
+                      className={`block hover:shadow-lg transition-all duration-300 ${
+                        view === "grid"
+                          ? "bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+                          : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+                      }`}
+                    >
+                      <div
+                        className={
                           view === "grid"
-                            ? "bg-white rounded-xl shadow-sm p-4 border border-gray-200"
-                            : "flex flex-col sm:flex-row bg-white rounded-xl shadow-sm p-4 border border-gray-200"
-                        }`}
+                            ? "w-full flex justify-center mb-4"
+                            : "sm:w-1/3 flex justify-center items-center"
+                        }
                       >
-                        <div
-                          className={
-                            view === "grid"
-                              ? "w-full flex justify-center mb-4"
-                              : "sm:w-1/3 flex justify-center items-center"
-                          }
+                        <img
+                          src={p.image_url}
+                          alt={p.title}
+                          className={`object-contain rounded-md ${
+                            view === "grid" ? "w-48 h-48" : "w-64 h-64"
+                          }`}
+                        />
+                      </div>
+                      <div
+                        className={
+                          view === "grid"
+                            ? "flex flex-col items-center"
+                            : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
+                        }
+                      >
+                        <h3
+                          className={`font-semibold text-gray-800 hover:text-indigo-600 ${
+                            view === "grid" ? "text-base" : "text-lg"
+                          } line-clamp-2`}
                         >
-                          <img
-                            src={p.image_url}
-                            alt={p.title}
-                            className={`object-contain rounded-md ${
-                              view === "grid" ? "w-48 h-48" : "w-64 h-64"
-                            }`}
-                          />
+                          {p.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-1">
+                          {p.brand || "Unknown Brand"}
+                        </p>
+
+                        <div
+                          className={`flex items-center mt-2 ${
+                            view === "grid" ? "justify-center" : ""
+                          }`}
+                        >
+                          <div className="flex text-yellow-400 mr-2">
+                            {[...Array(fullStars)].map((_, i) => (
+                              <FaStar key={`f-${i}`} />
+                            ))}
+                            {hasHalfStar && <FaStarHalfAlt />}
+                            {[...Array(emptyStars)].map((_, i) => (
+                              <FaRegStar key={`e-${i}`} />
+                            ))}
+                          </div>
+                          <span className="text-gray-600 text-sm">
+                            {p.rating.toFixed(1)} ({p.reviews})
+                          </span>
                         </div>
-                        <div
-                          className={
-                            view === "grid"
-                              ? "flex flex-col items-center"
-                              : "sm:w-2/3 mt-4 sm:mt-0 sm:pl-6 flex flex-col justify-between"
-                          }
-                        >
-                          <h3
-                            className={`font-semibold text-gray-800 hover:text-indigo-600 ${
-                              view === "grid" ? "text-base" : "text-lg"
-                            } line-clamp-2`}
-                          >
-                            {p.title}
-                          </h3>
-                          <p className="text-gray-500 text-sm mt-1">
-                            {p.brand || "Unknown Brand"}
+
+                        <div className={`mt-3 ${view === "grid" ? "text-center" : ""}`}>
+                          <p className="text-2xl font-semibold text-gray-900">
+                            ₹{p.price}
                           </p>
-
-                          <div
-                            className={`flex items-center mt-2 ${
-                              view === "grid" ? "justify-center" : ""
-                            }`}
+                          {p.discount && (
+                            <p className="text-green-600 font-medium">{p.discount}% off</p>
+                          )}
+                          <a
+                            href={p.product_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                           >
-                            <div className="flex text-yellow-400 mr-2">
-                              {[...Array(fullStars)].map((_, i) => (
-                                <FaStar key={`f-${i}`} />
-                              ))}
-                              {hasHalfStar && <FaStarHalfAlt />}
-                              {[...Array(emptyStars)].map((_, i) => (
-                                <FaRegStar key={`e-${i}`} />
-                              ))}
-                            </div>
-                            <span className="text-gray-600 text-sm">
-                              {p.rating.toFixed(1)} ({p.reviews})
-                            </span>
-                          </div>
-
-                          <div
-                            className={`mt-3 ${
-                              view === "grid" ? "text-center" : ""
-                            }`}
-                          >
-                            <p className="text-2xl font-semibold text-gray-900">
-                              ₹{p.price}
-                            </p>
-                            {p.discount && (
-                              <p className="text-green-600 font-medium">
-                                {p.discount}% off
-                              </p>
-                            )}
-                            <a
-                              href={p.product_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
-                            >
-                              Buy Now
-                            </a>
-                          </div>
+                            Buy Now
+                          </a>
                         </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
 
-                {/* ✅ Hide pagination if brand is selected */}
-                {selectedBrands.length === 0 && (
-                  <Pagination
-                    currentPage={currentPage}
-                    lastPage={lastPage}
-                    onPrev={handlePrevPage}
-                    onNext={handleNextPage}
-                    onPageSelect={(page) => setCurrentPage(page)}
-                  />
-                )}
-              </>
+            {/* Pagination bottom */}
+            {selectedBrands.length === 0 && (
+              <Pagination
+                currentPage={currentPage}
+                lastPage={lastPage}
+                onPrev={handlePrevPage}
+                onNext={handleNextPage}
+                onPageSelect={(page) => setCurrentPage(page)}
+              />
             )}
           </main>
         </div>
