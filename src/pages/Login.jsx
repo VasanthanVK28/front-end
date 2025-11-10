@@ -53,7 +53,7 @@ const Login = () => {
         </h2>
         <p className="text-center text-gray-600 mb-8">
           Log in to your{" "}
-          <span className="font-semibold text-indigo-600">NovaStore</span> account
+          <span className="font-semibold text-indigo-600">TrendyMart</span> account
         </p>
 
         <form className="space-y-6" onSubmit={handleSubmit}>

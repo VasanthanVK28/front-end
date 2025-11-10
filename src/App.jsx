@@ -17,6 +17,8 @@ import { ssrImportKey } from 'vite/module-runner';
 
 
 
+
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-100">
@@ -33,6 +35,8 @@ function App() {
            <Route path='/admin' element={<AdminAuth/>}/>
            <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />
+          
+
 
       </Routes>
     </Router>

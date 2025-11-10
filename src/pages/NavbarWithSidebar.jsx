@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaSearch, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaBars,
+  FaTimes,
+  FaSearch,
+  FaUserCircle,
+  FaSignOutAlt,
+  
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-
 
 const NavbarWithSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,74 +87,72 @@ const NavbarWithSidebar = () => {
   const applyFilter = () => {
     const categoryParam = selectedCategories.join(",");
     const brandParam = selectedBrands.join(",");
-    navigate(
-      `/category-products?category=${categoryParam}&brand=${brandParam}`
-    );
+    navigate(`/category-products?category=${categoryParam}&brand=${brandParam}`);
     setIsOpen(false);
   };
 
   // 🚪 Logout Function
   const handleLogout = async () => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You will be logged out from your account.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, logout",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        // 🔐 Call backend logout if token exists
-        if (token) {
-          await axios.post(
-            "http://127.0.0.1:8000/api/logout",
-            {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "x-api-key": apiKey,
-                Accept: "application/json",
-              },
-            }
-          );
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out from your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // 🔐 Call backend logout if token exists
+          if (token) {
+            await axios.post(
+              "http://127.0.0.1:8000/api/logout",
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "x-api-key": apiKey,
+                  Accept: "application/json",
+                },
+              }
+            );
+          }
+
+          // 🧹 Clear localStorage
+          localStorage.removeItem("token");
+          localStorage.removeItem("user_api_key");
+          localStorage.removeItem("user_name");
+
+          // ✅ Show success alert
+          await Swal.fire({
+            icon: "success",
+            title: "Logged out successfully!",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+
+          // 🔁 Redirect to landing page
+          navigate("/");
+        } catch (error) {
+          console.error("Logout failed:", error);
+
+          // 🚨 Show error alert
+          Swal.fire({
+            icon: "error",
+            title: "Logout failed",
+            text: "Something went wrong. Redirecting...",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+
+          // Still clear session & redirect
+          localStorage.clear();
+          navigate("/");
         }
-
-        // 🧹 Clear localStorage
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_api_key");
-        localStorage.removeItem("user_name");
-
-        // ✅ Show success alert
-        await Swal.fire({
-          icon: "success",
-          title: "Logged out successfully!",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-
-        // 🔁 Redirect to landing page
-        navigate("/");
-      } catch (error) {
-        console.error("Logout failed:", error);
-
-        // 🚨 Show error alert
-        Swal.fire({
-          icon: "error",
-          title: "Logout failed",
-          text: "Something went wrong. Redirecting...",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // Still clear session & redirect
-        localStorage.clear();
-        navigate("/");
       }
-    }
-  });
-};
+    });
+  };
 
   return (
     <>
@@ -158,8 +162,6 @@ const NavbarWithSidebar = () => {
           <div className="flex items-center justify-between h-16 space-x-6">
             {/* 🍔 Left - Hamburger + Brand */}
             <div className="flex items-center space-x-4">
-              
-
               <div
                 onClick={() => navigate("/home")}
                 className="text-2xl font-extrabold tracking-wide cursor-pointer text-indigo-600 hover:text-pink-500 transition-colors duration-300"
@@ -189,13 +191,18 @@ const NavbarWithSidebar = () => {
               <FaSearch className="absolute left-3 text-gray-500" />
             </form>
 
-            {/* 👤 Right - User Info + Logout */}
-            <div className="flex items-center space-x-4 text-gray-700">
+            {/* 👤 Right - MyBag + User Info + Logout */}
+            <div className="flex items-center space-x-6 text-gray-700">
+              {/* 👜 MyBag Button */}
+              
+
+              {/* 👤 User Info */}
               <div className="flex items-center space-x-2">
                 <FaUserCircle className="text-2xl text-indigo-600" />
                 <span className="font-medium">{userName}</span>
               </div>
 
+              {/* 🚪 Logout */}
               {userName !== "Guest" && (
                 <button
                   onClick={handleLogout}
@@ -209,8 +216,6 @@ const NavbarWithSidebar = () => {
           </div>
         </div>
       </nav>
-
-     
     </>
   );
 };
