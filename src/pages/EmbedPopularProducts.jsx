@@ -55,8 +55,8 @@ const EmbedPopularProducts = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // If no products or admin sets 0 visibleCount, don't render heading or slider
-  if (!products.length || settings.visibleCount === 0) return null;
+  // Hide entire widget if no products or visibleCount is 0
+  if (!products.length || settings.visibleCount <= 0) return null;
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -86,7 +86,7 @@ const EmbedPopularProducts = () => {
         {products.slice(0, settings.visibleCount).map((product) => (
           <SwiperSlide key={product.id || product._id}>
             <a
-              href={product.product_url}
+              href={product.product_url || "#"}
               target="_blank"
               rel="noopener noreferrer"
               className="block rounded-xl shadow-md overflow-hidden transform hover:scale-105 hover:shadow-2xl transition-all duration-300"
@@ -96,7 +96,7 @@ const EmbedPopularProducts = () => {
               <div className="w-full h-56 flex items-center justify-center p-2 bg-gray-100">
                 <img
                   src={product.image_url || "https://via.placeholder.com/300"}
-                  alt={product.title}
+                  alt={product.title || "Product"}
                   className="max-h-full object-contain"
                 />
               </div>
@@ -105,7 +105,7 @@ const EmbedPopularProducts = () => {
               <div className="p-4">
                 {settings.showLabels && (
                   <>
-                    <h4 className="text-sm font-semibold line-clamp-2">{product.title}</h4>
+                    <h4 className="text-sm font-semibold line-clamp-2">{product.title || "Product"}</h4>
                     <p className="text-xs text-gray-500 mt-1">{product.brand || "Brand"}</p>
                   </>
                 )}
