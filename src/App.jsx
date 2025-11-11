@@ -12,6 +12,9 @@ import PopularProduct from "./pages/PopularProduct";
 import Dashboard from './admin/Dashboard';
 import AdminAuth from './admin/AdminLogin';
 import { ssrImportKey } from 'vite/module-runner';
+import EmbedPopularProducts from "./pages/EmbedPopularProducts";
+
+
 
 
 
@@ -35,7 +38,8 @@ function App() {
            <Route path='/admin' element={<AdminAuth/>}/>
            <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />
-          
+         <Route path="/embed/popular-products" element={<EmbedPopularProducts />} />
+
 
 
       </Routes>

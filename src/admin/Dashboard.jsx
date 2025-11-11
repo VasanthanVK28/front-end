@@ -50,6 +50,12 @@ const Dashboard = () => {
 
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
+  //--------------Third Party Website---------------------
+  const [thirdPartyData, setThirdPartyData] = useState({ username: "", api_key: "" });
+const [thirdPartyLoading, setThirdPartyLoading] = useState(false);
+const [thirdPartyError, setThirdPartyError] = useState(null);
+
+
   // ---------------- Load Settings & Fetch Schedules ----------------
   useEffect(() => {
     const savedSettings = JSON.parse(localStorage.getItem("productSettings"));
@@ -126,6 +132,34 @@ const Dashboard = () => {
     console.error("Error fetching analytics:", error);
   } finally {
     setAnalyticsLoading(false);
+  }
+};
+
+// ---------------------- Third Party Website----------------
+
+useEffect(() => {
+  if (activeItem === "Third Party Website") {
+    fetchThirdPartyData();
+  }
+}, [activeItem]);
+
+const fetchThirdPartyData = async () => {
+  setThirdPartyLoading(true);
+  setThirdPartyError(null);
+  try {
+    const res = await axios.get(`${API_URL}/api/third-party-credentials`);
+    if (res.data.status === "success") {
+      setThirdPartyData({
+        username: res.data.data.username,
+        api_key: res.data.data.api_key,
+      });
+    } else {
+      throw new Error(res.data.message || "Failed to fetch credentials");
+    }
+  } catch (err) {
+    setThirdPartyError(err.message);
+  } finally {
+    setThirdPartyLoading(false);
   }
 };
 
@@ -206,7 +240,7 @@ const Dashboard = () => {
   };
 
   // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status", "View Analytics", "Configurable layout"];
+  const menuItems = ["Home", "Scrape Products", "Scrape Status", "View Analytics", "Configurable layout","Third Party Website"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -546,6 +580,30 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+
+              {/* ---------------- Third Party Website Panel ---------------- */}
+{activeItem === "Third Party Website" && (
+  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">🔗 Third Party Website</h2>
+
+    {thirdPartyLoading && <p>Loading credentials...</p>}
+    {thirdPartyError && <p className="text-red-500">{thirdPartyError}</p>}
+
+    {!thirdPartyLoading && !thirdPartyError && (
+      <div className="space-y-4">
+        <div>
+          <label className="font-semibold text-gray-700">Username:</label>
+          <p className="text-gray-800">{thirdPartyData.username}</p>
+        </div>
+        <div>
+          <label className="font-semibold text-gray-700">API Key:</label>
+          <p className="text-gray-800">{thirdPartyData.api_key}</p>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
 
               {/* Save Button */}
               <div className="mt-8 flex justify-end">
