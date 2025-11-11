@@ -94,9 +94,10 @@ const Dashboard = () => {
     setAnalyticsLoading(true);
     try {
       const res = await axios.get(`${API_URL}/api/analytics`);
+       console.log("Analytics API response:", res.data);
       if (res.data.status === "success") {
         const data = res.data.data;
-
+        console.log("Analytics data:", data);
         // Aggregate totals
         const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
         const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
@@ -424,75 +425,102 @@ const Dashboard = () => {
       <>
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-4">
-          <div className="p-4 bg-blue-50 rounded-lg shadow cursor-pointer"
-               onClick={() => setSelectedMetric("impressions")}>
+          <div
+            className="p-4 bg-blue-50 rounded-lg shadow cursor-pointer"
+            onClick={() => setSelectedMetric("impressions")}
+          >
             <h3 className="text-xl font-semibold text-blue-700">Impressions</h3>
             <p className="text-2xl font-bold text-blue-900">{analytics.impressions}</p>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg shadow cursor-pointer"
-               onClick={() => setSelectedMetric("clicks")}>
+          <div
+            className="p-4 bg-green-50 rounded-lg shadow cursor-pointer"
+            onClick={() => setSelectedMetric("clicks")}
+          >
             <h3 className="text-xl font-semibold text-green-700">Clicks</h3>
             <p className="text-2xl font-bold text-green-900">{analytics.clicks}</p>
           </div>
-          <div className="p-4 bg-purple-50 rounded-lg shadow cursor-pointer"
-               onClick={() => setSelectedMetric("ctr")}>
+          <div
+            className="p-4 bg-purple-50 rounded-lg shadow cursor-pointer"
+            onClick={() => setSelectedMetric("ctr")}
+          >
             <h3 className="text-xl font-semibold text-purple-700">CTR</h3>
             <p className="text-2xl font-bold text-purple-900">{analytics.ctr}%</p>
           </div>
         </div>
 
-       
-
         {/* Chart */}
-       <ReactECharts
-  key={selectedMetric} // forces chart to re-render on metric change
-  style={{ height: "400px" }}
-  option={{
-    title: { text: "📈 Analytics Over Time", left: "center" },
-    tooltip: { trigger: "axis" },
-    legend: { data: ["Impressions", "Clicks", "CTR"], bottom: 0 },
-    xAxis: { type: "category", data: analytics.chartData.map((d) => d.date) },
-    yAxis: { type: "value" },
-    series: [
-      ...(selectedMetric === null || selectedMetric === "impressions"
-        ? [{
-            name: "Impressions",
-            type: "line",
-            smooth: true,
-            data: analytics.chartData.map((d) => d.impressions),
-            lineStyle: { color: "#1E90FF" }, // Blue line
-            itemStyle: { color: "#1E90FF" }, // Blue points
-          }]
-        : []),
-      ...(selectedMetric === null || selectedMetric === "clicks"
-        ? [{
-            name: "Clicks",
-            type: "line",
-            smooth: true,
-            data: analytics.chartData.map((d) => d.clicks),
-            lineStyle: { color: "#32CD32" }, // Green line
-            itemStyle: { color: "#32CD32" }, // Green points
-          }]
-        : []),
-      ...(selectedMetric === null || selectedMetric === "ctr"
-        ? [{
-            name: "CTR",
-            type: "line",
-            smooth: true,
-            data: analytics.chartData.map((d) => d.ctr),
-            lineStyle: { color: "#800080" }, // Purple line
-            itemStyle: { color: "#800080" }, // Purple points
-          }]
-        : []),
-    ],
-  }}
-/>
+        <ReactECharts
+          key={selectedMetric}
+          style={{ height: "400px" }}
+          option={{
+            title: { text: "📈 Analytics Over Time", left: "center" },
+            tooltip: { trigger: "axis" },
+            legend: { data: ["Impressions", "Clicks", "CTR"], bottom: 0 },
+            xAxis: { type: "category", data: analytics.chartData.map((d) => d.date) },
+            yAxis: { type: "value" },
+            series: [
+              ...(selectedMetric === null || selectedMetric === "impressions"
+                ? [{
+                    name: "Impressions",
+                    type: "line",
+                    smooth: true,
+                    data: analytics.chartData.map((d) => d.impressions),
+                    lineStyle: { color: "#1E90FF" },
+                    itemStyle: { color: "#1E90FF" },
+                  }]
+                : []),
+              ...(selectedMetric === null || selectedMetric === "clicks"
+                ? [{
+                    name: "Clicks",
+                    type: "line",
+                    smooth: true,
+                    data: analytics.chartData.map((d) => d.clicks),
+                    lineStyle: { color: "#32CD32" },
+                    itemStyle: { color: "#32CD32" },
+                  }]
+                : []),
+              ...(selectedMetric === null || selectedMetric === "ctr"
+                ? [{
+                    name: "CTR",
+                    type: "line",
+                    smooth: true,
+                    data: analytics.chartData.map((d) => d.ctr),
+                    lineStyle: { color: "#800080" },
+                    itemStyle: { color: "#800080" },
+                  }]
+                : []),
+            ],
+          }}
+        />
 
+        {/* 🌐 Product URLs Section */}
+        <div className="mt-8 border-t pt-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            🔗 Tracked Product URLs
+          </h3>
 
+          {analytics.urls && analytics.urls.length > 0 ? (
+            <ul className="space-y-2">
+              {analytics.urls.map((url, index) => (
+                <li
+                  key={index}
+                  className="text-blue-600 hover:underline truncate"
+                >
+                  <a href={url} target="_blank" rel="noopener noreferrer">
+                    {url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No URLs found for this period.</p>
+          )}
+        </div>
       </>
     )}
   </div>
 )}
+
           {/* ---------------- Configurable Layout Panel ---------------- */}
           {activeItem === "Configurable layout" && (
             <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
