@@ -15,8 +15,8 @@ const EmbedPopularProducts = () => {
     showRating: true,
     showLabels: true,
     visibleCount: 5,
-    cardColor: "#ffffff",
-    textColor: "#000000",
+    cardColor: "white",
+    textColor: "black",
     starColor: "#FFD700",
   });
 
@@ -32,7 +32,7 @@ const EmbedPopularProducts = () => {
     // Fetch products
     axios
       .get(`http://127.0.0.1:8000/api/embed/popular-products?apiKey=${apiKey}`)
-      .then((res) => setProducts(res.data))
+      .then((res) => setProducts(res.data || []))
       .catch((err) => console.error(err));
 
     // Fetch settings from backend if localStorage empty
@@ -55,87 +55,85 @@ const EmbedPopularProducts = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  // If no products or admin sets 0 visibleCount, don't render heading or slider
+  if (!products.length || settings.visibleCount === 0) return null;
+
   return (
-    <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", padding: "10px" }}>
-      <h3 style={{ textAlign: "center", marginBottom: "10px" }}>Popular Products</h3>
+    <div className="max-w-6xl mx-auto p-4">
+      {/* Heading */}
+      <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
+        Popular Products
+      </h3>
 
-      {products.length > 0 ? (
-        <Swiper
-          modules={[Autoplay, Pagination, Navigation]}
-          slidesPerView={settings.visibleCount || 3}
-          spaceBetween={20}
-          navigation // Arrows
-          pagination={{ clickable: true }} // Bullets
-          autoplay={{ delay: 3000, disableOnInteraction: false }} // Autoplay
-          loop
-          breakpoints={{
-            320: { slidesPerView: 1 },
-            480: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: settings.visibleCount || 5 },
-          }}
-        >
-          {products.slice(0, settings.visibleCount).map((product) => (
-            <SwiperSlide key={product.id || product._id}>
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "10px",
-                  padding: "10px",
-                  textAlign: "center",
-                  backgroundColor: settings.cardColor,
-                  color: settings.textColor,
-                }}
-              >
-                <a href={product.product_url} target="_blank" rel="noopener noreferrer">
-                  <img
-                    src={product.image_url || "https://via.placeholder.com/300"}
-                    alt={product.title}
-                    style={{
-                      width: "100%",
-                      height: "150px",
-                      objectFit: "contain",
-                      backgroundColor: "#f5f5f5",
-                    }}
-                  />
-
-                  {settings.showLabels && (
-                    <>
-                      <h4
-                        style={{
-                          margin: "10px 0 5px",
-                          fontSize: "14px",
-                          lineHeight: "1.2em",
-                          minHeight: "40px",
-                        }}
-                      >
-                        {product.title}
-                      </h4>
-                      <p style={{ fontSize: "12px", margin: 0 }}>{product.brand || "Brand"}</p>
-                    </>
-                  )}
-
-                  {settings.showRating && (
-                    <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
-                      {Array.from({ length: 5 }, (_, i) => {
-                        const rating = product.rating || 4.2;
-                        if (rating >= i + 1) return <FaStar key={i} style={{ color: settings.starColor }} />;
-                        if (rating >= i + 0.5) return <FaStarHalfAlt key={i} style={{ color: settings.starColor }} />;
-                        return <FaRegStar key={i} style={{ color: settings.starColor }} />;
-                      })}
-                    </div>
-                  )}
-
-                  {settings.showPrice && <p style={{ fontWeight: "bold", marginTop: "5px" }}>₹{product.price || "-"}</p>}
-                </a>
+      {/* Swiper slider */}
+      <Swiper
+        modules={[Autoplay, Pagination, Navigation]}
+        slidesPerView={1}
+        spaceBetween={20}
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        loop
+        grabCursor
+        breakpoints={{
+          320: { slidesPerView: 1 },
+          480: { slidesPerView: 2 },
+          768: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
+          1280: { slidesPerView: settings.visibleCount || 5 },
+        }}
+      >
+        {products.slice(0, settings.visibleCount).map((product) => (
+          <SwiperSlide key={product.id || product._id}>
+            <a
+              href={product.product_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl shadow-md overflow-hidden transform hover:scale-105 hover:shadow-2xl transition-all duration-300"
+              style={{ backgroundColor: settings.cardColor, color: settings.textColor }}
+            >
+              {/* Product Image */}
+              <div className="w-full h-56 flex items-center justify-center p-2 bg-gray-100">
+                <img
+                  src={product.image_url || "https://via.placeholder.com/300"}
+                  alt={product.title}
+                  className="max-h-full object-contain"
+                />
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      ) : (
-        <p style={{ textAlign: "center" }}>No products available</p>
-      )}
+
+              {/* Product Info */}
+              <div className="p-4">
+                {settings.showLabels && (
+                  <>
+                    <h4 className="text-sm font-semibold line-clamp-2">{product.title}</h4>
+                    <p className="text-xs text-gray-500 mt-1">{product.brand || "Brand"}</p>
+                  </>
+                )}
+
+                {settings.showRating && (
+                  <div className="flex items-center mt-2 justify-center">
+                    {Array.from({ length: 5 }, (_, i) => {
+                      const rating = product.rating || 4.2;
+                      if (rating >= i + 1)
+                        return <FaStar key={i} className="text-yellow-400" />;
+                      if (rating >= i + 0.5)
+                        return <FaStarHalfAlt key={i} className="text-yellow-400" />;
+                      return <FaRegStar key={i} className="text-gray-300" />;
+                    })}
+                    <span className="text-xs ml-2 text-gray-600">({product.rating || "4.2"})</span>
+                  </div>
+                )}
+
+                {settings.showPrice && (
+                  <p className="text-lg font-bold mt-2 text-gray-800">
+                    ₹{product.price || "-"}
+                  </p>
+                )}
+              </div>
+            </a>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   );
 };

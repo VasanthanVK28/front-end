@@ -240,7 +240,7 @@ const fetchThirdPartyData = async () => {
   };
 
   // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status", "View Analytics", "Configurable layout","Third Party Website"];
+  const menuItems = ["Home", "Scrape Products", "Scrape Status", "View Analytics", "Configurable layout"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -581,28 +581,7 @@ const fetchThirdPartyData = async () => {
                 </div>
               </div>
 
-              {/* ---------------- Third Party Website Panel ---------------- */}
-{activeItem === "Third Party Website" && (
-  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
-    <h2 className="text-2xl font-bold mb-4 text-gray-800">🔗 Third Party Website</h2>
-
-    {thirdPartyLoading && <p>Loading credentials...</p>}
-    {thirdPartyError && <p className="text-red-500">{thirdPartyError}</p>}
-
-    {!thirdPartyLoading && !thirdPartyError && (
-      <div className="space-y-4">
-        <div>
-          <label className="font-semibold text-gray-700">Username:</label>
-          <p className="text-gray-800">{thirdPartyData.username}</p>
-        </div>
-        <div>
-          <label className="font-semibold text-gray-700">API Key:</label>
-          <p className="text-gray-800">{thirdPartyData.api_key}</p>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+              
 
 
               {/* Save Button */}
