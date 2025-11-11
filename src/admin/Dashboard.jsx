@@ -47,13 +47,8 @@ const Dashboard = () => {
     pieClicks: [],
   });
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-
+  const [selectedMetric, setSelectedMetric] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-
-  //--------------Third Party Website---------------------
-  const [thirdPartyData, setThirdPartyData] = useState({ username: "", api_key: "" });
-const [thirdPartyLoading, setThirdPartyLoading] = useState(false);
-const [thirdPartyError, setThirdPartyError] = useState(null);
 
 
   // ---------------- Load Settings & Fetch Schedules ----------------
@@ -92,76 +87,56 @@ const [thirdPartyError, setThirdPartyError] = useState(null);
 
   // ---------------- Fetch Analytics ----------------
   useEffect(() => {
-    if (activeItem === "View Analytics") {
-      fetchAnalytics();
-    }
+    if (activeItem === "View Analytics") fetchAnalytics();
   }, [activeItem]);
 
   const fetchAnalytics = async () => {
-  setAnalyticsLoading(true);
-  try {
-    const res = await axios.get(`${API_URL}/api/analytics`);
-    if (res.data.status === "success") {
-      const data = res.data.data;
+    setAnalyticsLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/analytics`);
+      if (res.data.status === "success") {
+        const data = res.data.data;
 
-      // Total impressions & clicks
-      const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
-      const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
-      const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+        // Aggregate totals
+        const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
+        const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
+        const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
 
-      // Line chart by date
-      const chartData = data.map(d => ({
-        date: d.date.split("T")[0], // just YYYY-MM-DD
-        impressions: d.impressions,
-        clicks: d.clicks,
-      }));
+        // Aggregate by date for line chart
+        const dailyTotals = {};
+        data.forEach((d) => {
+          const date = d.date.split("T")[0];
+          if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
+          dailyTotals[date].impressions += d.impressions;
+          dailyTotals[date].clicks += d.clicks;
+        });
+        const chartData = Object.keys(dailyTotals)
+  .sort()
+  .map((date) => {
+    const imp = dailyTotals[date].impressions;
+    const clk = dailyTotals[date].clicks;
+    return {
+      date,
+      impressions: imp,
+      clicks: clk,
+      ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0, // Calculate daily CTR
+    };
+  });
 
-      // Pie chart by product
-      const pieImpressions = data.map(d => ({
-        name: d.product_name,
-        value: d.impressions,
-      }));
-      const pieClicks = data.map(d => ({
-        name: d.product_name,
-        value: d.clicks,
-      }));
 
-      setAnalytics({ impressions: totalImpressions, clicks: totalClicks, ctr, chartData, pieImpressions, pieClicks });
+        // Pie chart by product
+        const pieImpressions = data.map((d) => ({ name: d.product_name, value: d.impressions }));
+        const pieClicks = data.map((d) => ({ name: d.product_name, value: d.clicks }));
+
+        setAnalytics({ impressions: totalImpressions, clicks: totalClicks, ctr, chartData, pieImpressions, pieClicks });
+      }
+    } catch (err) {
+      console.error("Error fetching analytics:", err);
+    } finally {
+      setAnalyticsLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching analytics:", error);
-  } finally {
-    setAnalyticsLoading(false);
-  }
-};
+  };
 
-// ---------------------- Third Party Website----------------
-
-useEffect(() => {
-  if (activeItem === "Third Party Website") {
-    fetchThirdPartyData();
-  }
-}, [activeItem]);
-
-const fetchThirdPartyData = async () => {
-  setThirdPartyLoading(true);
-  setThirdPartyError(null);
-  try {
-    const res = await axios.get(`${API_URL}/api/third-party-credentials`);
-    if (res.data.status === "success") {
-      setThirdPartyData({
-        username: res.data.data.username,
-        api_key: res.data.data.api_key,
-      });
-    } else {
-      throw new Error(res.data.message || "Failed to fetch credentials");
-    }
-  } catch (err) {
-    setThirdPartyError(err.message);
-  } finally {
-    setThirdPartyLoading(false);
-  }
-};
 
   // ---------------- Logout ----------------
   const handleLogout = () => {
@@ -288,24 +263,14 @@ const fetchThirdPartyData = async () => {
 
   // ---------------- Chart Options ----------------
   const chartOption = {
-    title: { text: " Product Analytics Over Time", left: "center" },
+    title: { text: "📈 Clicks & Impressions Over Time", left: "center" },
     tooltip: { trigger: "axis" },
     legend: { data: ["Impressions", "Clicks"], bottom: 0 },
-    xAxis: { type: "category", data: analytics.chartData.map((d) => d.date) },
+    xAxis: { type: "category", data: analytics.chartData.map(d => d.date) },
     yAxis: { type: "value" },
     series: [
-      {
-        name: "Impressions",
-        type: "line",
-        smooth: true,
-        data: analytics.chartData.map((d) => d.impressions),
-      },
-      {
-        name: "Clicks",
-        type: "line",
-        smooth: true,
-        data: analytics.chartData.map((d) => d.clicks),
-      },
+      { name: "Impressions", type: "line", smooth: true, data: analytics.chartData.map(d => d.impressions) },
+      { name: "Clicks", type: "line", smooth: true, data: analytics.chartData.map(d => d.clicks) },
     ],
   };
 
@@ -451,61 +416,83 @@ const fetchThirdPartyData = async () => {
           {/* ---------------- View Analytics Panel ---------------- */}
 {activeItem === "View Analytics" && (
   <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-5xl">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800"> Product Analytics</h2>
+    <h2 className="text-2xl font-bold mb-6 text-gray-800">Product Analytics</h2>
 
     {analyticsLoading ? (
       <p>Loading analytics...</p>
     ) : (
       <>
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
-          <div className="p-4 bg-blue-50 rounded-lg shadow">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-4">
+          <div className="p-4 bg-blue-50 rounded-lg shadow cursor-pointer"
+               onClick={() => setSelectedMetric("impressions")}>
             <h3 className="text-xl font-semibold text-blue-700">Impressions</h3>
             <p className="text-2xl font-bold text-blue-900">{analytics.impressions}</p>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg shadow">
+          <div className="p-4 bg-green-50 rounded-lg shadow cursor-pointer"
+               onClick={() => setSelectedMetric("clicks")}>
             <h3 className="text-xl font-semibold text-green-700">Clicks</h3>
             <p className="text-2xl font-bold text-green-900">{analytics.clicks}</p>
           </div>
-          <div className="p-4 bg-purple-50 rounded-lg shadow">
+          <div className="p-4 bg-purple-50 rounded-lg shadow cursor-pointer"
+               onClick={() => setSelectedMetric("ctr")}>
             <h3 className="text-xl font-semibold text-purple-700">CTR</h3>
             <p className="text-2xl font-bold text-purple-900">{analytics.ctr}%</p>
           </div>
         </div>
 
-        {/* ECharts Line Chart */}
-        <ReactECharts
-          style={{ height: "400px" }}
-          option={{
-            title: { text: "📈 Clicks & Impressions Over Time", left: "center" },
-            tooltip: { trigger: "axis" },
-            legend: { data: ["Impressions", "Clicks"], bottom: 0 },
-            xAxis: {
-              type: "category",
-              data: analytics.chartData.map((d) => d.date),
-            },
-            yAxis: { type: "value" },
-            series: [
-              {
-                name: "Impressions",
-                type: "line",
-                smooth: true,
-                data: analytics.chartData.map((d) => d.impressions),
-              },
-              {
-                name: "Clicks",
-                type: "line",
-                smooth: true,
-                data: analytics.chartData.map((d) => d.clicks),
-              },
-            ],
-          }}
-        />
+       
+
+        {/* Chart */}
+       <ReactECharts
+  key={selectedMetric} // forces chart to re-render on metric change
+  style={{ height: "400px" }}
+  option={{
+    title: { text: "📈 Analytics Over Time", left: "center" },
+    tooltip: { trigger: "axis" },
+    legend: { data: ["Impressions", "Clicks", "CTR"], bottom: 0 },
+    xAxis: { type: "category", data: analytics.chartData.map((d) => d.date) },
+    yAxis: { type: "value" },
+    series: [
+      ...(selectedMetric === null || selectedMetric === "impressions"
+        ? [{
+            name: "Impressions",
+            type: "line",
+            smooth: true,
+            data: analytics.chartData.map((d) => d.impressions),
+            lineStyle: { color: "#1E90FF" }, // Blue line
+            itemStyle: { color: "#1E90FF" }, // Blue points
+          }]
+        : []),
+      ...(selectedMetric === null || selectedMetric === "clicks"
+        ? [{
+            name: "Clicks",
+            type: "line",
+            smooth: true,
+            data: analytics.chartData.map((d) => d.clicks),
+            lineStyle: { color: "#32CD32" }, // Green line
+            itemStyle: { color: "#32CD32" }, // Green points
+          }]
+        : []),
+      ...(selectedMetric === null || selectedMetric === "ctr"
+        ? [{
+            name: "CTR",
+            type: "line",
+            smooth: true,
+            data: analytics.chartData.map((d) => d.ctr),
+            lineStyle: { color: "#800080" }, // Purple line
+            itemStyle: { color: "#800080" }, // Purple points
+          }]
+        : []),
+    ],
+  }}
+/>
+
+
       </>
     )}
   </div>
 )}
-
           {/* ---------------- Configurable Layout Panel ---------------- */}
           {activeItem === "Configurable layout" && (
             <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
