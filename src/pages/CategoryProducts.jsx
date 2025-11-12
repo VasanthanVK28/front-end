@@ -372,6 +372,7 @@ useEffect(() => {
           onClick={() => {
             api.post("/analytics/track-click", {
               product_id: p._id?.$oid || p.asin || p._id,
+               page_url: window.location.href, 
             }).catch((err) => console.error("Click error:", err));
           }}
           className={`block hover:shadow-lg transition-all duration-300 ${

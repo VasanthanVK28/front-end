@@ -8,6 +8,7 @@ import axios from "axios";
 import {
   useReactTable,
   getCoreRowModel,
+  getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
 import ReactECharts from "echarts-for-react"; // ✅ Added for analytics chart
@@ -45,10 +46,14 @@ const Dashboard = () => {
     chartData: [],
     pieImpressions: [],
     pieClicks: [],
+    pages: [],
   });
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+  const userApiKey = localStorage.getItem("api_key");
+  const [showPages, setShowPages] = useState(false);
+const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array = show all by default
 
 
   // ---------------- Load Settings & Fetch Schedules ----------------
@@ -90,54 +95,126 @@ const Dashboard = () => {
     if (activeItem === "View Analytics") fetchAnalytics();
   }, [activeItem]);
 
-  const fetchAnalytics = async () => {
-    setAnalyticsLoading(true);
-    try {
-      const res = await axios.get(`${API_URL}/api/analytics`);
-       console.log("Analytics API response:", res.data);
-      if (res.data.status === "success") {
-        const data = res.data.data;
+const fetchAnalytics = async () => {
+  setAnalyticsLoading(true);
+  try {
+    const res = await axios.get(`${API_URL}/api/analytics`);
+    console.log("Analytics API response:", res.data);
+
+    if (res.data.status === "success") {
+      const data = res.data.data;
+
         console.log("Analytics data:", data);
-        // Aggregate totals
-        const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
-        const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
-        const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
 
-        // Aggregate by date for line chart
-        const dailyTotals = {};
-        data.forEach((d) => {
-          const date = d.date.split("T")[0];
-          if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
-          dailyTotals[date].impressions += d.impressions;
-          dailyTotals[date].clicks += d.clicks;
+       // ---------------- Aggregate totals ----------------
+      const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
+      const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
+      const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+
+
+        // ---------------- Aggregate by date for line chart ----------------
+      const dailyTotals = {};
+      data.forEach((d) => {
+        const date = d.date.split("T")[0];
+        if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
+        dailyTotals[date].impressions += d.impressions;
+        dailyTotals[date].clicks += d.clicks;
+      });
+
+       const chartData = Object.keys(dailyTotals)
+        .sort()
+        .map((date) => {
+          const imp = dailyTotals[date].impressions;
+          const clk = dailyTotals[date].clicks;
+          return {
+            date,
+            impressions: imp,
+            clicks: clk,
+            ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0,
+          };
         });
-        const chartData = Object.keys(dailyTotals)
-  .sort()
-  .map((date) => {
-    const imp = dailyTotals[date].impressions;
-    const clk = dailyTotals[date].clicks;
-    return {
-      date,
-      impressions: imp,
-      clicks: clk,
-      ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0, // Calculate daily CTR
-    };
-  });
+
+         // ---------------- Aggregate by product for Pie Charts ----------------
+      const productMap = {};
+      data.forEach((d) => { 
+        if (!d.product_name) return; // skip null product_name
+        if (!productMap[d.product_id]) {
+          productMap[d.product_id] = {
+            product_id: d.product_id,
+            product_name: d.product_name,
+            clicks: d.clicks,
+            impressions: d.impressions,
+          };
+        } else {
+          productMap[d.product_id].clicks += d.clicks;
+          productMap[d.product_id].impressions += d.impressions;
+        }
+      });
+
+      const uniqueProducts = Object.values(productMap);
 
 
-        // Pie chart by product
-        const pieImpressions = data.map((d) => ({ name: d.product_name, value: d.impressions }));
-        const pieClicks = data.map((d) => ({ name: d.product_name, value: d.clicks }));
+       // ---------------- Page URLs ----------------
+       const pages = [
+          {
+            url: `${API_URL}/home?api_key=${userApiKey}`,
+            productName: "Home",
+            clicks: 0,
+          },
+          ...uniqueProducts.map((p) => ({
+            url: `${API_URL}/products/${p.product_id}?api_key=${userApiKey}`,
+            productName: p.product_name,
+            clicks: p.clicks,
+          })),
+        ];
 
-        setAnalytics({ impressions: totalImpressions, clicks: totalClicks, ctr, chartData, pieImpressions, pieClicks });
-      }
-    } catch (err) {
-      console.error("Error fetching analytics:", err);
-    } finally {
-      setAnalyticsLoading(false);
+
+
+
+       // ---------------- Pie Charts ----------------
+      const pieImpressions = uniqueProducts.map((p) => ({ name: p.product_name, value: p.impressions }));
+      const pieClicks = uniqueProducts.map((p) => ({ name: p.product_name, value: p.clicks }));
+
+      setAnalytics({
+        impressions: totalImpressions,
+        clicks: totalClicks,
+        ctr,
+        chartData,
+        pieImpressions,
+        pieClicks,
+        pages,
+      });
     }
-  };
+  } catch (err) {
+    console.error("Error fetching analytics:", err);
+  } finally {
+    setAnalyticsLoading(false);
+  }
+};
 
+        // ---------------- Helper: map backend URLs to frontend ----------------
+          const mapBackendUrlToFrontend = (backendUrl) => {
+            if (!backendUrl) return "";
+
+            const cleanUrl = backendUrl.split("?")[0];
+
+            // Map backend -> frontend URLs
+            if (cleanUrl.includes("/home")) {
+              return "http://localhost:5173/home";
+            } else if (cleanUrl.includes("69035845fa769dce7dac484c")) {
+              return "http://localhost:5173/products/laptop";
+            } else if (cleanUrl.includes("69035845fa769dce7dac484b")) {
+              return "http://localhost:5173/products/mobile";
+            } else if (cleanUrl.includes("69035846fa769dce7dac484d")) {
+              return "http://localhost:5173/products/sofa";
+            } else if (cleanUrl.includes("69035846fa769dce7dac484e")) {
+              return "http://localhost:5173/products/toys";
+            } else if (cleanUrl.includes("69035846fa769dce7dac484f")) {
+              return "http://localhost:5173/products/shirt";
+            } else {
+              return cleanUrl;
+            }
+          };
 
   // ---------------- Logout ----------------
   const handleLogout = () => {
@@ -414,112 +491,182 @@ const Dashboard = () => {
           )}
 
           
-          {/* ---------------- View Analytics Panel ---------------- */}
+      {/* ---------------- View Analytics Panel ---------------- */}
 {activeItem === "View Analytics" && (
-  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-5xl">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800">Product Analytics</h2>
+  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-6xl">
+    <h2 className="text-2xl font-bold mb-6 text-gray-800">
+      Product Analytics
+    </h2>
 
     {analyticsLoading ? (
       <p>Loading analytics...</p>
     ) : (
       <>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-4">
-          <div
-            className="p-4 bg-blue-50 rounded-lg shadow cursor-pointer"
-            onClick={() => setSelectedMetric("impressions")}
-          >
-            <h3 className="text-xl font-semibold text-blue-700">Impressions</h3>
-            <p className="text-2xl font-bold text-blue-900">{analytics.impressions}</p>
-          </div>
-          <div
-            className="p-4 bg-green-50 rounded-lg shadow cursor-pointer"
-            onClick={() => setSelectedMetric("clicks")}
-          >
-            <h3 className="text-xl font-semibold text-green-700">Clicks</h3>
-            <p className="text-2xl font-bold text-green-900">{analytics.clicks}</p>
-          </div>
-          <div
-            className="p-4 bg-purple-50 rounded-lg shadow cursor-pointer"
-            onClick={() => setSelectedMetric("ctr")}
-          >
-            <h3 className="text-xl font-semibold text-purple-700">CTR</h3>
-            <p className="text-2xl font-bold text-purple-900">{analytics.ctr}%</p>
-          </div>
+        {/* ---------------- Summary Cards with Checkboxes ---------------- */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
+          {["impressions", "clicks", "ctr"].map((metric) => {
+            const colors = {
+              impressions: ["#1E90FF", "blue"],
+              clicks: ["#32CD32", "green"],
+              ctr: ["#800080", "purple"],
+            };
+            return (
+              <div
+                key={metric}
+                className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${
+                  selectedMetrics.includes(metric)
+                    ? `bg-${colors[metric][1]}-100 border border-${colors[metric][1]}-400`
+                    : `bg-${colors[metric][1]}-50 hover:bg-${colors[metric][1]}-100`
+                }`}
+              >
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedMetrics.includes(metric)}
+                    onChange={() => {
+                      setSelectedMetrics((prev) =>
+                        prev.includes(metric)
+                          ? prev.filter((m) => m !== metric)
+                          : [...prev, metric]
+                      );
+                    }}
+                  />
+                  <span className={`text-lg font-semibold text-${colors[metric][1]}-700 capitalize`}>
+                    {metric}
+                  </span>
+                </label>
+                <p className={`text-2xl font-bold text-${colors[metric][1]}-900 mt-2`}>
+                  {analytics[metric] ?? 0}
+                  {metric === "ctr" ? "%" : ""}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Chart */}
+        {/* ---------------- Chart Section ---------------- */}
         <ReactECharts
-          key={selectedMetric}
+          key={selectedMetrics.join("-")}
           style={{ height: "400px" }}
           option={{
             title: { text: "📈 Analytics Over Time", left: "center" },
             tooltip: { trigger: "axis" },
-            legend: { data: ["Impressions", "Clicks", "CTR"], bottom: 0 },
-            xAxis: { type: "category", data: analytics.chartData.map((d) => d.date) },
-            yAxis: { type: "value" },
+            legend: {
+              data: ["Impressions", "Clicks", "CTR"],
+              bottom: 0,
+            },
+            xAxis: {
+              type: "category",
+              data: analytics.chartData.map((d) => d.date),
+              axisLabel: { color: "#555" },
+            },
+            yAxis: {
+              type: "value",
+              axisLabel: { color: "#555" },
+            },
             series: [
-              ...(selectedMetric === null || selectedMetric === "impressions"
-                ? [{
-                    name: "Impressions",
-                    type: "line",
-                    smooth: true,
-                    data: analytics.chartData.map((d) => d.impressions),
-                    lineStyle: { color: "#1E90FF" },
-                    itemStyle: { color: "#1E90FF" },
-                  }]
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("impressions")
+                ? [
+                    {
+                      name: "Impressions",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.impressions),
+                      lineStyle: { color: "#1E90FF" },
+                      itemStyle: { color: "#1E90FF" },
+                    },
+                  ]
                 : []),
-              ...(selectedMetric === null || selectedMetric === "clicks"
-                ? [{
-                    name: "Clicks",
-                    type: "line",
-                    smooth: true,
-                    data: analytics.chartData.map((d) => d.clicks),
-                    lineStyle: { color: "#32CD32" },
-                    itemStyle: { color: "#32CD32" },
-                  }]
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("clicks")
+                ? [
+                    {
+                      name: "Clicks",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.clicks),
+                      lineStyle: { color: "#32CD32" },
+                      itemStyle: { color: "#32CD32" },
+                    },
+                  ]
                 : []),
-              ...(selectedMetric === null || selectedMetric === "ctr"
-                ? [{
-                    name: "CTR",
-                    type: "line",
-                    smooth: true,
-                    data: analytics.chartData.map((d) => d.ctr),
-                    lineStyle: { color: "#800080" },
-                    itemStyle: { color: "#800080" },
-                  }]
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("ctr")
+                ? [
+                    {
+                      name: "CTR",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.ctr),
+                      lineStyle: { color: "#800080" },
+                      itemStyle: { color: "#800080" },
+                    },
+                  ]
                 : []),
             ],
           }}
         />
 
-        {/* 🌐 Product URLs Section */}
-        <div className="mt-8 border-t pt-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">
-            🔗 Tracked Product URLs
-          </h3>
-
-          {analytics.urls && analytics.urls.length > 0 ? (
-            <ul className="space-y-2">
-              {analytics.urls.map((url, index) => (
-                <li
-                  key={index}
-                  className="text-blue-600 hover:underline truncate"
-                >
-                  <a href={url} target="_blank" rel="noopener noreferrer">
-                    {url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No URLs found for this period.</p>
-          )}
+        {/* ---------------- Pages Button ---------------- */}
+        <div className="text-center mt-6">
+          <button
+            onClick={() => setShowPages((prev) => !prev)}
+            className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full shadow hover:from-indigo-600 hover:to-purple-600 transition-all duration-300"
+          >
+            {showPages ? "Hide Pages" : "Show Pages"}
+          </button>
         </div>
+
+        {/* ---------------- Page URLs (Local Stats) ---------------- */}
+        {showPages && (
+          <div className="mt-8 animate-fadeIn">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Page URLs (Local Stats)
+            </h3>
+
+            {(() => {
+              const stored = JSON.parse(localStorage.getItem("pageAnalytics")) || {};
+              const entries = Object.entries(stored);
+
+              if (entries.length === 0) {
+                return <p className="text-gray-500">No pages tracked yet.</p>;
+              }
+
+              return (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">No</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Page URL</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Visits</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entries
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([url, count], index) => (
+                          <tr key={index} className="border-t hover:bg-gray-50 transition-all">
+                            <td className="px-4 py-2 text-sm text-gray-600">{index + 1}</td>
+                            <td className="px-4 py-2 text-sm text-blue-600 break-all">
+                              <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
+                                {url}
+                              </a>
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-800 font-semibold">{count}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </>
     )}
   </div>
 )}
+
+
 
           {/* ---------------- Configurable Layout Panel ---------------- */}
           {activeItem === "Configurable layout" && (

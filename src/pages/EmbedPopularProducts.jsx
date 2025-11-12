@@ -31,7 +31,7 @@ const EmbedPopularProducts = () => {
 
     // Fetch products
     axios
-      .get(`http://127.0.0.1:8000/api/embed/popular-products?apiKey=${apiKey}`)
+      .get(`http://127.0.0.1:8000/api/embed/popular-products?apiKey=${apiKey}&category=laptop`)
       .then((res) => setProducts(res.data || []))
       .catch((err) => console.error(err));
 
@@ -54,6 +54,9 @@ const EmbedPopularProducts = () => {
 
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+  useEffect(() => {
+  console.log("Fetched products:", products);
+}, [products]);
 
   // Hide entire widget if no products or visibleCount is 0
   if (!products.length || settings.visibleCount <= 0) return null;
@@ -106,7 +109,12 @@ const EmbedPopularProducts = () => {
                 {settings.showLabels && (
                   <>
                     <h4 className="text-sm font-semibold line-clamp-2">{product.title || "Product"}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{product.brand || "Brand"}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                {product.brand && product.brand !== "Unknown"
+                  ? product.brand
+                  : product.title?.split(" ")[0] || "Brand"}
+              </p>
+
                   </>
                 )}
 

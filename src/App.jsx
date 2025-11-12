@@ -13,6 +13,7 @@ import Dashboard from './admin/Dashboard';
 import AdminAuth from './admin/AdminLogin';
 import { ssrImportKey } from 'vite/module-runner';
 import EmbedPopularProducts from "./pages/EmbedPopularProducts";
+import PageTracker from "./components/PageTracker";
 
 
 
@@ -26,6 +27,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Router>
+         <PageTracker />
       <Routes>
         <Route path="/" element={<Navbar />} />
         <Route path="/login" element={<Login />} />
