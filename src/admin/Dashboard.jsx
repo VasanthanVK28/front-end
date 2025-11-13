@@ -451,44 +451,42 @@ const fetchAnalytics = async () => {
             </div>
           )}
 
-          {/* ---------------- Scrape Status Panel ---------------- */}
-          {activeItem === "Scrape Status" && (
-            <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-5xl">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">📋 Scrape Status</h2>
+         
 
-              {fetchError && <p className="text-red-500">{fetchError}</p>}
-              {!fetchError && schedules.length === 0 && <p>No schedules found.</p>}
+{/* ---------------- Daily Runs Table ---------------- */}
+{activeItem === "Scrape Status" && (
+  <div className="bg-white mt-8 p-6 rounded-xl shadow-md max-w-5xl">
+    <h2 className="text-2xl font-bold mb-4 text-gray-800"> Scrape Schedule</h2>
 
-              {schedules.length > 0 && (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border border-gray-300">
-                    <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
-                      {table.getHeaderGroups().map(headerGroup => (
-                        <tr key={headerGroup.id}>
-                          {headerGroup.headers.map(header => (
-                            <th key={header.id} className="px-6 py-3 border-r text-center">
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.map(row => (
-                        <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                          {row.getVisibleCells().map(cell => (
-                            <td key={cell.id} className="px-6 py-3 border-r text-center">
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
+    {!fetchError && schedules.filter(s => s.frequency).length === 0 && <p>No daily runs found.</p>}
+
+    {schedules.filter(s => s.frequency).length > 0 && (
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <thead className="bg-green-100 text-green-800 uppercase text-sm">
+            <tr>
+              <th className="px-6 py-3 border-r text-center">Frequency</th>
+              <th className="px-6 py-3 border-r text-center">Time</th>
+              <th className="px-6 py-3 border-r text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {schedules
+              .filter(schedule => schedule.frequency)
+              .map(run => (
+                <tr key={run._id} className="hover:bg-green-50 transition-colors">
+                  <td className="px-6 py-3 border-r text-center">{run.frequency}</td>
+                  <td className="px-6 py-3 border-r text-center">{run.time}</td>
+                  <td className="px-6 py-3 border-r text-center">{run.status}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+)}
+
 
           
       {/* ---------------- View Analytics Panel ---------------- */}
@@ -502,47 +500,65 @@ const fetchAnalytics = async () => {
       <p>Loading analytics...</p>
     ) : (
       <>
+        
         {/* ---------------- Summary Cards with Checkboxes ---------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
-          {["impressions", "clicks", "ctr"].map((metric) => {
-            const colors = {
-              impressions: ["#1E90FF", "blue"],
-              clicks: ["#32CD32", "green"],
-              ctr: ["#800080", "purple"],
-            };
-            return (
-              <div
-                key={metric}
-                className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${
-                  selectedMetrics.includes(metric)
-                    ? `bg-${colors[metric][1]}-100 border border-${colors[metric][1]}-400`
-                    : `bg-${colors[metric][1]}-50 hover:bg-${colors[metric][1]}-100`
-                }`}
-              >
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedMetrics.includes(metric)}
-                    onChange={() => {
-                      setSelectedMetrics((prev) =>
-                        prev.includes(metric)
-                          ? prev.filter((m) => m !== metric)
-                          : [...prev, metric]
-                      );
-                    }}
-                  />
-                  <span className={`text-lg font-semibold text-${colors[metric][1]}-700 capitalize`}>
-                    {metric}
-                  </span>
-                </label>
-                <p className={`text-2xl font-bold text-${colors[metric][1]}-900 mt-2`}>
-                  {analytics[metric] ?? 0}
-                  {metric === "ctr" ? "%" : ""}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
+  {["impressions", "clicks", "ctr"].map((metric) => {
+    const metricClasses = {
+      impressions: {
+        bg: "bg-blue-50",
+        bgSelected: "bg-blue-100 border border-blue-400",
+        text: "text-blue-700",
+        valueText: "text-blue-900",
+      },
+      clicks: {
+        bg: "bg-green-50",
+        bgSelected: "bg-green-100 border border-green-400",
+        text: "text-green-700",
+        valueText: "text-green-900",
+      },
+      ctr: {
+        bg: "bg-purple-50",
+        bgSelected: "bg-purple-100 border border-purple-400",
+        text: "text-purple-700",
+        valueText: "text-purple-900",
+      },
+    };
+
+    const classes = selectedMetrics.includes(metric)
+      ? metricClasses[metric].bgSelected
+      : metricClasses[metric].bg;
+
+    return (
+      <div
+        key={metric}
+        className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${classes}`}
+      >
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={selectedMetrics.includes(metric)}
+            onChange={() => {
+              setSelectedMetrics((prev) =>
+                prev.includes(metric)
+                  ? prev.filter((m) => m !== metric)
+                  : [...prev, metric]
+              );
+            }}
+          />
+          <span className={`text-lg font-semibold ${metricClasses[metric].text} capitalize`}>
+            {metric}
+          </span>
+        </label>
+        <p className={`text-2xl font-bold mt-2 ${metricClasses[metric].valueText}`}>
+          {analytics[metric] ?? 0}
+          {metric === "ctr" ? "%" : ""}
+        </p>
+      </div>
+    );
+  })}
+</div>
+
 
         {/* ---------------- Chart Section ---------------- */}
         <ReactECharts

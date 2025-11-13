@@ -23,52 +23,52 @@ const EmbedPopularProducts = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const apiKey = urlParams.get("apiKey");
-    if (!apiKey) return console.error("API key missing in URL");
+    const category = urlParams.get("category") || "laptop"; // default laptop
 
-    // Load saved settings from localStorage first
+    if (!apiKey) {
+      console.error("❌ API key missing in URL");
+      return;
+    }
+
+    // Try to load saved widget settings
     const savedSettings = JSON.parse(localStorage.getItem("productSettings"));
     if (savedSettings) setSettings(savedSettings);
 
-    // Fetch products
+    // ✅ Fetch products from your Laravel API
     axios
-      .get(`http://127.0.0.1:8000/api/embed/popular-products?apiKey=${apiKey}&category=laptop`)
-      .then((res) => setProducts(res.data || []))
-      .catch((err) => console.error(err));
+      .get(`http://127.0.0.1:8000/api/external/products/filter`, {
+        headers: { "x-api-key": apiKey },
+        params: { category },
+      })
+      .then((res) => {
+        console.log("✅ Fetched products:", res.data);
+        // Laravel wraps products inside res.data.data
+        setProducts(res.data?.data || []);
+      })
+      .catch((err) => {
+        console.error("❌ Failed to load products. Check Laravel API or category name.", err);
+      });
 
-    // Fetch settings from backend if localStorage empty
-    if (!savedSettings) {
-      axios
-        .get(`http://127.0.0.1:8000/api/embed/settings?apiKey=${apiKey}`)
-        .then((res) => {
-          if (res.data.status === "success") setSettings(res.data.data);
-        })
-        .catch((err) => console.error("Failed to load settings:", err));
-    }
-
-    // Listen for dashboard updates via localStorage
+    // Listen for dashboard updates (if settings are changed)
     const handleStorageChange = () => {
       const updatedSettings = JSON.parse(localStorage.getItem("productSettings"));
       if (updatedSettings) setSettings(updatedSettings);
     };
     window.addEventListener("storage", handleStorageChange);
-
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-  useEffect(() => {
-  console.log("Fetched products:", products);
-}, [products]);
 
-  // Hide entire widget if no products or visibleCount is 0
-  if (!products.length || settings.visibleCount <= 0) return null;
+  // Hide widget if no products
+  if (!products.length || settings.visibleCount <= 0) {
+    return <p style={{ textAlign: "center", marginTop: "2rem" }}></p>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      {/* Heading */}
       <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
         Popular Products
       </h3>
 
-      {/* Swiper slider */}
       <Swiper
         modules={[Autoplay, Pagination, Navigation]}
         slidesPerView={1}
@@ -108,32 +108,36 @@ const EmbedPopularProducts = () => {
               <div className="p-4">
                 {settings.showLabels && (
                   <>
-                    <h4 className="text-sm font-semibold line-clamp-2">{product.title || "Product"}</h4>
-                  <p className="text-xs text-gray-500 mt-1">
-                {product.brand && product.brand !== "Unknown"
-                  ? product.brand
-                  : product.title?.split(" ")[0] || "Brand"}
-              </p>
-
+                    <h4 className="text-sm font-semibold line-clamp-2 text-center">
+                      {product.title || "Product"}
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-1 text-center">
+                      {product.brand && product.brand !== "Unknown"
+                        ? product.brand
+                        : product.title?.split(" ")[0] || "Brand"}
+                    </p>
                   </>
                 )}
 
                 {settings.showRating && (
                   <div className="flex items-center mt-2 justify-center">
                     {Array.from({ length: 5 }, (_, i) => {
-                      const rating = product.rating || 4.2;
-                      if (rating >= i + 1)
-                        return <FaStar key={i} className="text-yellow-400" />;
-                      if (rating >= i + 0.5)
-                        return <FaStarHalfAlt key={i} className="text-yellow-400" />;
-                      return <FaRegStar key={i} className="text-gray-300" />;
-                    })}
-                    <span className="text-xs ml-2 text-gray-600">({product.rating || "4.2"})</span>
+              const rating = product.rating || 4.2;
+              if (rating >= i + 1)
+                return <FaStar key={i} style={{ color: settings.starColor }} />;
+              if (rating >= i + 0.5)
+                return <FaStarHalfAlt key={i} style={{ color: settings.starColor }} />;
+              return <FaRegStar key={i} style={{ color: "#d1d5db" }} />; // gray for empty stars
+            })}
+
+                    <span className="text-xs ml-2 text-gray-600">
+                      ({product.rating || "4.2"})
+                    </span>
                   </div>
                 )}
 
                 {settings.showPrice && (
-                  <p className="text-lg font-bold mt-2 text-gray-800">
+                  <p className="text-lg font-bold mt-2 text-center text-gray-800">
                     ₹{product.price || "-"}
                   </p>
                 )}

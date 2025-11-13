@@ -16,7 +16,6 @@ const PageTracker = () => {
       "/products/sofa",
       "/products/toys",
       "/products/shirt",
-      "/popular-product",
     ];
 
     // ✅ Check if current path matches any tracked path (supports partial match)
