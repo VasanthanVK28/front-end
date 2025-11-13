@@ -396,7 +396,7 @@ const fetchAnalytics = async () => {
           {/* ---------------- Scrape Products Panel ---------------- */}
           {activeItem === "Scrape Products" && (
             <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-3xl">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">⏱️ Schedule Scraping Task</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">Schedule Scraping Task</h2>
               <div className="flex flex-col gap-4">
                 <label className="block font-semibold text-gray-700">Frequency</label>
                 <select
