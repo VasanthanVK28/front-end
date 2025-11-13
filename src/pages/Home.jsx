@@ -267,7 +267,58 @@ const Home = () => {
           </div>
         )}
       </div>
+      {/* Footer */}
+      <footer className="w-full bg-gray-900 text-gray-300 mt-20">
+        {/* Gradient Top Border */}
+        <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
+
+        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
+            <p className="text-sm leading-relaxed text-gray-400">
+              We bring you the trendiest and most loved products — from stylish
+              shirts to cozy sofas and exciting toys. Quality and style, all in
+              one place!
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#" className="hover:text-yellow-400 transition">Home</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Shop</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Trending</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Customer Service</h3>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#" className="hover:text-yellow-400 transition">Help Center</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Returns</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Shipping Info</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">Privacy Policy</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
+            <div className="flex space-x-4 text-2xl">
+              <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
+              <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>
+              <a href="#" className="hover:text-sky-400 transition"><i className="fab fa-twitter"></i></a>
+              <a href="#" className="hover:text-red-500 transition"><i className="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full border-t border-gray-700 py-4 text-center text-sm">
+          <p>© {new Date().getFullYear()} <span className="text-yellow-400 font-semibold">TrendyMart</span>. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
+    
   );
 };
 
