@@ -117,6 +117,18 @@ const Home = () => {
         </Swiper>
       </div>
 
+      {/* ✨ TrendyMart Neon Glow Marquee */}
+<div className="bg-[#111827] py-3 shadow-lg">
+  <marquee
+    className="text-pink-400 font-bold text-xl tracking-wide animate-pulse"
+    behavior="scroll"
+    direction="left"
+    scrollamount="9"
+  >
+    ✨ TrendyMart SUPER DEALS: Laptops, Mobiles, Sofas & More — Prices Slashed!
+  </marquee>
+</div>
+
       {/* 🛍️ Categories Section */}
       <div className="p-10 max-w-7xl mx-auto">
         <div className="mt-10 mb-8 text-center">
