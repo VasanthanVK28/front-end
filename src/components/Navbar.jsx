@@ -20,6 +20,71 @@ const handleSearch = (e) => {
     const amazonUrl = `https://www.amazon.in/s?k=${encodeURIComponent(query)}`;
     window.open(amazonUrl, "_blank"); // Opens Amazon search results in new tab
   };
+const laptopUrls = {
+  1: import.meta.env.VITE_LAPTOP_1,
+  2: import.meta.env.VITE_LAPTOP_2,
+  3: import.meta.env.VITE_LAPTOP_3,
+  4: import.meta.env.VITE_LAPTOP_4,
+  5: import.meta.env.VITE_LAPTOP_5,
+  6: import.meta.env.VITE_LAPTOP_6,
+  7: import.meta.env.VITE_LAPTOP_7,
+  8: import.meta.env.VITE_LAPTOP_8,
+  9: import.meta.env.VITE_LAPTOP_9,
+  10: import.meta.env.VITE_LAPTOP_10,
+};
+
+const mobileUrls = {
+  1: import.meta.env.VITE_MOBILE_1,
+  2: import.meta.env.VITE_MOBILE_2,
+  3: import.meta.env.VITE_MOBILE_3,
+  4: import.meta.env.VITE_MOBILE_4,
+  5: import.meta.env.VITE_MOBILE_5,
+  6: import.meta.env.VITE_MOBILE_6,
+  7: import.meta.env.VITE_MOBILE_7,
+  8: import.meta.env.VITE_MOBILE_8,
+  9: import.meta.env.VITE_MOBILE_9,
+  10: import.meta.env.VITE_MOBILE_10,
+};
+
+const sofaUrls = {
+  1: import.meta.env.VITE_SOFA_1,
+  2: import.meta.env.VITE_SOFA_2,
+  3: import.meta.env.VITE_SOFA_3,
+  4: import.meta.env.VITE_SOFA_4,
+  5: import.meta.env.VITE_SOFA_5,
+  6: import.meta.env.VITE_SOFA_6,
+  7: import.meta.env.VITE_SOFA_7,
+  8: import.meta.env.VITE_SOFA_8,
+  9: import.meta.env.VITE_SOFA_9,
+  10: import.meta.env.VITE_SOFA_10,
+};
+
+const shirtUrls = {
+  1: import.meta.env.VITE_SHIRT_1,
+  2: import.meta.env.VITE_SHIRT_2,
+  3: import.meta.env.VITE_SHIRT_3,
+  4: import.meta.env.VITE_SHIRT_4,
+  5: import.meta.env.VITE_SHIRT_5,
+  6: import.meta.env.VITE_SHIRT_6,
+  7: import.meta.env.VITE_SHIRT_7,
+  8: import.meta.env.VITE_SHIRT_8,
+  9: import.meta.env.VITE_SHIRT_9,
+  10: import.meta.env.VITE_SHIRT_10,
+};
+
+const toyUrls = {
+  1: import.meta.env.VITE_TOY_1,
+  2: import.meta.env.VITE_TOY_2,
+  3: import.meta.env.VITE_TOY_3,
+  4: import.meta.env.VITE_TOY_4,
+  5: import.meta.env.VITE_TOY_5,
+  6: import.meta.env.VITE_TOY_6,
+  7: import.meta.env.VITE_TOY_7,
+  8: import.meta.env.VITE_TOY_8,
+  9: import.meta.env.VITE_TOY_9,
+  10: import.meta.env.VITE_TOY_10,
+};
+
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -123,54 +188,54 @@ const handleSearch = (e) => {
       {
         title: "HP 15, 13th Gen",
         img: "https://m.media-amazon.com/images/I/71FXHAM+jWL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/HP-i3-1315U-Anti-Glare-Micro-Edge-fd0573TU/dp/B0F4R3GFMQ/ref=sr_1_1",
+        url: laptopUrls[1],
       },
       {
         title: "Acer Aspire Lite",
         img: "https://m.media-amazon.com/images/I/513p8BwV-RL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Acer-Aspire-Premium-AL15-41-Display/dp/B0D37T35JP/ref=sr_1_2",
+        url: laptopUrls[2],
       },
       {
         title: "Ultimus APEX Pro",
         img: "https://m.media-amazon.com/images/I/61rutN1uR6L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Ultimus-Celeron-Expandable-512GB-%E2%80%8ELPDDR4-Speaker/dp/B0FKM5KW4R/ref=sr_1_4",
+        url: laptopUrls[3],
       },
       {
         title: "JioBook 11",
         img: "https://m.media-amazon.com/images/I/61IDcxw27+L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/JioBook-Octa-Core-LPDDR4-JioOS-Expandable/dp/B0CKX9PY1H/ref=sr_1_5",
+        url: laptopUrls[4],
       },
       {
         title: "HP 15, 13th Gen",
         img: "https://m.media-amazon.com/images/I/71Z4mSII9BL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/HP-i5-1334U-Anti-Glare-Micro-Edge-fd0577TU/dp/B0F4R6H3NB/ref=sr_1_6",
+        url: laptopUrls[5],
       },
       {
         title: "Acer Aspire 3",
         img: "https://m.media-amazon.com/images/I/61qlqvTsocL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Acer-Celeron-Processor-LPDDR4X-A325-45/dp/B0D7PTFFZH/ref=sr_1_7",
+        url: laptopUrls[6],
       },
       {
         title: "ASUS Vivobook 15",
         img: "https://m.media-amazon.com/images/I/71zMooVIVAL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/ASUS-Vivobook-Smartchoice-Windows-M1502YA-BQ703WS/dp/B0FC2LKFSC/ref=sr_1_8",
+        url: laptopUrls[7],
       },
       {
         title: "HP Victus",
         img: "https://m.media-amazon.com/images/I/71wT57gW0hL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/HP-Smartchoice-i5-13420H-Upgradeable-Office24/dp/B0F6CVT23B/ref=sr_1_10",
+        url: laptopUrls[8],
       },
       {
         title: "Lenovo V15 G4",
         img: "https://m.media-amazon.com/images/I/71aup0IO2ZL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Lenovo-Graphics-5500Mhz-Windows-Warranty/dp/B0F29HNJL1/ref=sr_1_11",
+        url: laptopUrls[9],
       },
       {
         title: "ULTIMUS APEX",
         img: "https://m.media-amazon.com/images/I/713QmwFZbsL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/ULTIMUS-Laptop-Celeron-Expandable-1TB-Anti-Glare/dp/B0F5WTFC3D/ref=sr_1_12",
+        url: laptopUrls[10],
       },
-    ].map((laptop, index) => (
+      ].map((laptop, index) => (
       <SwiperSlide key={index}>
         {/* 💻 Clickable Product Card */}
         <a
@@ -225,52 +290,52 @@ const handleSearch = (e) => {
       {
         title: "realme NARZO 80",
         img: "https://m.media-amazon.com/images/I/81oxfhHd5XL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/realme-Obsidian-6300mAh-Segments-Biggest/dp/B0FG2LPC6K/ref=sr_1_1",
+        url: mobileUrls[1]
       },
       {
         title: "realme NARZO 80 Lite",
         img: "https://m.media-amazon.com/images/I/71Vjn1DfArL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/realme-Long-Lasting-Resistance-Military-Grade-Durability/dp/B0F9TT7Z5Q/ref=sr_1_2",
+        url: mobileUrls[2]
       },
       {
         title: "Samsung Galaxy M35",
         img: "https://m.media-amazon.com/images/I/81nt-RGKpyL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Samsung-Daybreak-Storage-Corning-Gorilla/dp/B0D7Z8FJZ9/ref=sr_1_3",
+        url: mobileUrls[3]
       },
       {
         title: "Redmi 13 5G Prime Edition",
         img: "https://m.media-amazon.com/images/I/81CQZB2t52L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Redmi-Hawaiian-Largest-Display-Segment/dp/B0D78X544X/ref=sr_1_4",
+        url: mobileUrls[4]
       },
       {
         title: "Samsung Galaxy M06 5G",
         img: "https://m.media-amazon.com/images/I/71iMTdPA34L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Samsung-MediaTek-Dimensity-Charging-Upgrades/dp/B0F3X4R33R/ref=sr_1_5",
+        url: mobileUrls[5]
       },
       {
         title: "iQOO Neo 10",
         img: "https://m.media-amazon.com/images/I/61gGRaXQoGL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/iQOO-Snapdragon-Processor-SuperComputing-Smartphone/dp/B0F83KLGCS/ref=sr_1_6",
+        url: mobileUrls[6]
       },
       {
         title: "Redmi A4 5G",
         img: "https://m.media-amazon.com/images/I/718HzJbvY1L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Redmi-A4-5G-Storage-Charging/dp/B0DLW4QD72/ref=sr_1_7",
+        url: mobileUrls[7]
       },
       {
         title: "Samsung Galaxy S24",
         img: "https://m.media-amazon.com/images/I/71eUNTW+nJL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/Samsung-Galaxy-Smartphone-Graphite-Storage/dp/B0DHL7YT5S/ref=sr_1_8",
+        url: mobileUrls[8]
       },
       {
         title: "POCO M6 Plus 5G",
         img: "https://m.media-amazon.com/images/I/71tsuJCkV+L._AC_UY218_.jpg",
-        url: "https://www.amazon.in/POCO-Plus-Graphite-Black-128GB/dp/B0D9KHQ4M1/ref=sr_1_12",
+        url: mobileUrls[9]
       },
       {
         title: "OnePlus 13s",
         img: "https://m.media-amazon.com/images/I/61BTIyv+XdL._AC_UY218_.jpg",
-        url: "https://www.amazon.in/OnePlus-Snapdragon%C2%AE-Battery-Lifetime-Warranty/dp/B0F5WNYJF8/ref=sr_1_16",
+        url: mobileUrls[10]
       },
     ].map((mobile, index) => (
       <SwiperSlide key={index}>
@@ -326,52 +391,52 @@ const handleSearch = (e) => {
       {
         title: "Holstein Housewares PVC",
         img: "https://m.media-amazon.com/images/I/71BkBl2ehAL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Holstein-Housewares-Recliner-Sofa-Lightweight/dp/B0FP8Y164Q/ref=sr_1_1",
+        url: sofaUrls[1]
       },
       {
         title: "SleepyHug FoldPRO Sofa-Cum-Bed",
         img: "https://m.media-amazon.com/images/I/81CKGLYc35L._AC_UL320_.jpg",
-        url: "https://www.amazon.in/SleepyHug-Sofa-Cum-Bed-Convertible-TouchSense-Lightweight/dp/B0FCSPS2TF/ref=sr_1_5",
+        url: sofaUrls[2]
       },
       {
         title: "Adorn India Premium",
         img: "https://m.media-amazon.com/images/I/81IF8CFdFEL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Adorn-India-Premium-Warranty-Striped/dp/B0F4DT26BL/ref=sr_1_6",
+        url: sofaUrls[3]
       },
       {
         title: "AMATA Eagle Solid Wood",
         img: "https://m.media-amazon.com/images/I/51OZfS1WkgL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/AMATA-Cushions-Perfect-Living-Guests/dp/B0B68G4F1S/ref=sr_1_7",
+        url: sofaUrls[4]
       },
       {
         title: "WESTERN WOOD ART Stylish",
         img: "https://m.media-amazon.com/images/I/71bku3+80jL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/WESTERN-WOOD-ART-Traditional-Chesterfield/dp/B0DM9V33GF/ref=sr_1_12",
+        url: sofaUrls[5]
       },
       {
         title: "STRATA FURNITURE",
         img: "https://m.media-amazon.com/images/I/5100dr0PkVL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Strata-Furniture-Sheesham-3-Person-Newspaper/dp/B0CJY6YTPH/ref=sr_1_13",
+        url: sofaUrls[6]
       },
       {
         title: "Sleepyhead Kiki - 3 Seater Sofa",
         img: "https://m.media-amazon.com/images/I/71FsK1GXYuL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Sleepyhead-Kiki-Seater-Fabric-Sapling/dp/B0B4JNRFFH/ref=sr_1_15",
+        url: sofaUrls[7]
       },
       {
         title: "Sofa Cum Bed",
         img: "https://m.media-amazon.com/images/I/61jCawANhpL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Single-Seater-Folding-Cushion-Velvet/dp/B0FP5X6VQ9/ref=sr_1_16",
+        url: sofaUrls[8]
       },
       {
         title: "AMATA Solid Wood Eagle",
         img: "https://m.media-amazon.com/images/I/51yZzx-mq0L._AC_UL320_.jpg",
-        url: "https://www.amazon.in/AMATA-Seater-Cushions-Perfect-Warranty/dp/B0DHPJ31DD/ref=sr_1_18",
+        url: sofaUrls[9]
       },
       {
         title: "Wakefit Polyester Sofa",
         img: "https://m.media-amazon.com/images/I/616udVTZUEL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Wakefit-Warranty-Folding-Flipper-Warpknit/dp/B0C6MM9F6G/ref=sr_1_19",
+        url: sofaUrls[10]
       },
     ].map((sofa, index) => (
       <SwiperSlide key={index}>
@@ -427,52 +492,52 @@ const handleSearch = (e) => {
       {
         title: "SOLY CLOTHING",
         img: "https://m.media-amazon.com/images/I/61rJgcPO1GL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/SOLY-CLOTHING-Stylish-Business-Festival/dp/B0FQD27DL8/ref=sr_1_1",
+        url: shirtUrls[1]
       },
       {
         title: "CB-COLEBROOK",
         img: "https://m.media-amazon.com/images/I/71DU0wuXOSL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/CB-COLEBROOK-Casual-Button-Fashion-Textured/dp/B0D77N88Q3/ref=sr_1_3",
+        url: shirtUrls[2]
       },
       {
         title: "U TURN",
         img: "https://m.media-amazon.com/images/I/71Jli-Yjv2L._AC_UL320_.jpg",
-        url: "https://www.amazon.in/U-TURN-Printed-Striped-Stylish-Skyblue-White/dp/B0DKP8NXCH/ref=sr_1_5",
+        url: shirtUrls[3]
       },
       {
         title: "FINIVO FASHION",
         img: "https://m.media-amazon.com/images/I/51yn92oL9fL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/FINIVO-FASHION-Textured-Shirts-Stylish/dp/B0DFWXR6J7/ref=sr_1_6",
+        url: shirtUrls[4]
       },
       {
         title: "The Indian Garage Co",
         img: "https://m.media-amazon.com/images/I/61rG+UIslgL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Indian-Garage-Co-Checkered-0121-SH69-05_White/dp/B08ZNFRY1P/ref=sr_1_7",
+        url: shirtUrls[5]
       },
       {
         title: "Majestic Man",
         img: "https://m.media-amazon.com/images/I/71ck9U5rmkL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Majestic-Man-Checkered-Cotton-Charcoal/dp/B0CLK9XJZQ/ref=sr_1_9",
+        url: shirtUrls[6]
       },
       {
         title: "Allen Solly",
         img: "https://m.media-amazon.com/images/I/61idJrfaIRL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Allen-Solly-Geometric-Regular-ASSFWMOFO48848_White_40/dp/B07DN1BJ51/ref=sr_1_10",
+        url: shirtUrls[7]
       },
       {
         title: "Lymio",
         img: "https://m.media-amazon.com/images/I/71V5gEc8YVL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Lymio-Casual-Stylish-Rib-Shirt-Khakhi/dp/B0CRPH5L6B/ref=sr_1_11",
+        url: shirtUrls[8]
       },
       {
         title: "TAGDO",
         img: "https://m.media-amazon.com/images/I/71LnycrT7qL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/TAGDO-Regular-Casual-Shirt-Popcorn-5171-Cream-L/dp/B0CYQ9VND7/ref=sr_1_14",
+        url: shirtUrls[9]
       },
       {
         title: "Amazon Brand - INKAST",
         img: "https://m.media-amazon.com/images/I/714veNGWosL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Amazon-Brand-Inkast-Casual-02_Navy/dp/B084DNHYYY/ref=sr_1_17",
+        url: shirtUrls[10]
       },
     ].map((shirt, index) => (
       <SwiperSlide key={index}>
@@ -529,52 +594,52 @@ const handleSearch = (e) => {
       {
         title: "GRAPHENE 4WD",
         img: "https://m.media-amazon.com/images/I/81iA9xlbqjL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/GRAPHENE-Friction-Off-Road-All-Terrain-Christmas/dp/B0CDSBQ9FH/ref=sr_1_1",
+        url: toyUrls[1]
       },
       {
         title: "Storio Inflatable Bop",
         img: "https://m.media-amazon.com/images/I/61mHUJFQhoL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Storio-Inflatable-Punching-Standing-Wrestling/dp/B0FL1RPRJJ/ref=sr_1_2",
+        url: toyUrls[2]
       },
       {
         title: "Plush Teddy Bear",
         img: "https://m.media-amazon.com/images/I/51C5TrSt-GL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Babique-Unicorn-Stuffed-Plush-Birthday/dp/B08LTGVND9/ref=sr_1_3",
+        url: toyUrls[3]
       },
       {
         title: "Galaxy Hi-Tech Mini Metal",
         img: "https://m.media-amazon.com/images/I/71XiWPwcVoL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Galaxy-Hi-Tech-Unbreakable-Adventures-Multicolor/dp/B0D5B81RCT/ref=sr_1_4",
+        url: toyUrls[4]
       },
       {
         title: "Mirana Vande Bharat",
         img: "https://m.media-amazon.com/images/I/61jA-v+qZ6L._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Mirana-Vande-Bharat-Bullet-Train/dp/B0FP2V7XVL/ref=sr_1_5",
+        url: toyUrls[5]
       },
       {
         title: "Bedtime Fun Kids Slide",
         img: "https://m.media-amazon.com/images/I/7110Uyo6lXL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Projector-Materials-Interchangeable-Flashlight-PoPo/dp/B0F5X5BWP2/ref=sr_1_6",
+        url: toyUrls[6]
       },
       {
         title: "Gooyo GY3716 Battery",
         img: "https://m.media-amazon.com/images/I/51tJJaipJlL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Gooyo-Portable-Keyboard-Musical-Included/dp/B0BMLQ1RHP/ref=sr_1_8",
+        url: toyUrls[7]
       },
       {
         title: "VGRASSP Radish Style",
         img: "https://m.media-amazon.com/images/I/61hVaHSCx2L._AC_UL320_.jpg",
-        url: "https://www.amazon.in/VGRASSP-Radish-Pretend-Toddlers-Ringtones/dp/B0BKZMHP48/ref=sr_1_9",
+        url: toyUrls[8]
       },
       {
         title: "Blix Queaky- STEM",
         img: "https://m.media-amazon.com/images/I/41KNN7e0KEL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/Blix-Queaky-STEM-Best-Yellow/dp/B0CFF2SRPT/ref=sr_1_10",
+        url: toyUrls[9]
       },
       {
         title: "ToyTastic Strong Suction",
         img: "https://m.media-amazon.com/images/I/61THM73i4KL._AC_UL320_.jpg",
-        url: "https://www.amazon.in/ToyTastic-Suction-Rotating-Sensory-Airplane/dp/B0FKNGWHFN/ref=sr_1_11",
+        url: toyUrls[10]
       },
     ].map((toy, index) => (
       <SwiperSlide key={index}>
