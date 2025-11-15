@@ -498,57 +498,66 @@ const shareProduct = async (product) => {
               </span>
             </div>
 
-           <div className={`relative mt-3 ${view === "grid" ? "text-left" : ""}`}>
-          <p className="text-2xl font-semibold text-gray-900">₹{p.price}</p>
+           <div
+  className={`relative mt-3 w-full ${
+    view === "grid"
+      ? "flex flex-col items-start min-h-[150px]"   // <-- ⭐ ADD THIS
+      : "flex flex-col sm:flex-row sm:items-center sm:justify-between min-h-[120px]"
+  }`}
+>
+  {/* LEFT SIDE */}
+  <div className="flex flex-col items-start">
+    <p className="text-2xl font-semibold text-gray-900">₹{p.price}</p>
 
-          {p.discount && (
-            <p className="text-green-600 font-medium">{p.discount}% off</p>
-          )}
+    {p.discount && (
+      <p className="text-green-600 font-medium">{p.discount}% off</p>
+    )}
 
-          {/* BUTTON ROW - LEFT ALIGNED */}
-          <div className="flex justify-start gap-3 mt-3">
+    <div
+      className={`flex gap-3 mt-3 ${
+        view === "grid" ? "justify-start" : "justify-start sm:justify-start"
+      }`}
+    >
+      <a
+        href={p.product_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 
+                   text-white px-5 py-2 rounded-full font-semibold shadow-md 
+                   hover:shadow-lg hover:scale-105 
+                   transition-all duration-300"
+      >
+        Buy Now
+      </a>
 
-            {/* BUY NOW */}
-            <a
-              href={p.product_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 
-                        text-white px-5 py-2 rounded-full font-semibold shadow-md 
-                        hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              Buy Now
-            </a>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          addToBag(p);
+        }}
+        className="flex items-center gap-2 px-5 py-2 rounded-full border border-indigo-400 
+                   text-indigo-600 hover:bg-indigo-600 hover:text-white 
+                   transition-all shadow"
+      >
+        <TbShoppingBagHeart className="text-xl" />
+        <span>My Bag</span>
+      </button>
+    </div>
+  </div>
 
-            {/* MY BAG */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                addToBag(p);
-              }}
-              className="flex items-center gap-2 px-5 py-2 rounded-full border border-indigo-400 
-                        text-indigo-600 hover:bg-indigo-600 hover:text-white 
-                        transition-all shadow"
-            >
-              <TbShoppingBagHeart className="text-xl" />
-              <span>My Bag</span>
-            </button>
-
-          </div>
-
-          {/* SHARE ICON - BOTTOM RIGHT */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              shareProduct(p);
-            }}
-            className="absolute bottom-0 right-0 mb-1 mr-1 p-2 rounded-full 
-                      bg-gray-200 hover:bg-indigo-600 hover:text-white 
-                      text-gray-700 shadow transition-all"
-          >
-            🔗
-          </button>
-        </div>
+  {/* SHARE ICON */}
+  <button
+    onClick={(e) => {
+      e.preventDefault();
+      shareProduct(p);
+    }}
+    className="absolute bottom-2 right-2 p-3 rounded-full 
+               bg-gray-200 hover:bg-indigo-600 hover:text-white 
+               text-gray-700 shadow transition-all"
+  >
+    <FiShare2 className="text-xl" />
+  </button>
+</div>
 
 
           </div>
