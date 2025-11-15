@@ -8,6 +8,10 @@ import {
   FaThLarge,
   FaList,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
+import { FiShare2 } from "react-icons/fi";
+import { TbShoppingBagHeart } from "react-icons/tb";
+
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
 // ---------------- Pagination Component ----------------
@@ -91,6 +95,7 @@ const CategoryProducts = () => {
   const [lastPage, setLastPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  
 
   // ✅ Fetch category products
   useEffect(() => {
@@ -190,6 +195,66 @@ useEffect(() => {
   const handleNextPage = () => {
     if (currentPage < lastPage) setCurrentPage((prev) => prev + 1);
   };
+
+  // ⭐ Add to My Bag (localStorage)
+const addToBag = (product) => {
+  const userId = localStorage.getItem("user_unique_id");
+
+  if (!userId) {
+    Swal.fire({
+      icon: "warning",
+      title: "Please Login",
+      text: "You must log in to add items to your bag.",
+      confirmButtonColor: "#6366f1",
+    });
+    return;
+  }
+
+  const key = `mybag_${userId}`;
+
+  let bag = JSON.parse(localStorage.getItem(key)) || [];
+
+  // Prevent duplicates
+  if (bag.find((item) => item.asin === product.asin)) {
+    Swal.fire({
+      icon: "info",
+      title: "Already in My Bag",
+      text: "This product is already added.",
+      confirmButtonColor: "#6366f1",
+    });
+    return;
+  }
+
+  // Add product
+  bag.push(product);
+  localStorage.setItem(key, JSON.stringify(bag));
+
+  Swal.fire({
+    icon: "success",
+    title: "Added to My Bag!",
+    text: `${product.title.substring(0, 40)}...`,
+    confirmButtonColor: "#10b981", // green
+    timer: 1500,
+    showConfirmButton: false,
+  });
+};
+
+// ⭐ Share Product
+const shareProduct = async (product) => {
+  const shareData = {
+    title: product.title,
+    text: "Check out this product!",
+    url: window.location.origin + "/product/" + product.asin,
+  };
+
+  if (navigator.share) {
+    await navigator.share(shareData);
+  } else {
+    navigator.clipboard.writeText(shareData.url);
+    alert("Link Copied!");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -433,20 +498,59 @@ useEffect(() => {
               </span>
             </div>
 
-            <div className={`mt-3 ${view === "grid" ? "text-center" : ""}`}>
-              <p className="text-2xl font-semibold text-gray-900">₹{p.price}</p>
-              {p.discount && (
-                <p className="text-green-600 font-medium">{p.discount}% off</p>
-              )}
-              <a
-                href={p.product_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                Buy Now
-              </a>
-            </div>
+           <div className={`relative mt-3 ${view === "grid" ? "text-left" : ""}`}>
+          <p className="text-2xl font-semibold text-gray-900">₹{p.price}</p>
+
+          {p.discount && (
+            <p className="text-green-600 font-medium">{p.discount}% off</p>
+          )}
+
+          {/* BUTTON ROW - LEFT ALIGNED */}
+          <div className="flex justify-start gap-3 mt-3">
+
+            {/* BUY NOW */}
+            <a
+              href={p.product_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 
+                        text-white px-5 py-2 rounded-full font-semibold shadow-md 
+                        hover:shadow-lg hover:scale-105 transition-all duration-300"
+            >
+              Buy Now
+            </a>
+
+            {/* MY BAG */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                addToBag(p);
+              }}
+              className="flex items-center gap-2 px-5 py-2 rounded-full border border-indigo-400 
+                        text-indigo-600 hover:bg-indigo-600 hover:text-white 
+                        transition-all shadow"
+            >
+              <TbShoppingBagHeart className="text-xl" />
+              <span>My Bag</span>
+            </button>
+
+          </div>
+
+          {/* SHARE ICON - BOTTOM RIGHT */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              shareProduct(p);
+            }}
+            className="absolute bottom-0 right-0 mb-1 mr-1 p-2 rounded-full 
+                      bg-gray-200 hover:bg-indigo-600 hover:text-white 
+                      text-gray-700 shadow transition-all"
+          >
+            🔗
+          </button>
+        </div>
+
+
           </div>
         </Link>
       );

@@ -14,7 +14,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { email, password } = form; // ✅ extract from form
+    const { email, password } = form;
 
     try {
       const res = await api.post("/login", { email, password });
@@ -24,6 +24,9 @@ const Login = () => {
       localStorage.setItem("api_key", res.data.api_key);
       localStorage.setItem("user_name", res.data.user.name);
 
+      // 🔥 IMPORTANT — Save unique user ID for My Bag
+      localStorage.setItem("user_unique_id", res.data.user.id);
+
       Swal.fire({
         icon: "success",
         title: "Welcome Back",
@@ -32,7 +35,6 @@ const Login = () => {
         timer: 1500,
         showConfirmButton: false,
       }).then(() => {
-        // ✅ Redirect after SweetAlert closes
         const apiKey = encodeURIComponent(res.data.api_key);
         navigate(`/home?api_key=${apiKey}`);
       });

@@ -14,6 +14,7 @@ import AdminAuth from './admin/AdminLogin';
 import { ssrImportKey } from 'vite/module-runner';
 import EmbedPopularProducts from "./pages/EmbedPopularProducts";
 import PageTracker from "./components/PageTracker";
+import MyBag from "./pages/MyBag";
 
 
 
@@ -41,6 +42,7 @@ function App() {
            <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />
          <Route path="/embed/popular-products" element={<EmbedPopularProducts />} />
+         <Route path="/my-bag" element={<MyBag />} />
 
 
 

@@ -6,10 +6,13 @@ import {
   FaUserCircle,
   FaSignOutAlt,
   
+  
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { TbShoppingBagHeart } from "react-icons/tb";
+
 
 const NavbarWithSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -195,6 +198,17 @@ const NavbarWithSidebar = () => {
             <div className="flex items-center space-x-6 text-gray-700">
               {/* 👜 MyBag Button */}
               
+                      <button
+        onClick={() => navigate("/my-bag")}
+        className="flex items-center space-x-1 text-indigo-600 hover:text-indigo-700 font-semibold 
+                  border border-indigo-300 px-3 py-1 rounded-full transition-all"
+      >
+        <TbShoppingBagHeart className="text-2xl" />
+        <span>My Bag</span>
+      </button>
+
+
+
 
               {/* 👤 User Info */}
               <div className="flex items-center space-x-2">
