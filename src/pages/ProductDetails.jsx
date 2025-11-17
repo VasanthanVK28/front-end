@@ -93,19 +93,29 @@ const ProductDetail = () => {
             </div>
 
             {/* Price */}
-            <div className="my-4">
-              {product.discount && (
-                <p className="text-red-600 text-xl font-semibold mb-1">
-                  -{product.discount}%{" "}
-                  <span className="text-gray-800">₹{product.price}</span>
-                </p>
-              )}
-              {product.original_price && (
-                <p className="text-sm text-gray-500 line-through">
-                  M.R.P: ₹{product.original_price}
-                </p>
-              )}
-            </div>
+           {/* Price Section */}
+<div className="my-4">
+
+  {/* If discount exists, show discount price */}
+  {product.discount && (
+    <p className="text-red-600 text-xl font-semibold mb-1">
+      -{product.discount}%{" "}
+      <span className="text-gray-800">₹{product.price}</span>
+    </p>
+  )}
+
+  {/* Always show current price */}
+  <p className="text-2xl font-bold text-gray-900">
+    ₹{product.price}
+  </p>
+
+  {/* If original price exists, show MRP with strike line */}
+  {product.original_price && (
+    <p className="text-sm text-gray-500 line-through">
+      M.R.P: ₹{product.original_price}
+    </p>
+  )}
+</div>
 
             {/* Delivery */}
             <div className="text-sm text-gray-700 mb-5">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
   FaTrash,
-  FaExternalLinkAlt,
+  
   FaStar,
   FaStarHalfAlt,
   FaRegStar
@@ -176,7 +176,7 @@ const MyBag = () => {
                         rel="noopener noreferrer"
                         className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow flex items-center gap-2 transition"
                       >
-                        View <FaExternalLinkAlt />
+                        View 
                       </a>
 
                       <button
