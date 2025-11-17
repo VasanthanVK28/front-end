@@ -59,7 +59,7 @@ const BrandProducts = () => {
       <div className="bg-gray-50 min-h-screen p-4 md:p-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-800 capitalize">
-            {brandName} Products
+            {brandName} 
           </h1>
           <p className="text-gray-500 mt-2">
             Discover top deals from <span className="font-semibold">{brandName}</span>
