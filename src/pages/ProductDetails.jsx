@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
-import NavbarWithSidebar from "./NavbarWithSidebar"; // ✅ Import your navbar
+import { TbShoppingBagHeart } from "react-icons/tb";
+import { FiShare2 } from "react-icons/fi";
+import Swal from "sweetalert2";
+import NavbarWithSidebar from "./NavbarWithSidebar";
 
 const ProductDetail = () => {
   const { asin } = useParams();
@@ -28,7 +31,6 @@ const ProductDetail = () => {
       <div>
         <NavbarWithSidebar />
         <div className="flex flex-col justify-center items-center h-96 mt-20">
-          {/* ✅ Spinner */}
           <div className="w-16 h-16 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
           <p className="mt-4 text-lg font-medium text-gray-600">Loading product...</p>
         </div>
@@ -39,9 +41,7 @@ const ProductDetail = () => {
     return (
       <div>
         <NavbarWithSidebar />
-        <p className="text-center mt-20 text-lg text-gray-600">
-          Product not found
-        </p>
+        <p className="text-center mt-20 text-lg text-gray-600">Product not found</p>
       </div>
     );
 
@@ -50,9 +50,70 @@ const ProductDetail = () => {
   const hasHalfStar = (product.rating || 0) % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
+  // ⭐ Add to My Bag
+  const addToBag = (product) => {
+    const userId = localStorage.getItem("user_unique_id");
+
+    if (!userId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please Login",
+        text: "You must log in to add items to your bag.",
+        confirmButtonColor: "#6366f1",
+      });
+      return;
+    }
+
+    const key = `mybag_${userId}`;
+    let bag = JSON.parse(localStorage.getItem(key)) || [];
+
+    if (bag.find((item) => item.asin === product.asin)) {
+      Swal.fire({
+        icon: "info",
+        title: "Already in My Bag",
+        text: "This product is already added.",
+        confirmButtonColor: "#6366f1",
+      });
+      return;
+    }
+
+    bag.push(product);
+    localStorage.setItem(key, JSON.stringify(bag));
+
+    Swal.fire({
+      icon: "success",
+      title: "Added to My Bag!",
+      text: `${product.title.substring(0, 40)}...`,
+      confirmButtonColor: "#10b981",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  // ⭐ Share Product
+  const shareProduct = async (product) => {
+    const shareData = {
+      title: product.title,
+      text: "Check out this product!",
+      url: window.location.origin + "/product/" + product.asin,
+    };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      Swal.fire({
+        icon: "success",
+        title: "Link Copied!",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    }
+  };
+
   return (
     <>
-      {/* 🧭 Navbar on top */}
+      {/* 🧭 Navbar */}
       <NavbarWithSidebar />
 
       {/* 🏷 Product Details */}
@@ -72,9 +133,7 @@ const ProductDetail = () => {
             <h1 className="text-2xl font-semibold text-gray-800 leading-snug mb-2">
               {product.title}
             </h1>
-            <p className="text-indigo-600 text-sm mb-2">
-              {product.brand || "Brand"}
-            </p>
+            <p className="text-indigo-600 text-sm mb-2">{product.brand || "Brand"}</p>
 
             {/* Ratings */}
             <div className="flex items-center gap-2 mb-3">
@@ -93,112 +152,163 @@ const ProductDetail = () => {
             </div>
 
             {/* Price */}
-           {/* Price Section */}
-<div className="my-4">
-
-  {/* If discount exists, show discount price */}
-  {product.discount && (
-    <p className="text-red-600 text-xl font-semibold mb-1">
-      -{product.discount}%{" "}
-      <span className="text-gray-800">₹{product.price}</span>
-    </p>
-  )}
-
-  {/* Always show current price */}
-  <p className="text-2xl font-bold text-gray-900">
-    ₹{product.price}
-  </p>
-
-  {/* If original price exists, show MRP with strike line */}
-  {product.original_price && (
-    <p className="text-sm text-gray-500 line-through">
-      M.R.P: ₹{product.original_price}
-    </p>
-  )}
-</div>
+            <div className="my-4">
+              {product.discount && (
+                <p className="text-red-600 text-xl font-semibold mb-1">
+                  -{product.discount}% <span className="text-gray-800">₹{product.price}</span>
+                </p>
+              )}
+              <p className="text-2xl font-bold text-gray-900">₹{product.price}</p>
+              {product.original_price && (
+                <p className="text-sm text-gray-500 line-through">M.R.P: ₹{product.original_price}</p>
+              )}
+            </div>
 
             {/* Delivery */}
             <div className="text-sm text-gray-700 mb-5">
               <p>
                 FREE delivery{" "}
-                <span className="font-semibold text-gray-900">
-                  Tomorrow, 31 Oct
-                </span>
+                <span className="font-semibold text-gray-900">Tomorrow, 31 Oct</span>
               </p>
               <p>Or fastest delivery Today</p>
             </div>
 
-            {/* Buy Button */}
-            <a
-              href={product.product_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              Buy Now
-            </a>
+            {/* Buy + My Bag + Share Buttons */}
+            <div className="flex flex-wrap gap-4 mt-6 items-center">
+              {/* Buy Now */}
+              <a
+                href={product.product_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 
+                           text-white px-6 py-2 rounded-full font-semibold shadow-md 
+                           hover:shadow-lg hover:scale-105 transition-all duration-300"
+              >
+                Buy Now
+              </a>
+
+              {/* My Bag */}
+              <button
+                onClick={() => addToBag(product)}
+                className="flex items-center gap-2 px-6 py-2 rounded-full border border-indigo-400 
+                           text-indigo-600 hover:bg-indigo-600 hover:text-white 
+                           transition-all shadow"
+              >
+                <TbShoppingBagHeart className="text-xl" />
+                <span>My Bag</span>
+              </button>
+
+              {/* Share */}
+              <button
+                onClick={() => shareProduct(product)}
+                className="p-3 rounded-full bg-gray-200 hover:bg-indigo-600 hover:text-white 
+                           text-gray-700 shadow transition-all"
+              >
+                <FiShare2 className="text-xl" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* 🦶 Footer */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
-        {/* 🌈 Gradient Top Border */}
         <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
-
-        {/* 🔹 Main Footer Grid */}
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-          {/* 🏪 About Section */}
+          {/* Contact */}
           <div>
-  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-  <p className="text-sm mb-1">TrendyMart Private Limited</p>
-  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
-  <p className="text-sm mb-1">
-    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
-  </p>
-  <p className="text-sm mb-1">
-    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
-  </p>
-  
-</div>
-          {/* 🔗 Quick Links */}
+            <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
+            <p className="text-sm mb-1">TrendyMart Private Limited</p>
+            <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+            <p className="text-sm mb-1">
+              3rd Floor, Trendy Business Park, MGR Statue, Virudhunagar, Tamilnadu, India, 626001
+            </p>
+            <p className="text-sm mb-1">
+              E-mail address:{" "}
+              <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">
+                query@trendymart.com
+              </a>
+            </p>
+          </div>
+
+          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-yellow-400 transition">Home</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Shop</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Trending</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Contact</a></li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Shop
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Trending
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Contact
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* 🤝 Customer Service */}
+          {/* Customer Service */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Customer Service</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-yellow-400 transition">Help Center</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Returns</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Shipping Info</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Privacy Policy</a></li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Returns
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Shipping Info
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-yellow-400 transition">
+                  Privacy Policy
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* 📱 Social Links */}
+          {/* Social Links */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
             <div className="flex space-x-4 text-2xl">
-              <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
-              <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>
-              <a href="#" className="hover:text-sky-400 transition"><i className="fab fa-twitter"></i></a>
-              <a href="#" className="hover:text-red-500 transition"><i className="fab fa-youtube"></i></a>
+              <a href="#" className="hover:text-blue-500 transition">
+                <i className="fab fa-facebook"></i>
+              </a>
+              <a href="#" className="hover:text-pink-500 transition">
+                <i className="fab fa-instagram"></i>
+              </a>
+              <a href="#" className="hover:text-sky-400 transition">
+                <i className="fab fa-twitter"></i>
+              </a>
+              <a href="#" className="hover:text-red-500 transition">
+                <i className="fab fa-youtube"></i>
+              </a>
             </div>
           </div>
         </div>
 
-        {/* ⚫ Bottom Bar */}
         <div className="w-full border-t border-gray-700 py-4 text-center text-sm">
           <p>
-            © {new Date().getFullYear()} <span className="text-yellow-400 font-semibold">TrendyMart</span>. All rights reserved.
+            © {new Date().getFullYear()}{" "}
+            <span className="text-yellow-400 font-semibold">TrendyMart</span>. All rights reserved.
           </p>
         </div>
       </footer>
