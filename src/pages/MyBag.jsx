@@ -141,7 +141,6 @@ const MyBag = () => {
                     <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">
                       {p.title}
                     </h2>
-
                     {p.rating && (
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex">{renderStars(p.rating)}</div>
@@ -151,7 +150,7 @@ const MyBag = () => {
 
                     {/* Price */}
                     <div className="mt-3">
-                      <p className="text-3xl font-bold text-indigo-600">
+                      <p className="text-2xl font-bold text-indigo-600">
                         ₹{p.price}
                       </p>
 
@@ -200,13 +199,17 @@ const MyBag = () => {
 
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
-            <p className="text-sm text-gray-400">
-              We bring you the trendiest and most loved products — stylish shirts,
-              cozy sofas, toys, and more. Quality and style in one place!
-            </p>
-          </div>
-
+  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
+  <p className="text-sm mb-1">TrendyMart Private Limited</p>
+  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+  <p className="text-sm mb-1">
+    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
+  </p>
+  <p className="text-sm mb-1">
+    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+  </p>
+  
+</div>
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">

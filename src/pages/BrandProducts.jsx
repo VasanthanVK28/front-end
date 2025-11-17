@@ -196,13 +196,17 @@ const BrandProducts = () => {
         <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
-            <p className="text-sm leading-relaxed text-gray-400">
-              We bring you the trendiest and most loved products — from stylish
-              shirts to cozy sofas and exciting toys. Quality and style, all in
-              one place!
-            </p>
-          </div>
+  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
+  <p className="text-sm mb-1">TrendyMart Private Limited</p>
+  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+  <p className="text-sm mb-1">
+    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
+  </p>
+  <p className="text-sm mb-1">
+    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+  </p>
+  
+</div>
 
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>

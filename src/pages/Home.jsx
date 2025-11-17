@@ -11,6 +11,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [userName, setUserName] = useState("");
@@ -27,6 +28,44 @@ const Home = () => {
   const [starColor, setStarColor] = useState("#facc15");
 
   const navigate = useNavigate();
+const brands = [
+  {
+    name: "Apple",
+    logo: "https://logo.svgcdn.com/logos/apple.png", // transparent Apple logo :contentReference[oaicite:0]{index=0}
+  },
+  {
+    name: "HP",
+    logo: "https://logos-world.net/wp-content/uploads/2020/11/Hewlett-Packard-Logo-2008-2014.png", // HP transparent logo :contentReference[oaicite:1]{index=1}
+  },
+  {
+    name: "Dell",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Dell_logo_2016.svg/640px-Dell_logo_2016.svg.png", // Dell transparent logo :contentReference[oaicite:2]{index=2}
+  },
+  {
+    name: "Samsung",
+    logo: "https://logo.svgcdn.com/logos/samsung.png", // Samsung transparent PNG :contentReference[oaicite:3]{index=3}
+  },
+  {
+    name: "Raymond",
+    logo: "https://static.vecteezy.com/system/resources/previews/022/100/845/non_2x/raymond-logo-free-png.png", // Raymond logo from wikimedia :contentReference[oaicite:4]{index=4}
+  },
+  {
+    name: "Allen Solly",
+    logo: "https://tse1.mm.bing.net/th/id/OIP.1hs9A2LwCU5M-Q6fQafCYQHaER?rs=1&pid=ImgDetMain&o=7&rm=3", // Allen Solly logo from wikimedia
+  },
+  {
+    name: "OnePlus",
+    logo: "https://oasis.opstatics.com/content/dam/oasis/page/vi/03Image%20A_large.jpg",
+  },
+  {
+    name: "Redmi",
+    logo: "https://wallpapercave.com/wp/wp6707768.png",
+  },
+  {
+    name: "Peter England",
+    logo: "https://logowik.com/content/uploads/images/peter-england4491.logowik.com.webp",
+  },
+];
 
   // 🧭 Load products & user
   useEffect(() => {
@@ -278,6 +317,52 @@ const Home = () => {
             </Swiper>
           </div>
         )}
+
+        {/* 🏷️ Top Brands Section */}
+<div className="mt-16 max-w-full mx-auto px-6">
+  <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+    Original Brands
+  </h2>
+
+  {/* Scrolling container */}
+  <div className="overflow-hidden">
+    <div className="flex animate-scroll gap-8 hover:animation-pause">
+      {brands.concat(brands).map((brand, idx) => (
+        <div
+          key={idx}
+          className="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex-shrink-0"
+          title={brand.name}
+        >
+          <img
+            src={brand.logo}
+            alt={brand.name}
+            className="h-16 w-32 object-contain transition-transform duration-300"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Animation */}
+  <style>
+    {`
+      @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-scroll {
+        animation: scroll 10s linear infinite;
+      }
+      /* Pause animation on hover */
+      .hover\\:animation-pause:hover {
+        animation-play-state: paused;
+      }
+    `}
+  </style>
+</div>
+
+
+
       </div>
       {/* Footer */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
@@ -286,13 +371,18 @@ const Home = () => {
 
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">About Us</h3>
-            <p className="text-sm leading-relaxed text-gray-400">
-              We bring you the trendiest and most loved products — from stylish
-              shirts to cozy sofas and exciting toys. Quality and style, all in
-              one place!
-            </p>
-          </div>
+  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
+  <p className="text-sm mb-1">TrendyMart Private Limited</p>
+  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+  <p className="text-sm mb-1">
+    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
+  </p>
+  <p className="text-sm mb-1">
+    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+  </p>
+  
+</div>
+
 
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
