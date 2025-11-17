@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   useReactTable,
   getCoreRowModel,
@@ -456,32 +457,47 @@ const fetchAnalytics = async () => {
 {/* ---------------- Daily Runs Table ---------------- */}
 {activeItem === "Scrape Status" && (
   <div className="bg-white mt-8 p-6 rounded-xl shadow-md max-w-5xl">
-    <h2 className="text-2xl font-bold mb-4 text-gray-800"> Scrape Schedule</h2>
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">Scrape Schedule</h2>
 
-    {!fetchError && schedules.filter(s => s.frequency).length === 0 && <p>No daily runs found.</p>}
+    {!fetchError && schedules.filter(s => s.frequency).length === 0 && (
+      <p>No daily runs found.</p>
+    )}
 
     {schedules.filter(s => s.frequency).length > 0 && (
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-300">
-          <thead className="bg-green-100 text-green-800 uppercase text-sm">
-            <tr>
-              <th className="px-6 py-3 border-r text-center">Frequency</th>
-              <th className="px-6 py-3 border-r text-center">Time</th>
-              <th className="px-6 py-3 border-r text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules
-              .filter(schedule => schedule.frequency)
-              .map(run => (
-                <tr key={run._id} className="hover:bg-green-50 transition-colors">
-                  <td className="px-6 py-3 border-r text-center">{run.frequency}</td>
-                  <td className="px-6 py-3 border-r text-center">{run.time}</td>
-                  <td className="px-6 py-3 border-r text-center">{run.status}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+      <div style={{ height: 400, width: "100%" }}>
+        <DataGrid
+          rows={schedules
+            .filter(s => s.frequency)
+            .map((run, index) => ({
+              id: run._id || index, // DataGrid needs "id"
+              frequency: run.frequency,
+              time: run.time,
+              status: run.status,
+            }))}
+
+          columns={[
+            { field: "frequency", headerName: "Frequency", flex: 1 },
+            { field: "time", headerName: "Time", flex: 1 },
+            { field: "status", headerName: "Status", flex: 1 },
+          ]}
+
+          pageSizeOptions={[5, 10, 20]}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 5 } },
+          }}
+
+          sx={{
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "#d1fae5",
+              color: "#065f46",
+              textTransform: "uppercase",
+              fontWeight: "bold",
+            },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "#f0fdf4",
+            },
+          }}
+        />
       </div>
     )}
   </div>
