@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+
 import Swal from "sweetalert2";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
@@ -17,7 +17,7 @@ import * as echarts from "echarts";
 
 
 
-const Dashboard = () => {
+const Dashboard2 = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("Home");
   
@@ -38,30 +38,6 @@ const Dashboard = () => {
 
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
-
-// ---------------- User Count State ----------------
-const [totalUsers, setTotalUsers] = useState(0);
-const [usersLoading, setUsersLoading] = useState(true);
-
-// ---------------- Fetch Total Users ----------------
-useEffect(() => {
-  const fetchTotalUsers = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/total-users`);
-      console.log("Total Users API response:", response.data);
-
-      if (response.data.status === "success") {
-        setTotalUsers(response.data.total_users);
-      }
-    } catch (error) {
-      console.error("Error fetching total users:", error);
-    } finally {
-      setUsersLoading(false);
-    }
-  };
-
-  fetchTotalUsers();
-}, []);
 
   // ---------------- Analytics States ----------------
   const [analytics, setAnalytics] = useState({
@@ -260,65 +236,10 @@ const fetchAnalytics = async () => {
     });
   };
 
-  // ---------------- Schedule Scrape ----------------
-  const handleScheduleScrape = async () => {
-    if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
-      Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
-      return;
-    }
-    if (scrapeFrequency === "weekly" && !scrapeDay) {
-      Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
-      return;
-    }
-
-    setScheduleLoading(true);
-    try {
-      const payload = { scrapeFrequency, scrapeTime, scrapeDay };
-      const res = await fetch(`${API_URL}/api/schedule-scrape`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Scheduled!",
-          text: "Scraping task scheduled successfully.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-        fetchSchedules();
-      } else {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to schedule scraping task");
-      }
-    } catch (err) {
-      Swal.fire({ icon: "error", title: "Error", text: err.message });
-    } finally {
-      setScheduleLoading(false);
-    }
-  };
-
-  // ---------------- Helper: calculate schedule datetime ----------------
-  const getScheduleTime = (schedule) => {
-    const now = new Date();
-    const [hours, minutes] = (schedule.time || "00:00").split(":");
-    const scheduleDate = new Date(now);
-
-    if (schedule.frequency === "weekly") {
-      const dayMap = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
-      const targetDay = dayMap[schedule.day || "sun"];
-      const diff = (targetDay + 7 - scheduleDate.getDay()) % 7;
-      scheduleDate.setDate(scheduleDate.getDate() + diff);
-    }
-
-    scheduleDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return scheduleDate;
-  };
-
+  
+  
   // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status"];
+  const menuItems = [ "View Analytics", "Configurable layout"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -379,7 +300,7 @@ const fetchAnalytics = async () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <Navbar />
+      
 
       <div className="flex flex-1">
         {/* ---------------- Sidebar ---------------- */}
@@ -413,213 +334,296 @@ const fetchAnalytics = async () => {
 
         {/* ---------------- Main Content ---------------- */}
         <div className="flex-1 p-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Dashboard</h1>
-          <p className="text-gray-700 mb-6">
-            You have selected: <span className="font-semibold">{activeItem}</span>
-          </p>
+          <h1 className="text-3xl font-bold mb-4">Welcome to Dashboard 2</h1>
+        
+      {/* ---------------- View Analytics Panel ---------------- */}
+{activeItem === "View Analytics" && (
+  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-6xl">
+    <h2 className="text-2xl font-bold mb-6 text-gray-800">
+      Product Analytics
+    </h2>
 
-          
-{/* ---------------- User Count Card ---------------- */}
-{activeItem === "Home" && (
-  <div className="bg-white/40 backdrop-blur-lg border border-white/40 rounded-xl shadow-lg max-w-sm p-6 mb-6 flex items-center justify-between text-gray-800">
-    <div>
-      <h2 className="text-xl font-semibold mb-2">Users</h2>
-      {usersLoading ? (
-        <p className="text-3xl font-bold animate-pulse text-gray-600">Loading...</p>
-      ) : (
-        <p className="text-4xl font-bold text-gray-800">{totalUsers}</p>
-      )}
-      <p className="text-sm opacity-70 mt-1">Total registered users</p>
-    </div>
+    {analyticsLoading ? (
+      <p>Loading analytics...</p>
+    ) : (
+      <>
+        
+        {/* ---------------- Summary Cards with Checkboxes ---------------- */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
+  {["impressions", "clicks", "ctr"].map((metric) => {
+    const metricClasses = {
+      impressions: {
+        bg: "bg-blue-50",
+        bgSelected: "bg-blue-100 border border-blue-400",
+        text: "text-blue-700",
+        valueText: "text-blue-900",
+      },
+      clicks: {
+        bg: "bg-green-50",
+        bgSelected: "bg-green-100 border border-green-400",
+        text: "text-green-700",
+        valueText: "text-green-900",
+      },
+      ctr: {
+        bg: "bg-purple-50",
+        bgSelected: "bg-purple-100 border border-purple-400",
+        text: "text-purple-700",
+        valueText: "text-purple-900",
+      },
+    };
 
-    {/* Optional icon on the right */}
-    <div className="text-gray-400 text-6xl opacity-60">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-16 w-16"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
+    const classes = selectedMetrics.includes(metric)
+      ? metricClasses[metric].bgSelected
+      : metricClasses[metric].bg;
+
+    return (
+      <div
+        key={metric}
+        className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${classes}`}
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M5.121 17.804A12 12 0 1112 12a12 12 0 01-6.879 5.804z"
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={selectedMetrics.includes(metric)}
+            onChange={() => {
+              setSelectedMetrics((prev) =>
+                prev.includes(metric)
+                  ? prev.filter((m) => m !== metric)
+                  : [...prev, metric]
+              );
+            }}
+          />
+          <span className={`text-lg font-semibold ${metricClasses[metric].text} capitalize`}>
+            {metric}
+          </span>
+        </label>
+        <p className={`text-2xl font-bold mt-2 ${metricClasses[metric].valueText}`}>
+          {analytics[metric] ?? 0}
+          {metric === "ctr" ? "%" : ""}
+        </p>
+      </div>
+    );
+  })}
+</div>
+
+
+        {/* ---------------- Chart Section ---------------- */}
+        <ReactECharts
+          key={selectedMetrics.join("-")}
+          style={{ height: "400px" }}
+          option={{
+            title: { text: "📈 Analytics Over Time", left: "center" },
+            tooltip: { trigger: "axis" },
+            legend: {
+              data: ["Impressions", "Clicks", "CTR"],
+              bottom: 0,
+            },
+            xAxis: {
+              type: "category",
+              data: analytics.chartData.map((d) => d.date),
+              axisLabel: { color: "#555" },
+            },
+            yAxis: {
+              type: "value",
+              axisLabel: { color: "#555" },
+            },
+            series: [
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("impressions")
+                ? [
+                    {
+                      name: "Impressions",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.impressions),
+                      lineStyle: { color: "#1E90FF" },
+                      itemStyle: { color: "#1E90FF" },
+                    },
+                  ]
+                : []),
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("clicks")
+                ? [
+                    {
+                      name: "Clicks",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.clicks),
+                      lineStyle: { color: "#32CD32" },
+                      itemStyle: { color: "#32CD32" },
+                    },
+                  ]
+                : []),
+              ...(selectedMetrics.length === 0 || selectedMetrics.includes("ctr")
+                ? [
+                    {
+                      name: "CTR",
+                      type: "line",
+                      smooth: true,
+                      data: analytics.chartData.map((d) => d.ctr),
+                      lineStyle: { color: "#800080" },
+                      itemStyle: { color: "#800080" },
+                    },
+                  ]
+                : []),
+            ],
+          }}
         />
-      </svg>
-    </div>
+
+        {/* ---------------- Pages Button ---------------- */}
+        <div className="text-center mt-6">
+          <button
+            onClick={() => setShowPages((prev) => !prev)}
+            className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full shadow hover:from-indigo-600 hover:to-purple-600 transition-all duration-300"
+          >
+            {showPages ? "Hide Pages" : "Show Pages"}
+          </button>
+        </div>
+
+        {/* ---------------- Page URLs (Local Stats) ---------------- */}
+        {showPages && (
+          <div className="mt-8 animate-fadeIn">
+            <h3 className="text-xl font-semibold mb-4 text-gray-700">
+              Page URLs (Local Stats)
+            </h3>
+
+            {(() => {
+              const stored = JSON.parse(localStorage.getItem("pageAnalytics")) || {};
+              const entries = Object.entries(stored);
+
+              if (entries.length === 0) {
+                return <p className="text-gray-500">No pages tracked yet.</p>;
+              }
+
+              return (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">No</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Page URL</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Visits</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entries
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([url, count], index) => (
+                          <tr key={index} className="border-t hover:bg-gray-50 transition-all">
+                            <td className="px-4 py-2 text-sm text-gray-600">{index + 1}</td>
+                            <td className="px-4 py-2 text-sm text-blue-600 break-all">
+                              <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
+                                {url}
+                              </a>
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-800 font-semibold">{count}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </>
+    )}
   </div>
 )}
 
 
 
-          {/* ---------------- Scrape Products Panel ---------------- */}
-          {activeItem === "Scrape Products" && (
-            <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-3xl">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Schedule Scraping Task</h2>
-              <div className="flex flex-col gap-4">
-                <label className="block font-semibold text-gray-700">Frequency</label>
-                <select
-                  value={scrapeFrequency}
-                  onChange={(e) => setScrapeFrequency(e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 w-full"
-                >
-                  <option value="hourly">Hourly</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly Once</option>
-                </select>
+          {/* ---------------- Configurable Layout Panel ---------------- */}
+          {activeItem === "Configurable layout" && (
+            <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">⚙️ Customize Product Display</h2>
 
-                {(scrapeFrequency === "daily" || scrapeFrequency === "weekly") && (
-                  <>
-                    <label className="block font-semibold text-gray-700">Time (HH:MM)</label>
-                    <input
-                      type="time"
-                      value={scrapeTime}
-                      onChange={(e) => setScrapeTime(e.target.value)}
-                      className="border border-gray-300 rounded-md p-2 w-full"
-                    />
-                  </>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Show / Hide Options */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-700 mb-2">Visibility</h3>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center">
+                      <input type="checkbox" checked={showPrice} onChange={() => setShowPrice(!showPrice)} className="mr-2" />
+                      Show Price
+                    </label>
+                    <label className="flex items-center">
+                      <input type="checkbox" checked={showRating} onChange={() => setShowRating(!showRating)} className="mr-2" />
+                      Show Ratings
+                    </label>
+                    <label className="flex items-center">
+                      <input type="checkbox" checked={showLabels} onChange={() => setShowLabels(!showLabels)} className="mr-2" />
+                      Show Labels
+                    </label>
+                  </div>
+                </div>
 
-                {scrapeFrequency === "weekly" && (
-                  <>
-                    <label className="block font-semibold text-gray-700">Day of Week</label>
-                    <select
-                      value={scrapeDay}
-                      onChange={(e) => setScrapeDay(e.target.value)}
-                      className="border border-gray-300 rounded-md p-2 w-full"
-                    >
-                      <option value="mon">Monday</option>
-                      <option value="tue">Tuesday</option>
-                      <option value="wed">Wednesday</option>
-                      <option value="thu">Thursday</option>
-                      <option value="fri">Friday</option>
-                      <option value="sat">Saturday</option>
-                      <option value="sun">Sunday</option>
-                    </select>
-                  </>
-                )}
+                {/* Number of Items */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-700 mb-2">Number of Items</h3>
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={visibleCount}
+                    onChange={(e) => setVisibleCount(parseInt(e.target.value))}
+                    className="w-full border border-gray-300 rounded-md p-2"
+                  />
+                </div>
 
+                               {/* Color Customization */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-700 mb-2">Colors</h3>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-gray-700 font-medium">Card Background</label>
+                      <input
+                        type="color"
+                        value={cardColor}
+                        onChange={(e) => setCardColor(e.target.value)}
+                        className="w-16 h-8 border rounded"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <label className="text-gray-700 font-medium">Text Color</label>
+                      <input
+                        type="color"
+                        value={textColor}
+                        onChange={(e) => setTextColor(e.target.value)}
+                        className="w-16 h-8 border rounded"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <label className="text-gray-700 font-medium">Star Color</label>
+                      <input
+                        type="color"
+                        value={starColor}
+                        onChange={(e) => setStarColor(e.target.value)}
+                        className="w-16 h-8 border rounded"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              
+
+
+              {/* Save Button */}
+              <div className="mt-8 flex justify-end">
                 <button
-                  onClick={handleScheduleScrape}
-                  disabled={scheduleLoading}
-                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+                  onClick={handleSaveSettings}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                 >
-                  {scheduleLoading ? "Scheduling..." : "Schedule Scrape"}
+                  Save Settings
                 </button>
               </div>
             </div>
           )}
-
-         
-
-{/* ---------------- Daily Runs Table ---------------- */}
-{activeItem === "Scrape Status" && (
-  <div className="bg-white mt-8 p-6 rounded-xl shadow-md max-w-5xl">
-    <h2 className="text-2xl font-bold mb-4 text-gray-800">Scrape Schedule</h2>
-
-    {(() => {
-      // FILTER SCHEDULE LISTS
-      const activeSchedules = schedules.filter(
-        (s) => s.frequency && s.status?.toLowerCase() === "active"
-      );
-
-      const completedSchedules = schedules.filter(
-        (s) => s.frequency && s.status?.toLowerCase() === "complete" // <-- FIXED HERE
-      );
-
-      return (
-        <>
-          {/* ---------------- ACTIVE TABLE ---------------- */}
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-green-700">
-            Active Schedules
-          </h3>
-
-          {activeSchedules.length === 0 ? (
-            <p>No active schedules found.</p>
-          ) : (
-            <div style={{ height: 350, width: "100%", marginBottom: "40px" }}>
-              <DataGrid
-                rows={activeSchedules.map((run, index) => ({
-                  id: run._id || index,
-                  frequency: run.frequency,
-                  time: run.time,
-                  status: run.status,
-                }))}
-                columns={[
-                  { field: "frequency", headerName: "Frequency", flex: 1 },
-                  { field: "time", headerName: "Time", flex: 1 },
-                  { field: "status", headerName: "Status", flex: 1 },
-                ]}
-                pageSizeOptions={[5, 10, 20]}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } },
-                }}
-                sx={{
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#d1fae5",
-                    color: "#065f46",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                  },
-                  "& .MuiDataGrid-row:hover": {
-                    backgroundColor: "#f0fdf4",
-                  },
-                }}
-              />
-            </div>
-          )}
-
-          {/* ---------------- COMPLETED TABLE ---------------- */}
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-red-700">
-            Completed Schedules
-          </h3>
-
-          {completedSchedules.length === 0 ? (
-            <p>No completed schedules found.</p>
-          ) : (
-            <div style={{ height: 350, width: "100%" }}>
-              <DataGrid
-                rows={completedSchedules.map((run, index) => ({
-                  id: run._id || index,
-                  frequency: run.frequency,
-                  time: run.time,
-                  status: run.status,
-                }))}
-                columns={[
-                  { field: "frequency", headerName: "Frequency", flex: 1 },
-                  { field: "time", headerName: "Time", flex: 1 },
-                  { field: "status", headerName: "Status", flex: 1 },
-                ]}
-                pageSizeOptions={[5, 10, 20]}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } },
-                }}
-                sx={{
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#fee2e2",
-                    color: "#7f1d1d",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                  },
-                  "& .MuiDataGrid-row:hover": {
-                    backgroundColor: "#fef2f2",
-                  },
-                }}
-              />
-            </div>
-          )}
-        </>
-      );
-    })()}
-  </div>
-)}
-
         </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Dashboard2;

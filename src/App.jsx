@@ -15,6 +15,8 @@ import { ssrImportKey } from 'vite/module-runner';
 import EmbedPopularProducts from "./pages/EmbedPopularProducts";
 import PageTracker from "./components/PageTracker";
 import MyBag from "./pages/MyBag";
+import Login2 from "./Husk2/Login2";
+import Dashboard2 from "./Husk2/Dashboard2";
 
 
 
@@ -43,7 +45,13 @@ function App() {
           <Route path="/" element={<Home />} />
          <Route path="/embed/popular-products" element={<EmbedPopularProducts />} />
          <Route path="/my-bag" element={<MyBag />} />
+         <Route path="/husktwo/login" element={<Login2 />} />
 
+        {/* Dashboard */}
+        
+<Route path="/dashboard2" element={<Dashboard2 />} />
+        {/* default route redirects to login */}
+        <Route path="*" element={<Login2 />} />
 
 
       </Routes>

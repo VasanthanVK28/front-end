@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
   FaTrash,
-  
   FaStar,
   FaStarHalfAlt,
-  FaRegStar
+  FaRegStar,
 } from "react-icons/fa";
 
 import NavbarWithSidebar from "./NavbarWithSidebar";
@@ -97,12 +96,26 @@ const MyBag = () => {
       <NavbarWithSidebar />
 
       <div className="p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-4xl font-bold text-indigo-700 mb-8">
-          My Bag
-        </h1>
-
+        
+        {/* ⭐ EMPTY STATE UI */}
         {bagItems.length === 0 ? (
-          <p className="text-gray-500 text-lg">Your bag is empty.</p>
+          <div className="flex flex-col items-center justify-center mt-20 text-center">
+
+            {/* ⭐ Your Custom Image */}
+            <img
+              src="/images/Shopping bag-amico.png"
+              alt="Shopping Bag"
+              className="w-60 mb-6 drop-shadow-lg"
+            />
+
+            <h2 className="text-3xl font-semibold text-gray-800 mb-2">
+              Hey, it feels so light!
+            </h2>
+
+            <p className="text-gray-500 mb-6 text-lg">
+              Your bag is waiting for something amazing!
+            </p>
+          </div>
         ) : (
           <>
             <div className="flex justify-end mb-6">
@@ -141,6 +154,7 @@ const MyBag = () => {
                     <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">
                       {p.title}
                     </h2>
+
                     {p.rating && (
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex">{renderStars(p.rating)}</div>
@@ -153,13 +167,11 @@ const MyBag = () => {
                       <p className="text-2xl font-bold text-indigo-600">
                         ₹{p.price}
                       </p>
-
                       {p.original_price && (
                         <p className="text-sm text-gray-500">
                           MRP: <span className="line-through">₹{p.original_price}</span>
                         </p>
                       )}
-
                       {p.discount && (
                         <p className="text-sm text-green-600 font-medium">
                           {p.discount}% off
@@ -175,7 +187,7 @@ const MyBag = () => {
                         rel="noopener noreferrer"
                         className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow flex items-center gap-2 transition"
                       >
-                        View 
+                        View
                       </a>
 
                       <button
@@ -193,23 +205,23 @@ const MyBag = () => {
         )}
       </div>
 
-      {/* ⭐ FOOTER ADDED BELOW */}
+      {/* FOOTER */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
         <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
 
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-  <p className="text-sm mb-1">TrendyMart Private Limited</p>
-  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
-  <p className="text-sm mb-1">
-    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
-  </p>
-  <p className="text-sm mb-1">
-    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
-  </p>
-  
-</div>
+            <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
+            <p className="text-sm mb-1">TrendyMart Private Limited</p>
+            <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+            <p className="text-sm mb-1">
+              3rd Floor, Trendy Business Park, MGR Statue, Virudhunagar, Tamilnadu, 626001
+            </p>
+            <p className="text-sm mb-1">
+              E-mail: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+            </p>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
