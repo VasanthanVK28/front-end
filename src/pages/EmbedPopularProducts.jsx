@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
+
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
@@ -65,9 +66,10 @@ const EmbedPopularProducts = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">
-        Popular Products
-      </h3>
+         <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
+       <FaRegStar  className="text-3xl text-yellow-500" />
+       Popular Products
+     </h2>
 
       <Swiper
         modules={[Autoplay, Pagination, Navigation]}

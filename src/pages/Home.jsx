@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt, FaRegStar,FaShoppingCart , } from "react-icons/fa";
+import { LuSparkle } from "react-icons/lu";
+import { MdVerified } from "react-icons/md";
+import { MdStorefront } from "react-icons/md";
 import api from "../api/axios";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
@@ -171,9 +174,11 @@ const brands = [
       {/* 🛍️ Categories Section */}
       <div className="p-10 max-w-7xl mx-auto">
         <div className="mt-10 mb-8 text-center">
-          <h2 className="text-3xl font-extrabold text-gray-800">
-            🛍️ Product Categories
-          </h2>
+          <h2 className="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2 text-center">
+  <MdStorefront className="text-4xl text-violet-600" />
+  Product Categories
+</h2>
+
           <p className="text-gray-500 mt-2">Explore our trending collections</p>
         </div>
 
@@ -223,9 +228,10 @@ const brands = [
         {/* ⭐ Popular Products Section */}
         {visibleCount > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Popular Products
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
+  <FaRegStar  className="text-3xl text-yellow-500" />
+  Popular Products
+</h2>
 
             <Swiper
               modules={[Autoplay, Navigation, Pagination]}
@@ -320,9 +326,11 @@ const brands = [
 
         {/* 🏷️ Top Brands Section */}
 <div className="mt-16 max-w-full mx-auto px-6">
-  <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-    Original Brands
-  </h2>
+  
+<h2 className="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
+  <MdVerified  className="text-blue-500 mr-2" />
+  Original Brands
+</h2>
 
   {/* Scrolling container */}
   <div className="overflow-hidden">
