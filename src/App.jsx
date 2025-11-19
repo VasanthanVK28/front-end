@@ -17,6 +17,7 @@ import PageTracker from "./components/PageTracker";
 import MyBag from "./pages/MyBag";
 import Login2 from "./Husk2/Login2";
 import Dashboard2 from "./Husk2/Dashboard2";
+import NotFound from './pages/NotFound'; // import 404 page
 
 
 
@@ -36,10 +37,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
          <Route path="/home" element={<Home />} />
+          <Route path="/home/*" element={<NotFound />} />
           <Route path="/products/:category" element={<CategoryProducts />} />
+            <Route path="/products/:category/*" element={<NotFound />} /> {/* ✅ invalid subpaths */}
           <Route path="/product/:asin" element={<ProductDetails />} />
+          <Route path="/product/:asin/*" element={<NotFound />} />  
            <Route path="/brand/:brandName" element={<BrandProducts />} />
+             <Route path="/brand/:brandName/*" element={<NotFound />} /> 
            <Route path="/popular-product/:id" element={<PopularProduct />} />
+            <Route path="/popular-product/:id/*" element={<NotFound />} />
            <Route path='/admin' element={<AdminAuth/>}/>
            <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />

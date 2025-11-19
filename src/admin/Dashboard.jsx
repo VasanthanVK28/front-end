@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import axios from "axios";
+import ProductPieChart from "../components/ProductPieChart";
+
 import { DataGrid } from "@mui/x-data-grid";
 import {
   useReactTable,
@@ -35,6 +37,7 @@ const Dashboard = () => {
   const [scrapeTime, setScrapeTime] = useState("03:00");
   const [scrapeDay, setScrapeDay] = useState("sun");
   const [scheduleLoading, setScheduleLoading] = useState(false);
+const [selectedCategories, setSelectedCategories] = useState(["all"]);
 
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
@@ -42,6 +45,29 @@ const Dashboard = () => {
 // ---------------- User Count State ----------------
 const [totalUsers, setTotalUsers] = useState(0);
 const [usersLoading, setUsersLoading] = useState(true);
+
+// ------------------- Mobile count Fetch ----------------
+
+const [totalMobiles, setTotalMobiles] = useState(0);
+const [mobilesLoading, setMobilesLoading] = useState(true);
+
+// ------------------ Laptop count Fetch ----------------
+
+const [laptopLoading, setLaptopLoading] = useState(true);
+const [totalLaptops, setTotalLaptops] = useState(0);
+
+// ------------------ Sofa count Fetch ----------------
+const [sofaLoading, setSofaLoading] = useState(true);
+const [totalSofas, setTotalSofas] = useState(0);
+
+// ------------------ Shirt count Fetch ----------------
+const [shirtLoading, setShirtLoading] = useState(true);
+const [totalShirts, setTotalShirts] = useState(0);
+
+// ------------------ Toys count Fetch ----------------
+const [toyLoading, setToyLoading] = useState(true);
+const [totalToys, setTotalToys] = useState(0);
+
 
 // ---------------- Fetch Total Users ----------------
 useEffect(() => {
@@ -115,131 +141,107 @@ const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array
     }
   };
 
-  // ---------------- Fetch Analytics ----------------
+  // ------------------ Mobile count Fetch ----------------
   useEffect(() => {
-    if (activeItem === "View Analytics") fetchAnalytics();
-  }, [activeItem]);
+  const fetchMobileCount = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/mobiles`);
+      console.log("Mobiles API response:", response.data);
 
-const fetchAnalytics = async () => {
-  setAnalyticsLoading(true);
-  try {
-    const res = await axios.get(`${API_URL}/api/analytics`);
-    console.log("Analytics API response:", res.data);
-
-    if (res.data.status === "success") {
-      const data = res.data.data;
-
-        console.log("Analytics data:", data);
-
-       // ---------------- Aggregate totals ----------------
-      const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
-      const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
-      const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
-
-
-        // ---------------- Aggregate by date for line chart ----------------
-      const dailyTotals = {};
-      data.forEach((d) => {
-        const date = d.date.split("T")[0];
-        if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
-        dailyTotals[date].impressions += d.impressions;
-        dailyTotals[date].clicks += d.clicks;
-      });
-
-       const chartData = Object.keys(dailyTotals)
-        .sort()
-        .map((date) => {
-          const imp = dailyTotals[date].impressions;
-          const clk = dailyTotals[date].clicks;
-          return {
-            date,
-            impressions: imp,
-            clicks: clk,
-            ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0,
-          };
-        });
-
-         // ---------------- Aggregate by product for Pie Charts ----------------
-      const productMap = {};
-      data.forEach((d) => { 
-        if (!d.product_name) return; // skip null product_name
-        if (!productMap[d.product_id]) {
-          productMap[d.product_id] = {
-            product_id: d.product_id,
-            product_name: d.product_name,
-            clicks: d.clicks,
-            impressions: d.impressions,
-          };
-        } else {
-          productMap[d.product_id].clicks += d.clicks;
-          productMap[d.product_id].impressions += d.impressions;
-        }
-      });
-
-      const uniqueProducts = Object.values(productMap);
-
-
-       // ---------------- Page URLs ----------------
-       const pages = [
-          {
-            url: `${API_URL}/home?api_key=${userApiKey}`,
-            productName: "Home",
-            clicks: 0,
-          },
-          ...uniqueProducts.map((p) => ({
-            url: `${API_URL}/products/${p.product_id}?api_key=${userApiKey}`,
-            productName: p.product_name,
-            clicks: p.clicks,
-          })),
-        ];
-
-
-
-
-       // ---------------- Pie Charts ----------------
-      const pieImpressions = uniqueProducts.map((p) => ({ name: p.product_name, value: p.impressions }));
-      const pieClicks = uniqueProducts.map((p) => ({ name: p.product_name, value: p.clicks }));
-
-      setAnalytics({
-        impressions: totalImpressions,
-        clicks: totalClicks,
-        ctr,
-        chartData,
-        pieImpressions,
-        pieClicks,
-        pages,
-      });
+      if (response.data.status === "success") {
+        setTotalMobiles(response.data.count);
+      }
+    } catch (error) {
+      console.error("Error fetching mobiles:", error);
+    } finally {
+      setMobilesLoading(false);
     }
-  } catch (err) {
-    console.error("Error fetching analytics:", err);
-  } finally {
-    setAnalyticsLoading(false);
-  }
-};
+  };
 
-        // ---------------- Helper: map backend URLs to frontend ----------------
-          const mapBackendUrlToFrontend = (backendUrl) => {
-            if (!backendUrl) return "";
+  fetchMobileCount();
+}, []);
 
-            const cleanUrl = backendUrl.split("?")[0];
 
-            // Map backend -> frontend URLs
-            if (cleanUrl.includes("/home")) {
-              return "http://localhost:5173/home";
-            } else if (cleanUrl.includes("69035845fa769dce7dac484c")) {
-              return "http://localhost:5173/products/laptop";
-            } else if (cleanUrl.includes("69035845fa769dce7dac484b")) {
-              return "http://localhost:5173/products/mobile";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484d")) {
-              return "http://localhost:5173/products/sofa";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484e")) {
-              return "http://localhost:5173/products/toys";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484f")) {
-              return "http://localhost:5173/products/shirt";
-            } else {
-              return cleanUrl;
-            }
-          };
+// ------------------ Laptop count Fetch ----------------
+useEffect(() => {
+  const fetchLaptopCount = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/laptops");
+      const data = await res.json();
+      setTotalLaptops(data.count);
+    } catch (err) {
+      console.error("Error fetching laptop count", err);
+    } finally {
+      setLaptopLoading(false);
+    }
+  };
+
+  fetchLaptopCount();
+}, []);
+
+// ------------------ Sofa count Fetch ----------------
+useEffect(() => {
+  const fetchSofaCount = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/sofas`);
+      console.log("Sofa API response:", response.data);
+
+      if (response.data.status === "success") {
+        setTotalSofas(response.data.count);
+      }
+    } catch (error) {
+      console.error("Error fetching sofas:", error);
+    } finally {
+      setSofaLoading(false);
+    }
+  };
+
+  fetchSofaCount();
+}, []);
+
+// ------------------ Shirt count Fetch ----------------
+useEffect(() => {
+  const fetchShirtCount = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/shirts`);
+      console.log("Shirt API response:", response.data);
+
+      if (response.data.status === "success") {
+        setTotalShirts(response.data.count);
+      }
+    } catch (error) {
+      console.error("Error fetching shirts:", error);
+    } finally {
+      setShirtLoading(false);
+    }
+  };
+
+  fetchShirtCount();
+}, []);
+
+// ------------------ Toys count Fetch ----------------
+
+useEffect(() => {
+  const fetchToyCount = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/toys`);
+      console.log("Toy API response:", response.data);
+
+      if (response.data.status === "success") {
+        setTotalToys(response.data.count);
+      }
+    } catch (error) {
+      console.error("Error fetching toys:", error);
+    } finally {
+      setToyLoading(false);
+    }
+  };
+
+  fetchToyCount();
+}, []);
+
+
+         
 
   // ---------------- Logout ----------------
   const handleLogout = () => {
@@ -413,104 +415,257 @@ const fetchAnalytics = async () => {
 
         {/* ---------------- Main Content ---------------- */}
         <div className="flex-1 p-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-4">Welcome to Super Admin Dashboard</h1>
           <p className="text-gray-700 mb-6">
             You have selected: <span className="font-semibold">{activeItem}</span>
           </p>
 
           
-{/* ---------------- User Count Card ---------------- */}
+{/* ---------------- Home Section ---------------- */}
 {activeItem === "Home" && (
-  <div className="bg-white/40 backdrop-blur-lg border border-white/40 rounded-xl shadow-lg max-w-sm p-6 mb-6 flex items-center justify-between text-gray-800">
-    <div>
-      <h2 className="text-xl font-semibold mb-2">Users</h2>
-      {usersLoading ? (
-        <p className="text-3xl font-bold animate-pulse text-gray-600">Loading...</p>
-      ) : (
-        <p className="text-4xl font-bold text-gray-800">{totalUsers}</p>
-      )}
-      <p className="text-sm opacity-70 mt-1">Total registered users</p>
+  <>
+    {/* ---------------- Home Cards ---------------- */}
+    <div className="flex gap-16 flex-wrap">
+
+      {/* ---- USER CARD ---- */}
+      <div className="bg-blue-100 border border-blue-200 text-blue-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Users</h2>
+          {usersLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-blue-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalUsers}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total registered users</p>
+        </div>
+
+        <div className="text-blue-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M5.121 17.804A12 12 0 1112 12a12 12 0 01-6.879 5.804z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ---- MOBILE CARD ---- */}
+      <div className="bg-green-100 border border-green-200 text-green-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Mobiles</h2>
+          {mobilesLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-green-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalMobiles}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total mobile products</p>
+        </div>
+
+        <div className="text-green-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 4h10v16H7z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ---- LAPTOP CARD ---- */}
+      <div className="bg-purple-100 border border-purple-200 text-purple-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Laptops</h2>
+          {laptopLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-purple-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalLaptops}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total laptop products</p>
+        </div>
+
+        <div className="text-purple-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M3 4h18v12H3z M7 20h10" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ---- SOFA CARD ---- */}
+      <div className="bg-orange-100 border border-orange-200 text-orange-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Sofas</h2>
+          {sofaLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-orange-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalSofas}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total sofa products</p>
+        </div>
+
+        <div className="text-orange-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M4 10h16v6H4z M2 16h20M6 10V7h12v3" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ---- SHIRT CARD ---- */}
+      <div className="bg-lime-200 border border-lime-200 text-lime-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Shirts</h2>
+          {shirtLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-lime-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalShirts}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total shirt products</p>
+        </div>
+
+        <div className="text-lime-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M4 6l4-2 4 2 4-2 4 2v12H4V6z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ---- TOY CARD ---- */}
+      <div className="bg-cyan-300 border border-purple-200 text-cyan-800 rounded-xl shadow-md 
+        w-72 p-6 mb-6 flex items-center justify-between
+        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Toys</h2>
+          {toyLoading ? (
+            <p className="text-3xl font-bold animate-pulse text-cyan-400">Loading...</p>
+          ) : (
+            <p className="text-4xl font-bold">{totalToys}</p>
+          )}
+          <p className="text-sm opacity-70 mt-1">Total toy products</p>
+        </div>
+
+        <div className="text-cyan-700 text-6xl opacity-70">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
+            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M5 15l7-7 7 7M5 9h14" />
+          </svg>
+        </div>
+      </div>
+
     </div>
 
-    {/* Optional icon on the right */}
-    <div className="text-gray-400 text-6xl opacity-60">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-16 w-16"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M5.121 17.804A12 12 0 1112 12a12 12 0 01-6.879 5.804z"
-        />
-      </svg>
-    </div>
-  </div>
+    {/* ---- PIE CHART SECTION ---- */}
+    <ProductPieChart
+      totalUsers={totalUsers}
+      totalMobiles={totalMobiles}
+      totalLaptops={totalLaptops}
+      totalSofas={totalSofas}
+      totalShirts={totalShirts}
+      totalToys={totalToys}
+    />
+  </>
 )}
 
 
 
+
           {/* ---------------- Scrape Products Panel ---------------- */}
-          {activeItem === "Scrape Products" && (
-            <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-3xl">
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Schedule Scraping Task</h2>
-              <div className="flex flex-col gap-4">
-                <label className="block font-semibold text-gray-700">Frequency</label>
-                <select
-                  value={scrapeFrequency}
-                  onChange={(e) => setScrapeFrequency(e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 w-full"
-                >
-                  <option value="hourly">Hourly</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly Once</option>
-                </select>
+{activeItem === "Scrape Products" && (
+  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-3xl">
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">Schedule Scraping Task</h2>
+    <div className="flex flex-col gap-4">
+      <label className="block font-semibold text-gray-700">Frequency</label>
+      <select
+        value={scrapeFrequency}
+        onChange={(e) => setScrapeFrequency(e.target.value)}
+        className="border border-gray-300 rounded-md p-2 w-full"
+      >
+        <option value="hourly">Hourly</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly Once</option>
+      </select>
 
-                {(scrapeFrequency === "daily" || scrapeFrequency === "weekly") && (
-                  <>
-                    <label className="block font-semibold text-gray-700">Time (HH:MM)</label>
-                    <input
-                      type="time"
-                      value={scrapeTime}
-                      onChange={(e) => setScrapeTime(e.target.value)}
-                      className="border border-gray-300 rounded-md p-2 w-full"
-                    />
-                  </>
-                )}
+      {(scrapeFrequency === "daily" || scrapeFrequency === "weekly") && (
+        <>
+          <label className="block font-semibold text-gray-700">Time (HH:MM)</label>
+          <input
+            type="time"
+            value={scrapeTime}
+            onChange={(e) => setScrapeTime(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 w-full"
+          />
+        </>
+      )}
 
-                {scrapeFrequency === "weekly" && (
-                  <>
-                    <label className="block font-semibold text-gray-700">Day of Week</label>
-                    <select
-                      value={scrapeDay}
-                      onChange={(e) => setScrapeDay(e.target.value)}
-                      className="border border-gray-300 rounded-md p-2 w-full"
-                    >
-                      <option value="mon">Monday</option>
-                      <option value="tue">Tuesday</option>
-                      <option value="wed">Wednesday</option>
-                      <option value="thu">Thursday</option>
-                      <option value="fri">Friday</option>
-                      <option value="sat">Saturday</option>
-                      <option value="sun">Sunday</option>
-                    </select>
-                  </>
-                )}
+      {scrapeFrequency === "weekly" && (
+        <>
+          <label className="block font-semibold text-gray-700">Day of Week</label>
+          <select
+            value={scrapeDay}
+            onChange={(e) => setScrapeDay(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 w-full"
+          >
+            <option value="mon">Monday</option>
+            <option value="tue">Tuesday</option>
+            <option value="wed">Wednesday</option>
+            <option value="thu">Thursday</option>
+            <option value="fri">Friday</option>
+            <option value="sat">Saturday</option>
+            <option value="sun">Sunday</option>
+          </select>
+        </>
+      )}
 
-                <button
-                  onClick={handleScheduleScrape}
-                  disabled={scheduleLoading}
-                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-                >
-                  {scheduleLoading ? "Scheduling..." : "Schedule Scrape"}
-                </button>
-              </div>
-            </div>
-          )}
+      {/* ---------------- Category Checkbox ---------------- */}
+      <div>
+        <label className="block font-semibold text-gray-700 mb-1">Category</label>
+        <div className="flex flex-wrap gap-4">
+          {["All", "Mobiles", "Laptops", "Shirts", "Toys", "Sofas"].map((cat) => (
+            <label key={cat} className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                value={cat.toLowerCase()}
+                checked={selectedCategories.includes(cat.toLowerCase())}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (selectedCategories.includes(value)) {
+                    setSelectedCategories(selectedCategories.filter((c) => c !== value));
+                  } else {
+                    setSelectedCategories(
+                      value === "all" ? ["all"] : selectedCategories.filter((c) => c !== "all").concat(value)
+                    );
+                  }
+                }}
+                className="form-checkbox h-5 w-5 text-green-600"
+              />
+              <span className="text-gray-700">{cat}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={handleScheduleScrape}
+        disabled={scheduleLoading}
+        className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+      >
+        {scheduleLoading ? "Scheduling..." : "Schedule Scrape"}
+      </button>
+    </div>
+  </div>
+)}
 
          
 

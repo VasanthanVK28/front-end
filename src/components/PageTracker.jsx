@@ -8,7 +8,7 @@ const PageTracker = () => {
     const currentUrl = window.location.href;
     const path = location.pathname;
 
-    // 🎯 Define which paths to track
+    // 🎯 Define which paths to track (exact match)
     const trackedPaths = [
       "/home",
       "/products/laptop",
@@ -18,10 +18,8 @@ const PageTracker = () => {
       "/products/shirt",
     ];
 
-    // ✅ Check if current path matches any tracked path (supports partial match)
-    const shouldTrack = trackedPaths.some((tracked) =>
-      path.startsWith(tracked)
-    );
+    // ✅ Check if current path matches exactly
+    const shouldTrack = trackedPaths.includes(path);
 
     if (!shouldTrack) return; // ❌ Skip tracking for other pages
 

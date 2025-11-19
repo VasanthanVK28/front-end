@@ -19,6 +19,7 @@ const Login = () => {
     try {
       const res = await api.post("/login", { email, password });
 
+      // ✅ Save token and api_key in localStorage
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("api_key", res.data.api_key);
       localStorage.setItem("user_name", res.data.user.name);
@@ -32,8 +33,8 @@ const Login = () => {
         timer: 1500,
         showConfirmButton: false,
       }).then(() => {
-        const apiKey = encodeURIComponent(res.data.api_key);
-        navigate(`/home?api_key=${apiKey}`);
+        // ✅ Navigate to home WITHOUT API key in URL
+        navigate("/home");
       });
     } catch (err) {
       Swal.fire({
@@ -52,17 +53,15 @@ const Login = () => {
           "url('https://images.pexels.com/photos/5632393/pexels-photo-5632393.jpeg')",
       }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60"></div>
 
-      {/* Login Card */}
-      <div className="relative bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl 
+      <div
+        className="relative bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl 
         rounded-3xl p-10 w-full max-w-md transform transition duration-300 
         hover:scale-105 hover:-rotate-1"
       >
-        {/* Slogan */}
         <h3 className="text-center text-white/90 text-lg font-medium mb-2">
-           Shop Smart. Live Better.
+          Shop Smart. Live Better.
         </h3>
 
         <h2 className="text-3xl font-extrabold text-white text-center mb-3">
