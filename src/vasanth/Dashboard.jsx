@@ -805,34 +805,37 @@ const safeCategories = (cats) => {
                   { field: "frequency", headerName: "Frequency", flex: 1 },
                   { field: "time", headerName: "Time", flex: 1 },
                   { field: "status", headerName: "Status", flex: 1 },
-                   {
+  {
   field: "categories",
   headerName: "Categories",
   flex: 2,
   renderCell: (params) => {
     const cats = params.value || {};
-    if (Object.keys(cats).length === 0) return "-";
+    const keys = Object.keys(cats);
 
+    if (keys.length === 0) return "-";
+
+    // ✅ Show "All" if more than one category
+    if (keys.length > 1) return "All";
+
+    // ✅ Otherwise show the single category
     return (
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-        {Object.keys(cats).map((key) => (
-          <span
-            key={key}
-            style={{
-             
-              padding: "2px 6px",
-              borderRadius: "4px",
-              fontSize: "12px",
-              fontWeight: "600",
-            }}
-          >
-            {key}
-          </span>
-        ))}
+        <span
+          style={{
+            padding: "2px 6px",
+            borderRadius: "4px",
+            fontSize: "15px",
+            fontWeight: "300",
+          }}
+        >
+          {keys[0]}
+        </span>
       </div>
     );
   },
-},
+}
+
 
                 ]}
                 pageSizeOptions={[5, 10, 20]}
@@ -876,34 +879,37 @@ const safeCategories = (cats) => {
                   { field: "frequency", headerName: "Frequency", flex: 1 },
                   { field: "time", headerName: "Time", flex: 1 },
                   { field: "status", headerName: "Status", flex: 1 },
-                  {
+                 {
   field: "categories",
   headerName: "Categories",
   flex: 2,
   renderCell: (params) => {
     const cats = params.value || {};
-    if (Object.keys(cats).length === 0) return "-";
+    const keys = Object.keys(cats);
 
+    if (keys.length === 0) return "-";
+
+    // ✅ Show "All" if more than one category
+    if (keys.length > 1) return "All";
+
+    // ✅ Otherwise show the single category
     return (
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-        {Object.keys(cats).map((key) => (
-          <span
-            key={key}
-            style={{
-             
-              padding: "2px 6px",
-              borderRadius: "4px",
-              fontSize: "15px",
-              fontWeight: "300",
-            }}
-          >
-            {key}
-          </span>
-        ))}
+        <span
+          style={{
+            padding: "2px 6px",
+            borderRadius: "4px",
+            fontSize: "15px",
+            fontWeight: "300",
+          }}
+        >
+          {keys[0]}
+        </span>
       </div>
     );
   },
-},
+}
+
 
                 ]}
                 pageSizeOptions={[5, 10, 20]}

@@ -108,20 +108,20 @@ const brands = [
   }, [navigate]);
 
   // 👁️ Track impressions when products become visible
-  useEffect(() => {
-    if (products.length > 0) {
+  //useEffect(() => {
+    //if (products.length > 0) {
       
-      products.slice(0, visibleCount).forEach((item) => {
-        console.log("Tracking impression for product:", item._id || item.asin);
+      //products.slice(0, visibleCount).forEach((item) => {
+        //console.log("Tracking impression for product:", item._id || item.asin);
         
-        api
-          .post("/analytics/track-impression", {
-            product_id:item._id?.$oid|| item._id || item.asin,
-          })
-          .catch((err) => console.error("Impression error:", err));
-      });
-    }
-  }, [products, visibleCount]);
+        //api
+          //.post("", {
+            //product_id:item._id?.$oid|| item._id || item.asin,
+          //})
+          
+      //});
+   // }
+  //}, [products, visibleCount]);
 
   const handleCategoryClick = (category) => {
     navigate(`/products/${category}`);

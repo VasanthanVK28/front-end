@@ -176,17 +176,6 @@ const CategoryProducts = () => {
   }, [selectedBrands, priceRange, sortOrder, products]);
 
   // ✅ Add this useEffect RIGHT HERE, after filteredProducts is updated
-useEffect(() => {
-  if (filteredProducts.length > 0) {
-    filteredProducts.forEach((product) => {
-      api
-        .post("/analytics/track-impression", {
-          product_id: product._id?.$oid || product._id || product.asin,
-        })
-        .catch((err) => console.error("Impression error:", err));
-    });
-  }
-}, [filteredProducts]);
 
   // ✅ Pagination handlers
   const handlePrevPage = () => {

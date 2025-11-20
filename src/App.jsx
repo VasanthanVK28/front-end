@@ -9,8 +9,8 @@ import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails";
 import BrandProducts from "./pages/BrandProducts";
 import PopularProduct from "./pages/PopularProduct";
-import Dashboard from './admin/Dashboard';
-import AdminAuth from './admin/AdminLogin';
+import Dashboard from './vasanth/Dashboard';
+import AdminAuth from './vasanth/AdminLogin';
 import { ssrImportKey } from 'vite/module-runner';
 import EmbedPopularProducts from "./pages/EmbedPopularProducts";
 import PageTracker from "./components/PageTracker";
@@ -46,7 +46,7 @@ function App() {
              <Route path="/brand/:brandName/*" element={<NotFound />} /> 
            <Route path="/popular-product/:id" element={<PopularProduct />} />
             <Route path="/popular-product/:id/*" element={<NotFound />} />
-           <Route path='/admin' element={<AdminAuth/>}/>
+           <Route path='/vasanth' element={<AdminAuth/>}/>
            <Route path='/dashboard'element={<Dashboard/>}></Route>
           <Route path="/" element={<Home />} />
          <Route path="/embed/popular-products" element={<EmbedPopularProducts />} />

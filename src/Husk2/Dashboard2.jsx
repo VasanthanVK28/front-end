@@ -299,12 +299,12 @@ const fetchAnalytics = async () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-emerald-200">
       
 
       <div className="flex flex-1">
         {/* ---------------- Sidebar ---------------- */}
-        <div className="w-64 bg-white shadow-lg flex flex-col justify-between border-r border-gray-200">
+        <div className="w-64 bg-white shadow-lg flex flex-col justify-between border-r border-black-700">
           <div>
             <div className="text-2xl font-bold p-6 border-b border-gray-200 text-gray-800">Dashboard</div>
             <ul className="mt-4">
@@ -336,7 +336,7 @@ const fetchAnalytics = async () => {
         <div className="flex-1 p-10">
           <h1 className="text-3xl font-bold mb-4">Welcome to Dashboard 2</h1>
         
-      {/* ---------------- View Analytics Panel ---------------- */}
+     {/* ---------------- View Analytics Panel ---------------- */}
 {activeItem === "View Analytics" && (
   <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-6xl">
     <h2 className="text-2xl font-bold mb-6 text-gray-800">
@@ -347,126 +347,145 @@ const fetchAnalytics = async () => {
       <p>Loading analytics...</p>
     ) : (
       <>
-        
         {/* ---------------- Summary Cards with Checkboxes ---------------- */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
-  {["impressions", "clicks", "ctr"].map((metric) => {
-    const metricClasses = {
-      impressions: {
-        bg: "bg-blue-50",
-        bgSelected: "bg-blue-100 border border-blue-400",
-        text: "text-blue-700",
-        valueText: "text-blue-900",
-      },
-      clicks: {
-        bg: "bg-green-50",
-        bgSelected: "bg-green-100 border border-green-400",
-        text: "text-green-700",
-        valueText: "text-green-900",
-      },
-      ctr: {
-        bg: "bg-purple-50",
-        bgSelected: "bg-purple-100 border border-purple-400",
-        text: "text-purple-700",
-        valueText: "text-purple-900",
-      },
-    };
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
+          {["impressions", "clicks", "ctr"].map((metric) => {
+            const metricClasses = {
+              impressions: {
+                bg: "bg-blue-50",
+                bgSelected: "bg-blue-100 border border-blue-400",
+                text: "text-blue-700",
+                valueText: "text-blue-900",
+              },
+              clicks: {
+                bg: "bg-green-50",
+                bgSelected: "bg-green-100 border border-green-400",
+                text: "text-green-700",
+                valueText: "text-green-900",
+              },
+              ctr: {
+                bg: "bg-purple-50",
+                bgSelected: "bg-purple-100 border border-purple-400",
+                text: "text-purple-700",
+                valueText: "text-purple-900",
+              },
+            };
 
-    const classes = selectedMetrics.includes(metric)
-      ? metricClasses[metric].bgSelected
-      : metricClasses[metric].bg;
+            const classes = selectedMetrics.includes(metric)
+              ? metricClasses[metric].bgSelected
+              : metricClasses[metric].bg;
 
-    return (
-      <div
-        key={metric}
-        className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${classes}`}
-      >
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={selectedMetrics.includes(metric)}
-            onChange={() => {
-              setSelectedMetrics((prev) =>
-                prev.includes(metric)
-                  ? prev.filter((m) => m !== metric)
-                  : [...prev, metric]
-              );
-            }}
-          />
-          <span className={`text-lg font-semibold ${metricClasses[metric].text} capitalize`}>
-            {metric}
-          </span>
-        </label>
-        <p className={`text-2xl font-bold mt-2 ${metricClasses[metric].valueText}`}>
-          {analytics[metric] ?? 0}
-          {metric === "ctr" ? "%" : ""}
-        </p>
-      </div>
-    );
-  })}
-</div>
-
+            return (
+              <div
+                key={metric}
+                className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${classes}`}
+              >
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedMetrics.includes(metric)}
+                    onChange={() => {
+                      setSelectedMetrics((prev) =>
+                        prev.includes(metric)
+                          ? prev.filter((m) => m !== metric)
+                          : [...prev, metric]
+                      );
+                    }}
+                  />
+                  <span className={`text-lg font-semibold ${metricClasses[metric].text} capitalize`}>
+                    {metric}
+                  </span>
+                </label>
+                <p className={`text-2xl font-bold mt-2 ${metricClasses[metric].valueText}`}>
+                  {analytics[metric] ?? 0}
+                  {metric === "ctr" ? "%" : ""}
+                </p>
+              </div>
+            );
+          })}
+        </div>
 
         {/* ---------------- Chart Section ---------------- */}
         <ReactECharts
-          key={selectedMetrics.join("-")}
-          style={{ height: "400px" }}
-          option={{
-            title: { text: "📈 Analytics Over Time", left: "center" },
-            tooltip: { trigger: "axis" },
-            legend: {
-              data: ["Impressions", "Clicks", "CTR"],
-              bottom: 0,
+  key={selectedMetrics.join("-")}
+  style={{ height: "400px" }}
+  option={{
+    title: { text: "📈 Analytics Over Time", left: "center" },
+    tooltip: { trigger: "axis" },
+    legend: {
+      data: ["Impressions", "Clicks", "CTR"],
+      bottom: 0,
+    },
+    xAxis: {
+      type: "category",
+      data:
+        analytics.chartData.length === 1
+          ? [
+              new Date(new Date(analytics.chartData[0].date).getTime() - 86400000)
+                .toISOString()
+                .slice(0, 10),
+              analytics.chartData[0].date,
+            ]
+          : analytics.chartData.map((d) => d.date),
+      axisLabel: { color: "#555" },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: { color: "#555" },
+    },
+    series: [
+      ...(selectedMetrics.length === 0 || selectedMetrics.includes("impressions")
+        ? [
+            {
+              name: "Impressions",
+              type: "line",
+              smooth: true,
+              areaStyle: { color: "rgba(30,144,255,0.2)" }, // wave effect
+              data:
+                analytics.chartData.length === 1
+                  ? [0, analytics.chartData[0].impressions]
+                  : analytics.chartData.map((d) => d.impressions),
+              lineStyle: { color: "#1E90FF", width: 3 },
+              itemStyle: { color: "#1E90FF" },
             },
-            xAxis: {
-              type: "category",
-              data: analytics.chartData.map((d) => d.date),
-              axisLabel: { color: "#555" },
+          ]
+        : []),
+      ...(selectedMetrics.length === 0 || selectedMetrics.includes("clicks")
+        ? [
+            {
+              name: "Clicks",
+              type: "line",
+              smooth: true,
+              areaStyle: { color: "rgba(50,205,50,0.2)" },
+              data:
+                analytics.chartData.length === 1
+                  ? [0, analytics.chartData[0].clicks]
+                  : analytics.chartData.map((d) => d.clicks),
+              lineStyle: { color: "#32CD32", width: 3 },
+              itemStyle: { color: "#32CD32" },
             },
-            yAxis: {
-              type: "value",
-              axisLabel: { color: "#555" },
+          ]
+        : []),
+      ...(selectedMetrics.length === 0 || selectedMetrics.includes("ctr")
+        ? [
+            {
+              name: "CTR",
+              type: "line",
+              smooth: true,
+              areaStyle: { color: "rgba(128,0,128,0.2)" },
+              data:
+                analytics.chartData.length === 1
+                  ? [0, analytics.chartData[0].ctr]
+                  : analytics.chartData.map((d) => d.ctr),
+              lineStyle: { color: "#800080", width: 3 },
+              itemStyle: { color: "#800080" },
             },
-            series: [
-              ...(selectedMetrics.length === 0 || selectedMetrics.includes("impressions")
-                ? [
-                    {
-                      name: "Impressions",
-                      type: "line",
-                      smooth: true,
-                      data: analytics.chartData.map((d) => d.impressions),
-                      lineStyle: { color: "#1E90FF" },
-                      itemStyle: { color: "#1E90FF" },
-                    },
-                  ]
-                : []),
-              ...(selectedMetrics.length === 0 || selectedMetrics.includes("clicks")
-                ? [
-                    {
-                      name: "Clicks",
-                      type: "line",
-                      smooth: true,
-                      data: analytics.chartData.map((d) => d.clicks),
-                      lineStyle: { color: "#32CD32" },
-                      itemStyle: { color: "#32CD32" },
-                    },
-                  ]
-                : []),
-              ...(selectedMetrics.length === 0 || selectedMetrics.includes("ctr")
-                ? [
-                    {
-                      name: "CTR",
-                      type: "line",
-                      smooth: true,
-                      data: analytics.chartData.map((d) => d.ctr),
-                      lineStyle: { color: "#800080" },
-                      itemStyle: { color: "#800080" },
-                    },
-                  ]
-                : []),
-            ],
-          }}
-        />
+          ]
+        : []),
+    ],
+  }}
+/>
+
 
         {/* ---------------- Pages Button ---------------- */}
         <div className="text-center mt-6">
@@ -528,6 +547,7 @@ const fetchAnalytics = async () => {
     )}
   </div>
 )}
+
 
 
 
