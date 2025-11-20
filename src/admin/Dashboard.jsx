@@ -263,44 +263,75 @@ useEffect(() => {
   };
 
   // ---------------- Schedule Scrape ----------------
-  const handleScheduleScrape = async () => {
-    if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
-      Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
-      return;
-    }
-    if (scrapeFrequency === "weekly" && !scrapeDay) {
-      Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
-      return;
-    }
+  // ---------------- Schedule Scrape ----------------
+const handleScheduleScrape = async () => {
+  if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
+    Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
+    return;
+  }
+  if (scrapeFrequency === "weekly" && !scrapeDay) {
+    Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
+    return;
+  }
 
-    setScheduleLoading(true);
-    try {
-      const payload = { scrapeFrequency, scrapeTime, scrapeDay };
-      const res = await fetch(`${API_URL}/api/schedule-scrape`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+  if (!selectedCategories.length) {
+    Swal.fire({ icon: "warning", title: "Select Category", text: "Please select at least one category" });
+    return;
+  }
+
+  setScheduleLoading(true);
+  try {
+    // Map categories to MongoDB collections
+    const categoryMap = {
+      mobiles: "mobiles_collection",
+      laptops: "laptops_collection",
+      shirts: "shirts_collection",
+      toys: "toys_collection",
+      sofas: "sofas_collection",
+    };
+
+    let categoriesPayload = {};
+    if (selectedCategories.includes("all")) {
+      categoriesPayload = categoryMap; // all categories
+    } else {
+      selectedCategories.forEach(cat => {
+        if (categoryMap[cat]) categoriesPayload[cat] = categoryMap[cat];
       });
-
-      if (res.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Scheduled!",
-          text: "Scraping task scheduled successfully.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-        fetchSchedules();
-      } else {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to schedule scraping task");
-      }
-    } catch (err) {
-      Swal.fire({ icon: "error", title: "Error", text: err.message });
-    } finally {
-      setScheduleLoading(false);
     }
-  };
+
+    const payload = {
+      scrapeFrequency,
+      scrapeTime,
+      scrapeDay,
+      categories: categoriesPayload, // send object {query: collection_name}
+    };
+
+    const res = await fetch(`${API_URL}/api/schedule-scrape`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "Scheduled!",
+        text: "Scraping task scheduled successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchSchedules();
+    } else {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to schedule scraping task");
+    }
+  } catch (err) {
+    Swal.fire({ icon: "error", title: "Error", text: err.message });
+  } finally {
+    setScheduleLoading(false);
+  }
+};
+
 
   // ---------------- Helper: calculate schedule datetime ----------------
   const getScheduleTime = (schedule) => {
@@ -324,41 +355,81 @@ useEffect(() => {
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
-    () => [
-      { accessorKey: "frequency", header: "Frequency" },
-      { accessorKey: "time", header: "Time", cell: info => info.getValue() || "-" },
-      { accessorKey: "day", header: "Day", cell: info => info.getValue() || "-" },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const schedule = row.original;
-          let displayStatus = "";
-          let textColor = "";
+  () => [
+    { accessorKey: "frequency", header: "Frequency" },
+    { accessorKey: "time", header: "Time", cell: info => info.getValue() || "-" },
+    { accessorKey: "day", header: "Day", cell: info => info.getValue() || "-" },
 
-          if (schedule.is_running) {
-            displayStatus = "Running...";
-            textColor = "text-yellow-600";
-          } else if (schedule.status === "complete") {
-            displayStatus = "Complete";
-            textColor = "text-green-600";
-          } else if (schedule.status === "failed") {
-            displayStatus = "Failed";
-            textColor = "text-red-600";
-          } else if (schedule.status === "active") {
-            displayStatus = "Scheduled";
-            textColor = "text-blue-600";
-          } else {
-            displayStatus = "Incomplete";
-            textColor = "text-red-600";
-          }
+    // ✅ Categories Column
+    {
+  field: "categories",
+  headerName: "Categories",
+  flex: 2,
+  renderCell: (params) => {
+    const cats = params.value || {};
 
-          return <span className={`font-semibold ${textColor}`}>{displayStatus}</span>;
-        },
+    return (
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+        {Object.keys(cats).length === 0 ? (
+          <span>-</span>
+        ) : (
+          Object.keys(cats).map((key) => (
+            <span
+              key={key}
+              style={{
+                background: "#e5e7eb",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontSize: "12px",
+                fontWeight: "600",
+              }}
+            >
+              {key}
+            </span>
+          ))
+        )}
+      </div>
+    );
+  },
+}
+
+,
+
+
+    // ✅ Status Column
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const schedule = row.original;
+        let displayStatus = "";
+        let textColor = "";
+
+        if (schedule.is_running) {
+          displayStatus = "Running...";
+          textColor = "text-yellow-600";
+        } else if (schedule.status === "complete") {
+          displayStatus = "Complete";
+          textColor = "text-green-600";
+        } else if (schedule.status === "failed") {
+          displayStatus = "Failed";
+          textColor = "text-red-600";
+        } else if (schedule.status === "active") {
+          displayStatus = "Scheduled";
+          textColor = "text-blue-600";
+        } else {
+          displayStatus = "Incomplete";
+          textColor = "text-red-600";
+        }
+
+        return (
+          <span className={`font-semibold ${textColor}`}>{displayStatus}</span>
+        );
       },
-    ],
-    []
-  );
+    },
+  ],
+  []
+);
 
   const table = useReactTable({
     data: schedules,
@@ -628,33 +699,43 @@ useEffect(() => {
         </>
       )}
 
+      
       {/* ---------------- Category Checkbox ---------------- */}
-      <div>
-        <label className="block font-semibold text-gray-700 mb-1">Category</label>
-        <div className="flex flex-wrap gap-4">
-          {["All", "Mobiles", "Laptops", "Shirts", "Toys", "Sofas"].map((cat) => (
-            <label key={cat} className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                value={cat.toLowerCase()}
-                checked={selectedCategories.includes(cat.toLowerCase())}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (selectedCategories.includes(value)) {
-                    setSelectedCategories(selectedCategories.filter((c) => c !== value));
-                  } else {
-                    setSelectedCategories(
-                      value === "all" ? ["all"] : selectedCategories.filter((c) => c !== "all").concat(value)
-                    );
-                  }
-                }}
-                className="form-checkbox h-5 w-5 text-green-600"
-              />
-              <span className="text-gray-700">{cat}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+<div>
+  <label className="block font-semibold text-gray-700 mb-1">Category</label>
+
+  <div className="flex flex-wrap gap-4">
+    {["all", "mobiles", "laptops", "shirts", "toys", "sofas"].map((cat) => (
+      <label key={cat} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={selectedCategories.includes(cat)}
+          onChange={() => {
+            if (cat === "all") {
+              setSelectedCategories(["all"]);
+            } else {
+              let updated = [...selectedCategories];
+
+              // Remove "all" if other category is selected
+              if (updated.includes("all")) {
+                updated = updated.filter((c) => c !== "all");
+              }
+
+              if (updated.includes(cat)) {
+                updated = updated.filter((c) => c !== cat);
+              } else {
+                updated.push(cat);
+              }
+
+              setSelectedCategories(updated);
+            }
+          }}
+        />
+        <span className="capitalize">{cat}</span>
+      </label>
+    ))}
+  </div>
+</div>
 
       <button
         onClick={handleScheduleScrape}
@@ -683,6 +764,22 @@ useEffect(() => {
       const completedSchedules = schedules.filter(
         (s) => s.frequency && s.status?.toLowerCase() === "complete" // <-- FIXED HERE
       );
+      
+const safeCategories = (cats) => {
+  if (!cats) return {};
+
+  if (typeof cats === "object") return cats;
+
+  if (typeof cats === "string") {
+    try {
+      return JSON.parse(cats);
+    } catch (e) {
+      return {};
+    }
+  }
+
+  return {};
+};
 
       return (
         <>
@@ -701,11 +798,42 @@ useEffect(() => {
                   frequency: run.frequency,
                   time: run.time,
                   status: run.status,
+               categories: safeCategories(run.categories),
+
                 }))}
                 columns={[
                   { field: "frequency", headerName: "Frequency", flex: 1 },
                   { field: "time", headerName: "Time", flex: 1 },
                   { field: "status", headerName: "Status", flex: 1 },
+                   {
+  field: "categories",
+  headerName: "Categories",
+  flex: 2,
+  renderCell: (params) => {
+    const cats = params.value || {};
+    if (Object.keys(cats).length === 0) return "-";
+
+    return (
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+        {Object.keys(cats).map((key) => (
+          <span
+            key={key}
+            style={{
+             
+              padding: "2px 6px",
+              borderRadius: "4px",
+              fontSize: "12px",
+              fontWeight: "600",
+            }}
+          >
+            {key}
+          </span>
+        ))}
+      </div>
+    );
+  },
+},
+
                 ]}
                 pageSizeOptions={[5, 10, 20]}
                 initialState={{
@@ -741,11 +869,42 @@ useEffect(() => {
                   frequency: run.frequency,
                   time: run.time,
                   status: run.status,
+                 categories: safeCategories(run.categories),
+
                 }))}
                 columns={[
                   { field: "frequency", headerName: "Frequency", flex: 1 },
                   { field: "time", headerName: "Time", flex: 1 },
                   { field: "status", headerName: "Status", flex: 1 },
+                  {
+  field: "categories",
+  headerName: "Categories",
+  flex: 2,
+  renderCell: (params) => {
+    const cats = params.value || {};
+    if (Object.keys(cats).length === 0) return "-";
+
+    return (
+      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+        {Object.keys(cats).map((key) => (
+          <span
+            key={key}
+            style={{
+             
+              padding: "2px 6px",
+              borderRadius: "4px",
+              fontSize: "15px",
+              fontWeight: "300",
+            }}
+          >
+            {key}
+          </span>
+        ))}
+      </div>
+    );
+  },
+},
+
                 ]}
                 pageSizeOptions={[5, 10, 20]}
                 initialState={{
