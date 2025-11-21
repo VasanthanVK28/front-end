@@ -11,6 +11,7 @@ import {
 import Swal from "sweetalert2";
 import { FiShare2 } from "react-icons/fi";
 import { TbShoppingBagHeart } from "react-icons/tb";
+import { useTranslation } from "react-i18next";
 
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
@@ -95,7 +96,8 @@ const CategoryProducts = () => {
   const [lastPage, setLastPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  
+  const { t } = useTranslation();
+
 
   // ✅ Fetch category products
   useEffect(() => {
@@ -191,10 +193,10 @@ const addToBag = (product) => {
 
   if (!userId) {
     Swal.fire({
-      icon: "warning",
-      title: "Please Login",
-      text: "You must log in to add items to your bag.",
-      confirmButtonColor: "#6366f1",
+      icon:  t("login_warning.icon"),
+      title: t("login_warning.title"),
+      text: t("login_warning.text"),
+      confirmButtonColor: t("login_warning.confirmButtonColor"),
     });
     return;
   }
@@ -206,10 +208,10 @@ const addToBag = (product) => {
   // Prevent duplicates
   if (bag.find((item) => item.asin === product.asin)) {
     Swal.fire({
-      icon: "info",
-      title: "Already in My Bag",
-      text: "This product is already added.",
-      confirmButtonColor: "#6366f1",
+      icon:  t("already_in_bag.icon"),
+      title:  t("already_in_bag.title"),
+      text: t("already_in_bag.text"),
+      confirmButtonColor: t("already_in_bag.confirmButtonColor"),
     });
     return;
   }
@@ -219,12 +221,12 @@ const addToBag = (product) => {
   localStorage.setItem(key, JSON.stringify(bag));
 
   Swal.fire({
-    icon: "success",
-    title: "Added to My Bag!",
+    icon:t("added_to_bag.icon"),
+    title: t("added_to_bag.title"),
     text: `${product.title.substring(0, 40)}...`,
-    confirmButtonColor: "#10b981", // green
-    timer: 1500,
-    showConfirmButton: false,
+    confirmButtonColor:  t("added_to_bag.confirmButtonColor"), // green
+    timer:t("added_to_bag.timer"),
+    showConfirmButton: t("added_to_bag.showConfirmButton"),
   });
 };
 
@@ -250,14 +252,15 @@ const shareProduct = async (product) => {
       <NavbarWithSidebar />
       <div className="p-10 max-w-7xl mx-auto">
         <h2 className="text-2xl font-extrabold text-center mb-8 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text animate-gradient">
-          {category.charAt(0).toUpperCase() + category.slice(1)} Products
+         {t(category.toLowerCase())} {t("products")}
+
         </h2>
 
         <div className="flex w-full">
           {/* Sidebar */}
           <aside className="hidden md:block w-64 bg-white p-5 border-r border-gray-200 shadow-md fixed left-0 top-20 bottom-0 overflow-y-auto">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-              Filter by Brand
+              {t("filter_by_brand")}
             </h3>
             <ul className="space-y-2 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {brands.map(([brand, count]) => (
@@ -274,7 +277,7 @@ const shareProduct = async (product) => {
                       htmlFor={brand}
                       className="text-gray-700 cursor-pointer hover:text-indigo-600 capitalize"
                     >
-                      {brand}
+                     {t(brand)}
                     </label>
                   </div>
                   <span className="text-gray-500 text-xs">({count})</span>
@@ -285,7 +288,7 @@ const shareProduct = async (product) => {
             {/* Price Range */}
             <div className="mt-8">
               <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-                Filter by Price
+               {t("filter_by_price")}
               </h3>
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>₹{priceRange.min}</span>
@@ -352,10 +355,11 @@ const shareProduct = async (product) => {
                     value={sortOrder}
                     className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option value="title-asc">Name: A → Z</option>
-                    <option value="title-desc">Name: Z → A</option>
-                    <option value="price-asc">Price: Low → High</option>
-                    <option value="price-desc">Price: High → Low</option>
+                    <option value="title-asc">{t("name_asc")}</option>
+                    <option value="title-desc">{t("name_desc")}</option>
+                    <option value="price-asc">{t("price_asc")}</option>
+                    <option value="price-desc">{t("price_desc")}</option>
+
                   </select>
                 </div>
 
@@ -465,7 +469,8 @@ const shareProduct = async (product) => {
               {p.title}
             </h3>
             <p className="text-gray-500 text-sm mt-1">
-              {p.brand || "Unknown Brand"}
+            {t(p.brand ? p.brand.toLowerCase() : "Unknown")}
+
             </p>
 
             <div
@@ -516,7 +521,7 @@ const shareProduct = async (product) => {
                    hover:shadow-lg hover:scale-105 
                    transition-all duration-300"
       >
-        Buy Now
+         {t("buy_now")}
       </a>
 
       <button
@@ -529,7 +534,7 @@ const shareProduct = async (product) => {
                    transition-all shadow"
       >
         <TbShoppingBagHeart className="text-xl" />
-        <span>My Bag</span>
+        <span>{t("my_bag")}</span>
       </button>
     </div>
   </div>

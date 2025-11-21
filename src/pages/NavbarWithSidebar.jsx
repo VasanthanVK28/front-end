@@ -8,6 +8,8 @@ import {
   
   
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import "../i18n/i18n";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -23,11 +25,18 @@ const NavbarWithSidebar = () => {
   const [brands, setBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const navigate = useNavigate();
-
+  const { t, i18n } = useTranslation();
   // ✅ Get user name and api key from localStorage
   const apiKey = localStorage.getItem("user_api_key");
   const token = localStorage.getItem("token");
-
+const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("lang", lang);
+  };
+  useEffect(() => {
+    const savedLang = localStorage.getItem("lang") || "en";
+    i18n.changeLanguage(savedLang);
+  }, []);
   useEffect(() => {
     const name = localStorage.getItem("user_name") || "Guest";
     setUserName(name);
@@ -97,13 +106,14 @@ const NavbarWithSidebar = () => {
   // 🚪 Logout Function
   const handleLogout = async () => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You will be logged out from your account.",
+      title: t("logout_confirm_title"),
+      text: t("logout_confirm_text"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, logout",
+      confirmButtonText: t("logout_confirm_yes"),
+      cancelButtonText: t("logout_confirm_no"),
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -180,7 +190,7 @@ const NavbarWithSidebar = () => {
             >
               <input
                 type="text"
-                placeholder="Search for products..."
+                placeholder={t("search_placeholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none text-gray-700"
@@ -193,6 +203,18 @@ const NavbarWithSidebar = () => {
               </button>
               <FaSearch className="absolute left-3 text-gray-500" />
             </form>
+            <select
+  onChange={(e) => changeLanguage(e.target.value)}
+  defaultValue={i18n.language}
+  className="border border-gray-300 px-2 py-1 rounded-lg text-sm font-medium"
+>
+  <option value="en">English</option>
+  <option value="ta">தமிழ்</option>
+  <option value="hi">हिंदी</option>
+  <option value="te">తెలుగు</option>
+  <option value="ka">ಕನ್ನಡ</option>
+  <option value="ml">മലയാളം</option>
+</select>
 
             {/* 👤 Right - MyBag + User Info + Logout */}
             <div className="flex items-center space-x-6 text-gray-700">
@@ -204,7 +226,8 @@ const NavbarWithSidebar = () => {
                   border border-indigo-300 px-3 py-1 rounded-full transition-all"
       >
         <TbShoppingBagHeart className="text-2xl" />
-        <span>My Bag</span>
+        <span>{t("my_bag")}</span>
+
       </button>
 
 
@@ -213,7 +236,9 @@ const NavbarWithSidebar = () => {
               {/* 👤 User Info */}
               <div className="flex items-center space-x-2">
                 <FaUserCircle className="text-2xl text-indigo-600" />
-                <span className="font-medium">{userName}</span>
+                <span>{userName === "Guest" ? t("guest") : userName}</span>
+
+
               </div>
 
               {/* 🚪 Logout */}
@@ -223,7 +248,8 @@ const NavbarWithSidebar = () => {
                   className="flex items-center space-x-1 text-red-600 hover:text-red-700 font-medium"
                 >
                   <FaSignOutAlt />
-                  <span>Logout</span>
+                 <span>{t("logout")}</span>
+
                 </button>
               )}
             </div>

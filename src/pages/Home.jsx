@@ -6,6 +6,9 @@ import { MdVerified } from "react-icons/md";
 import { MdStorefront } from "react-icons/md";
 import api from "../api/axios";
 import NavbarWithSidebar from "./NavbarWithSidebar";
+import { useTranslation } from "react-i18next";
+import "../i18n/i18n";
+import translate, { setLanguage } from "../i18n/translate";
 
 // 🌀 Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,6 +32,7 @@ const Home = () => {
   const [cardColor, setCardColor] = useState("#ffffff");
   const [textColor, setTextColor] = useState("#1f2937");
   const [starColor, setStarColor] = useState("#facc15");
+const { t, i18n } = useTranslation();
 
   const navigate = useNavigate();
 const brands = [
@@ -167,7 +171,8 @@ const brands = [
     direction="left"
     scrollamount="9"
   >
-    ✨ TrendyMart SUPER DEALS: Laptops, Mobiles, Sofas & More — Prices Slashed!
+    {t("super_deals")}
+
   </marquee>
 </div>
 
@@ -176,36 +181,39 @@ const brands = [
         <div className="mt-10 mb-8 text-center">
           <h2 className="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2 text-center">
   <MdStorefront className="text-4xl text-violet-600" />
-  Product Categories
+  {t("product_categories")}
 </h2>
 
-          <p className="text-gray-500 mt-2">Explore our trending collections</p>
+<p className="text-gray-500 mt-2">{t("explore_collections")}</p>
+
+
+          
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {[
             {
-              name: "Laptops",
+             name: t("laptops"),
               key: "laptop",
               img: "https://tse2.mm.bing.net/th/id/OIP.jw-hh-7JWvedyEv-2qekaQHaE3?rs=1&pid=ImgDetMain&o=7&rm=3",
             },
             {
-              name: "Mobiles",
+              name: t("mobiles"),
               key: "mobile",
               img: "https://m.media-amazon.com/images/I/81vxWpPpgNL.jpg",
             },
             {
-              name: "Sofas",
+              name: t("sofas"),
               key: "sofa",
               img: "https://tse2.mm.bing.net/th/id/OIP.crPBzWUg_xYrh5D_EtBsnwHaHa?w=626&h=626&rs=1&pid=ImgDetMain&o=7&rm=3",
             },
             {
-              name: "Shirts",
+              name:  t("shirts"),
               key: "shirt",
               img: "https://tse3.mm.bing.net/th/id/OIP.F2-POkF06gMEJzdxvvXU-AHaHl?rs=1&pid=ImgDetMain&o=7&rm=3",
             },
             {
-              name: "Toys",
+              name: t("toys"),
               key: "toys",
               img: "https://static.vecteezy.com/system/resources/previews/030/680/149/large_2x/toys-high-quality-4k-ultra-hd-hdr-free-photo.jpg",
             },
@@ -229,9 +237,10 @@ const brands = [
         {visibleCount > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
-  <FaRegStar  className="text-3xl text-yellow-500" />
-  Popular Products
+  <FaRegStar className="text-3xl text-yellow-500" />
+  {t("popular_products")}
 </h2>
+
 
             <Swiper
               modules={[Autoplay, Navigation, Pagination]}
@@ -276,10 +285,11 @@ const brands = [
                         {showLabels && (
                           <>
                             <h3 className="text-sm font-semibold line-clamp-2">
-                              {item.title}
+                              {t(item.title)}
                             </h3>
                             <p className="text-xs mt-1">
-                              {item.brand || "Brand"}
+                           <p>{translate(item.brand)}</p>
+
                             </p>
                           </>
                         )}
@@ -328,9 +338,10 @@ const brands = [
 <div className="mt-16 max-w-full mx-auto px-6">
   
 <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center flex items-center justify-center">
-  <MdVerified  className="text-blue-500 mr-2" />
-  Original Brands
+  <MdVerified className="text-blue-500 mr-2" />
+  {t("original_brands")}
 </h2>
+
 
   {/* Scrolling container */}
   <div className="overflow-hidden">
@@ -379,38 +390,47 @@ const brands = [
 
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-  <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-  <p className="text-sm mb-1">TrendyMart Private Limited</p>
-  <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
+  <h3 className="text-lg font-semibold text-white mb-4">
+  {t("contact_us")}
+</h3>
+  <p className="text-sm mb-1">{t("company_name")}</p>
+  <p className="text-sm mb-1">{t("company_cin")}</p>
   <p className="text-sm mb-1">
-    3rd Floor, Trendy Business Park, MGR Statue,Virudhunagar,Tamilnadu, India, 626001
+    {t("company_address")}
   </p>
   <p className="text-sm mb-1">
-    E-mail address: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+    {t("company_email_label")}{" "} <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
   </p>
   
 </div>
 
 
           <div>
-          <h3 className="text-lg font-semibold text-white mb-4">Shop Non-Stop on TrendyMart</h3>
-          <p className="text-sm text-gray-400 mb-1">Trusted by crores of Indians</p>
-          <p className="text-sm text-gray-400">Cash on Delivery | Free Delivery</p>
+          <h3 className="text-lg font-semibold text-white mb-4">
+  {t("shop_non_stop")}
+</h3>
+
+          <p className="text-sm text-gray-400 mb-1">{t("trusted_by_indians")}</p>
+          <p className="text-sm text-gray-400">{t("delivery_info")}</p>
         </div>
 
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Customer Service</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+  {t("customer_service")}
+</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-yellow-400 transition">Help Center</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Returns</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Shipping Info</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("help_center")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("returns")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("shipping_info")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("privacy_policy")}</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+  {t("follow_us")}
+</h3>
             <div className="flex space-x-4 text-2xl">
               <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
               <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>

@@ -6,20 +6,22 @@ import {
   FaStarHalfAlt,
   FaRegStar,
 } from "react-icons/fa";
-
+import { useTranslation } from "react-i18next";
+import "../i18n/i18n";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
 const MyBag = () => {
   const [bagItems, setBagItems] = useState([]);
-
+const { t, i18n } = useTranslation();
   useEffect(() => {
     const userId = localStorage.getItem("user_unique_id");
 
     if (!userId) {
       Swal.fire({
-        icon: "error",
-        title: "Not Logged In",
-        text: "Please login to access your bag.",
+        icon: t("not_logged_in.icon"),
+        title: t("not_logged_in.title"),
+        text: t("not_logged_in.text"),
+        confirmButtonColor: t("not_logged_in.confirmButtonColor")
       });
       return;
     }
@@ -32,13 +34,15 @@ const MyBag = () => {
   // ⭐ REMOVE ITEM
   const removeItem = (index) => {
     Swal.fire({
-      title: "Remove Item?",
-      text: "Do you want to remove this product?",
-      icon: "warning",
+      title:  t("remove_item.title"),
+      text:t("remove_item.text"),
+      icon: t("remove_item.icon"),
       showCancelButton: true,
-      confirmButtonColor: "#e63946",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Remove",
+      confirmButtonColor: t("remove_item.confirmButtonColor"),
+      cancelButtonColor:t("remove_item.cancelButtonColor"),
+      confirmButtonText: t("remove_item.confirmButtonText"),
+      cancelButtonText: t("cancel") ,
+       confirmButtonText: t("ok")
     }).then((result) => {
       if (result.isConfirmed) {
         const userId = localStorage.getItem("user_unique_id");
@@ -50,7 +54,7 @@ const MyBag = () => {
         setBagItems(updated);
         localStorage.setItem(key, JSON.stringify(updated));
 
-        Swal.fire("Removed!", "Product removed successfully.", "success");
+        Swal.fire(t("remove_item_success.title"), t("remove_item_success.text"), t("remove_item_success.icon"));
       }
     });
   };
@@ -58,13 +62,13 @@ const MyBag = () => {
   // ⭐ CLEAR ALL
   const clearBag = () => {
     Swal.fire({
-      title: "Clear All?",
-      text: "This will remove all products!",
-      icon: "warning",
+      title: t("clear_bag.title"),
+      text:  t("clear_bag.text"),
+      icon: t("clear_bag.icon"),
       showCancelButton: true,
-      confirmButtonColor: "#e63946",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Clear All",
+      confirmButtonColor: t("clear_bag.confirmButtonColor"),
+      cancelButtonColor:t("clear_bag.cancelButtonColor"),
+      confirmButtonText: t("clear_bag.confirmButtonText"),
     }).then((result) => {
       if (result.isConfirmed) {
         const userId = localStorage.getItem("user_unique_id");
@@ -73,7 +77,7 @@ const MyBag = () => {
         localStorage.removeItem(key);
         setBagItems([]);
 
-        Swal.fire("Cleared!", "Your bag is now empty.", "success");
+         Swal.fire(t("clear_bag_success.title"), t("clear_bag_success.text"), t("clear_bag_success.icon"));
       }
     });
   };
@@ -123,7 +127,7 @@ const MyBag = () => {
                 onClick={clearBag}
                 className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition"
               >
-                Clear All
+                {t("clear_all_button")}
               </button>
             </div>
 
@@ -187,14 +191,14 @@ const MyBag = () => {
                         rel="noopener noreferrer"
                         className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow flex items-center gap-2 transition"
                       >
-                        View
+                     {t("view")}
                       </a>
 
                       <button
                         onClick={() => removeItem(index)}
                         className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow flex items-center gap-2 transition"
                       >
-                        <FaTrash /> Remove
+                        <FaTrash /> {t("remove")}
                       </button>
                     </div>
                   </div>
@@ -207,48 +211,57 @@ const MyBag = () => {
 
       {/* FOOTER */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
+        {/* Gradient Top Border */}
         <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
 
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-            <p className="text-sm mb-1">TrendyMart Private Limited</p>
-            <p className="text-sm mb-1">CIN: U62000KA2025PTC000123</p>
-            <p className="text-sm mb-1">
-              3rd Floor, Trendy Business Park, MGR Statue, Virudhunagar, Tamilnadu, 626001
-            </p>
-            <p className="text-sm mb-1">
-              E-mail: <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
-            </p>
-          </div>
+  <h3 className="text-lg font-semibold text-white mb-4">
+  {t("contact_us")}
+</h3>
+  <p className="text-sm mb-1">{t("company_name")}</p>
+  <p className="text-sm mb-1">{t("company_cin")}</p>
+  <p className="text-sm mb-1">
+    {t("company_address")}
+  </p>
+  <p className="text-sm mb-1">
+    {t("company_email_label")}{" "} <a href="mailto:query@trendymart.com" className="text-yellow-400 hover:underline">query@trendymart.com</a>
+  </p>
+  
+</div>
+
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
+          <h3 className="text-lg font-semibold text-white mb-4">
+  {t("shop_non_stop")}
+</h3>
+
+          <p className="text-sm text-gray-400 mb-1">{t("trusted_by_indians")}</p>
+          <p className="text-sm text-gray-400">{t("delivery_info")}</p>
+        </div>
+
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+  {t("customer_service")}
+</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-yellow-400">Home</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Shop</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Trending</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Contact</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("help_center")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("returns")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("shipping_info")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition">{t("privacy_policy")}</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Customer Service</h3>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-yellow-400">Help Center</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Returns</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Shipping Info</a></li>
-              <li><a href="#" className="hover:text-yellow-400">Privacy Policy</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Follow Us</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+  {t("follow_us")}
+</h3>
             <div className="flex space-x-4 text-2xl">
-              <a href="#" className="hover:text-blue-500"><i className="fab fa-facebook"></i></a>
-              <a href="#" className="hover:text-pink-500"><i className="fab fa-instagram"></i></a>
-              <a href="#" className="hover:text-sky-400"><i className="fab fa-twitter"></i></a>
-              <a href="#" className="hover:text-red-500"><i className="fab fa-youtube"></i></a>
+              <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
+              <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>
+              <a href="#" className="hover:text-sky-400 transition"><i className="fab fa-twitter"></i></a>
+              <a href="#" className="hover:text-red-500 transition"><i className="fab fa-youtube"></i></a>
             </div>
           </div>
         </div>
