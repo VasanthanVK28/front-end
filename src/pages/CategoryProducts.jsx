@@ -97,6 +97,9 @@ const CategoryProducts = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const { t } = useTranslation();
+  const [brandPage, setBrandPage] = useState(1);
+  const itemsPerPage = 10;
+
 
 
   // ✅ Fetch category products
@@ -175,7 +178,14 @@ const CategoryProducts = () => {
     }
 
     setFilteredProducts(filtered);
+    setBrandPage(1);
   }, [selectedBrands, priceRange, sortOrder, products]);
+
+  // 🔥 Apply pagination when brand filter is active
+const paginatedBrandProducts = selectedBrands.length > 0
+  ? filteredProducts.slice((brandPage - 1) * itemsPerPage, brandPage * itemsPerPage)
+  : filteredProducts; 
+
 
   // ✅ Add this useEffect RIGHT HERE, after filteredProducts is updated
 
@@ -391,15 +401,30 @@ const shareProduct = async (product) => {
               </div>
 
               {/* Pagination */}
-              {selectedBrands.length === 0 && (
-                <Pagination
-                  currentPage={currentPage}
-                  lastPage={lastPage}
-                  onPrev={handlePrevPage}
-                  onNext={handleNextPage}
-                  onPageSelect={(page) => setCurrentPage(page)}
-                />
-              )}
+              {selectedBrands.length === 0 ? (
+  <Pagination
+    currentPage={currentPage}
+    lastPage={lastPage}
+    onPrev={handlePrevPage}
+    onNext={handleNextPage}
+    onPageSelect={(page) => setCurrentPage(page)}
+  />
+) : (
+  filteredProducts.length > itemsPerPage && (
+    <Pagination
+      currentPage={brandPage}
+      lastPage={Math.ceil(filteredProducts.length / itemsPerPage)}
+      onPrev={() => setBrandPage((p) => Math.max(1, p - 1))}
+      onNext={() =>
+        setBrandPage((p) =>
+          Math.min(Math.ceil(filteredProducts.length / itemsPerPage), p + 1)
+        )
+      }
+      onPageSelect={(page) => setBrandPage(page)}
+    />
+  )
+)}
+
             </div>
 
             {/* Products List */}
@@ -419,7 +444,7 @@ const shareProduct = async (product) => {
         : "space-y-6"
     }
   >
-    {filteredProducts.map((p) => {
+    {paginatedBrandProducts.map((p) => {
       const fullStars = Math.floor(p.rating);
       const hasHalfStar = p.rating % 1 >= 0.5;
       const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -562,15 +587,29 @@ const shareProduct = async (product) => {
 )}
 
             {/* Pagination bottom */}
-            {selectedBrands.length === 0 && (
-              <Pagination
-                currentPage={currentPage}
-                lastPage={lastPage}
-                onPrev={handlePrevPage}
-                onNext={handleNextPage}
-                onPageSelect={(page) => setCurrentPage(page)}
-              />
-            )}
+           {selectedBrands.length === 0 ? (
+  <Pagination
+    currentPage={currentPage}
+    lastPage={lastPage}
+    onPrev={handlePrevPage}
+    onNext={handleNextPage}
+    onPageSelect={(page) => setCurrentPage(page)}
+  />
+) : (
+  filteredProducts.length > itemsPerPage && (
+    <Pagination
+      currentPage={brandPage}
+      lastPage={Math.ceil(filteredProducts.length / itemsPerPage)}
+      onPrev={() => setBrandPage((p) => Math.max(1, p - 1))}
+      onNext={() =>
+        setBrandPage((p) =>
+          Math.min(Math.ceil(filteredProducts.length / itemsPerPage), p + 1)
+        )
+      }
+      onPageSelect={(page) => setBrandPage(page)}
+    />
+  )
+)}
           </main>
         </div>
       </div>

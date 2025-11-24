@@ -8,7 +8,7 @@ import api from "../api/axios";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 import { useTranslation } from "react-i18next";
 import "../i18n/i18n";
-import translate, { setLanguage } from "../i18n/translate";
+
 
 // 🌀 Swiper imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -33,6 +33,14 @@ const Home = () => {
   const [textColor, setTextColor] = useState("#1f2937");
   const [starColor, setStarColor] = useState("#facc15");
 const { t, i18n } = useTranslation();
+const normalizeBrand = (brand) => {
+  if (!brand) return "";
+  return brand
+    .toLowerCase()
+    .replace(/\s+/g, "_")   // spaces → underscore
+    .replace(/-/g, "_")     // hyphens → underscore
+    .trim();
+};
 
   const navigate = useNavigate();
 const brands = [
@@ -288,7 +296,8 @@ const brands = [
                               {t(item.title)}
                             </h3>
                             <p className="text-xs mt-1">
-                           <p>{translate(item.brand)}</p>
+                           <p>{t(normalizeBrand(item.brand))}</p>
+
 
                             </p>
                           </>

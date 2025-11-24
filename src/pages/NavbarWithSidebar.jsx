@@ -212,7 +212,6 @@ const changeLanguage = (lang) => {
   <option value="ta">தமிழ்</option>
   <option value="hi">हिंदी</option>
   <option value="te">తెలుగు</option>
-  <option value="ka">ಕನ್ನಡ</option>
   <option value="ml">മലയാളം</option>
 </select>
 
