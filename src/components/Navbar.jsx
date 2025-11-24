@@ -147,14 +147,14 @@ const toyUrls = {
           }}
           navigation
           pagination={{ clickable: true }}
-          className="rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-hidden h-64 sm:h-80 md:h-96 lg:h-[450px]"
         >
           {bannerImages.map((img, index) => (
             <SwiperSlide key={index}>
               <img
                 src={img}
                 alt={`Banner ${index + 1}`}
-                className="w-full h-[450px] object-cover"
+                className="w-full h-64 sm:h-80 md:h-96 lg:h-[450px] object-cover"
               />
             </SwiperSlide>
           ))}

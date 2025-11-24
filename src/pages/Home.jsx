@@ -144,32 +144,34 @@ const brands = [
       <NavbarWithSidebar />
 
       {/* 🖼️ Banner Section */}
-      <div className="w-full">
-        <Swiper
-          modules={[Autoplay, Navigation, Pagination]}
-          spaceBetween={30}
-          slidesPerView={1}
-          loop={true}
-          navigation={true}
-          pagination={{ clickable: true }}
-          autoplay={{ delay: 3000, disableOnInteraction: false }}
-        >
-          <SwiperSlide>
-            <img
-              src="https://img.freepik.com/premium-psd/banner-laptop-computer-sale-electronic-agency-social-media-web-banner-post-template-psd_610210-390.jpg?w=2000"
-              alt="Banner"
-              className="w-full h-[400px] md:h-[500px] object-cover"
-            />
-          </SwiperSlide>
-          <SwiperSlide>
-            <img
-              src="https://i.pinimg.com/originals/06/ba/27/06ba2728b2ff329fa448072ba7676b01.jpg"
-              alt="Banner"
-              className="w-full h-[400px] md:h-[500px] object-cover"
-            />
-          </SwiperSlide>
-        </Swiper>
-      </div>
+      {/* 🖼️ Banner Section */}
+<div className="w-full">
+  <Swiper
+    modules={[Autoplay, Navigation, Pagination]}
+    spaceBetween={10}
+    slidesPerView={1}
+    loop={true}
+    navigation={true}
+    pagination={{ clickable: true }}
+    autoplay={{ delay: 3000, disableOnInteraction: false }}
+  >
+    <SwiperSlide>
+      <img
+        src="https://img.freepik.com/premium-psd/banner-laptop-computer-sale-electronic-agency-social-media-web-banner-post-template-psd_610210-390.jpg?w=2000"
+        alt="Banner"
+        className="w-full h-[200px] sm:h-[300px] md:h-[450px] object-cover"
+      />
+    </SwiperSlide>
+    <SwiperSlide>
+      <img
+        src="https://i.pinimg.com/originals/06/ba/27/06ba2728b2ff329fa448072ba7676b01.jpg"
+        alt="Banner"
+        className="w-full h-[200px] sm:h-[300px] md:h-[450px] object-cover"
+      />
+    </SwiperSlide>
+  </Swiper>
+</div>
+
 
       {/* ✨ TrendyMart Neon Glow Marquee */}
 <div className="bg-[#111827] py-3 shadow-lg">
@@ -198,7 +200,8 @@ const brands = [
           
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+
           {[
             {
              name: t("laptops"),
@@ -234,7 +237,7 @@ const brands = [
               <img
                 src={c.img}
                 alt={c.name}
-                className="w-full h-36 object-cover rounded-lg mb-4"
+                className="w-full h-28 sm:h-36 object-cover rounded-lg mb-4"
               />
               <h3 className="font-semibold text-gray-800 text-lg">{c.name}</h3>
             </div>
@@ -287,7 +290,8 @@ const brands = [
                       <img
                         src={item.image_url || "https://via.placeholder.com/300"}
                         alt={item.title}
-                        className="w-full h-56 object-contain bg-gray-100"
+                        className="w-full h-40 sm:h-48 md:h-56 object-contain bg-gray-100"
+
                       />
                       <div className="p-4" style={{ color: textColor }}>
                         {showLabels && (
@@ -358,13 +362,14 @@ const brands = [
       {brands.concat(brands).map((brand, idx) => (
         <div
           key={idx}
-          className="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex-shrink-0"
+         className="bg-white p-3 sm:p-4 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer flex-shrink-0"
           title={brand.name}
         >
           <img
             src={brand.logo}
             alt={brand.name}
-            className="h-16 w-32 object-contain transition-transform duration-300"
+            className="h-12 sm:h-16 w-24 sm:w-32 object-contain"
+
           />
         </div>
       ))}
@@ -397,7 +402,8 @@ const brands = [
         {/* Gradient Top Border */}
         <div className="h-1 w-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500"></div>
 
-        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
+
           <div>
   <h3 className="text-lg font-semibold text-white mb-4">
   {t("contact_us")}
@@ -440,7 +446,7 @@ const brands = [
             <h3 className="text-lg font-semibold text-white mb-4">
   {t("follow_us")}
 </h3>
-            <div className="flex space-x-4 text-2xl">
+            <div className="flex space-x-3 sm:space-x-4 text-xl sm:text-2xl">
               <a href="#" className="hover:text-blue-500 transition"><i className="fab fa-facebook"></i></a>
               <a href="#" className="hover:text-pink-500 transition"><i className="fab fa-instagram"></i></a>
               <a href="#" className="hover:text-sky-400 transition"><i className="fab fa-twitter"></i></a>
