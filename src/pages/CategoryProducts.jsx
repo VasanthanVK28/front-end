@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/axios";
+import Slider from "@mui/material/Slider";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import {
   FaStar,
   FaStarHalfAlt,
@@ -249,8 +252,7 @@ const CategoryProducts = () => {
         {/* Sidebar */}
         <aside
           className={`bg-white p-5 border-r border-gray-200 shadow-md fixed top-0 bottom-0 left-0 z-40 w-64 overflow-y-auto transform transition-transform duration-300 ease-in-out
-            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}
-        >
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:block`}>
           <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">{t("filter_by_brand")}</h3>
           <ul className="space-y-2 max-h-72 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {brands.map(([brand, count]) => (
@@ -274,44 +276,39 @@ const CategoryProducts = () => {
 
           {/* Price Range */}
           <div className="mt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">{t("filter_by_price")}</h3>
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>₹{priceRange.min}</span>
-              <span>₹{priceRange.max}</span>
-            </div>
-            <div className="relative h-2 mb-6">
-              <div className="absolute inset-0 bg-gray-200 rounded-full"></div>
-              <div
-                className="absolute h-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                style={{
-                  left: `${(priceRange.min / 100000) * 100}%`,
-                  right: `${100 - (priceRange.max / 100000) * 100}%`,
-                }}
-              ></div>
-              <input
-                type="range"
-                min="0"
-                max="100000"
-                step="500"
-                value={priceRange.min}
-                onChange={(e) =>
-                  setPriceRange((prev) => ({ ...prev, min: Math.min(Number(e.target.value), prev.max - 1000) }))
-                }
-                className="absolute w-full appearance-none bg-transparent pointer-events-auto"
-              />
-              <input
-                type="range"
-                min="0"
-                max="100000"
-                step="500"
-                value={priceRange.max}
-                onChange={(e) =>
-                  setPriceRange((prev) => ({ ...prev, max: Math.max(Number(e.target.value), prev.min + 1000) }))
-                }
-                className="absolute w-full appearance-none bg-transparent pointer-events-auto"
-              />
-            </div>
-          </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                    {t("filter_by_price")}
+                  </h3>
+
+                  {/* Min & Max Values */}
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>₹{priceRange.min}</span>
+                    <span>₹{priceRange.max}</span>
+                  </div>
+
+                  {/* Material UI Slider */}
+                  <Slider
+                    value={[priceRange.min, priceRange.max]}
+                    onChange={(e, newValue) =>
+                      setPriceRange({ min: newValue[0], max: newValue[1] })
+                    }
+                    min={0}
+                    max={100000}
+                    step={500}
+                    valueLabelDisplay="auto"
+                    sx={{
+                      color: "#6366f1", // Tailwind indigo-500
+                      "& .MuiSlider-thumb": {
+                        backgroundColor: "#fff",
+                        border: "2px solid #6366f1",
+                      },
+                      "& .MuiSlider-valueLabel": {
+                        background: "#6366f1",
+                      },
+                    }}
+                  />
+                </div>
+
         </aside>
 
         {/* Products Section */}
