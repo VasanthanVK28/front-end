@@ -6,8 +6,12 @@ import {
   FaUserCircle,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import ReactCountryFlag from "react-country-flag";
 import { useTranslation } from "react-i18next";
 import "../i18n/i18n";
+import { TextField, InputAdornment } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -137,141 +141,226 @@ const NavbarWithSidebar = () => {
   return (
     <>
       <nav className="bg-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16">
 
-            {/* LEFT: Logo + Hamburger */}
-            <div className="flex items-center space-x-4">
-              <button
-                className="lg:hidden text-2xl text-gray-700"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                {isOpen ? <FaTimes /> : <FaBars />}
-              </button>
+      {/* LEFT: Logo + Hamburger */}
+      <div className="flex items-center gap-4">
+        <button
+          className="lg:hidden text-2xl text-gray-700"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <FaTimes /> : <FaBars />}
+        </button>
 
-              <div
-                onClick={() => navigate("/home")}
-                className="text-2xl font-extrabold cursor-pointer text-indigo-600 hover:text-pink-500 transition duration-300"
-              >
-                Trendy<span className="text-yellow-500">Mart</span>
-              </div>
-            </div>
+        <div
+          onClick={() => navigate("/home")}
+          className="text-2xl font-extrabold cursor-pointer text-indigo-600 hover:text-pink-500 transition duration-300"
+        >
+          Trendy<span className="text-yellow-500">Mart</span>
+        </div>
+      </div>
 
-            {/* SEARCH BAR */}
-            <form
-              onSubmit={handleSearch}
-              className="hidden md:flex flex-1 max-w-lg relative items-center"
-            >
-              <input
-                type="text"
-                placeholder={t("search_placeholder") || "Search..."}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"
-              />
-              <FaSearch className="absolute left-3 text-gray-500" />
-              <button type="submit" className="absolute right-3 text-gray-600 hover:text-indigo-600">
-                <FaSearch />
-              </button>
-            </form>
+      {/* SEARCH BAR (Desktop Only) */}
+      <form
+        onSubmit={handleSearch}
+        className="hidden md:flex flex-1 max-w-lg relative items-center"
+      >
+        <input
+          type="text"
+          placeholder={t("search_placeholder") || "Search..."}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"
+        />
+        <FaSearch className="absolute left-3 text-gray-500" />
 
-            {/* RIGHT SIDE */}
-            <div className="flex items-center space-x-4">
-              {/* Language */}
-              <select
-                onChange={(e) => changeLanguage(e.target.value)}
-                defaultValue={i18n.language}
-                className="hidden sm:block border px-2 py-1 rounded-lg text-sm"
-              >
-                <option value="en">English</option>
-                <option value="ta">தமிழ்</option>
-                <option value="hi">हिंदी</option>
-                <option value="te">తెలుగు</option>
-                <option value="ml">മലയാളം</option>
-              </select>
+        <button
+          type="submit"
+          className="absolute right-3 text-gray-600 hover:text-indigo-600"
+        >
+          <FaSearch />
+        </button>
+      </form>
 
-              {/* My Bag */}
-              <button
-                onClick={() => navigate("/my-bag")}
-                className="hidden md:flex items-center space-x-1 text-indigo-600 border border-indigo-300 px-3 py-1 rounded-full hover:text-indigo-700"
-              >
-                <TbShoppingBagHeart className="text-xl" />
-                <span>{t("my_bag") || "My Bag"}</span>
-              </button>
+      {/* RIGHT SIDE */}
+      <div className="flex items-center gap-4">
 
-              {/* User */}
-              <div className="hidden sm:flex items-center space-x-2">
-                <FaUserCircle className="text-2xl text-indigo-600" />
-                <span>{userName === "Guest" ? t("guest") || "Guest" : userName}</span>
-              </div>
+        {/* Language Dropdown */}
+        <FormControl
+  size="small"
+  className="hidden sm:block"
+  sx={{ minWidth: 150 }}
+>
+  <InputLabel id="language-select-label">Language</InputLabel>
 
-              {/* Logout */}
-              {userName !== "Guest" && (
-                <button
-                  onClick={handleLogout}
-                  className="hidden sm:flex items-center space-x-1 text-red-600 hover:text-red-700"
-                >
-                  <FaSignOutAlt />
-                  <span>{t("logout") || "Logout"}</span>
-                </button>
-              )}
-            </div>
-          </div>
+  <Select
+    labelId="language-select-label"
+    label="Language"
+    value={i18n.language}
+    onChange={(e) => changeLanguage(e.target.value)}
+    sx={{
+      borderRadius: "8px",
+      fontSize: "14px",
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    {/* English - UK Flag */}
+    <MenuItem value="en">
+      <div className="flex items-center space-x-2">
+        <ReactCountryFlag
+          countryCode="IN"
+          svg
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span>English</span>
+      </div>
+    </MenuItem>
+
+    {/* Tamil - India Flag */}
+    <MenuItem value="ta">
+      <div className="flex items-center space-x-2">
+        <ReactCountryFlag
+          countryCode="IN"
+          svg
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span>தமிழ்</span>
+      </div>
+    </MenuItem>
+
+    {/* Hindi */}
+    <MenuItem value="hi">
+      <div className="flex items-center space-x-2">
+        <ReactCountryFlag
+          countryCode="IN"
+          svg
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span>हिंदी</span>
+      </div>
+    </MenuItem>
+
+    {/* Telugu */}
+    <MenuItem value="te">
+      <div className="flex items-center space-x-2">
+        <ReactCountryFlag
+          countryCode="IN"
+          svg
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span>తెలుగు</span>
+      </div>
+    </MenuItem>
+
+    {/* Malayalam */}
+    <MenuItem value="ml">
+      <div className="flex items-center space-x-2">
+        <ReactCountryFlag
+          countryCode="IN"
+          svg
+          style={{ width: "20px", height: "20px" }}
+        />
+        <span>മലയാളം</span>
+      </div>
+    </MenuItem>
+  </Select>
+</FormControl>
+
+        {/* My Bag */}
+        <button
+          onClick={() => navigate("/my-bag")}
+          className="hidden md:flex items-center gap-1 text-indigo-600 border border-indigo-300 px-3 py-1 rounded-full hover:text-indigo-700"
+        >
+          <TbShoppingBagHeart className="text-xl" />
+          <span>{t("my_bag") || "My Bag"}</span>
+        </button>
+
+        {/* User */}
+        <div className="hidden sm:flex items-center gap-2">
+          <FaUserCircle className="text-2xl text-indigo-600" />
+          <span>
+            {userName === "Guest" ? t("guest") || "Guest" : userName}
+          </span>
         </div>
 
-        {/* MOBILE SEARCH & MENU */}
-        {isOpen && (
-          <div className="lg:hidden px-4 pt-4 pb-6 space-y-4 bg-white shadow-md">
-            {/* Mobile search */}
-            <form onSubmit={handleSearch} className="flex relative items-center">
-              <input
-                type="text"
-                placeholder={t("search_placeholder") || "Search..."}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"
-              />
-              <FaSearch className="absolute left-3 text-gray-500" />
-              <button type="submit" className="absolute right-3 text-gray-600 hover:text-indigo-600">
-                <FaSearch />
-              </button>
-            </form>
-
-            {/* Mobile menu buttons */}
-            <div className="flex flex-col space-y-3 mt-4">
-              <select
-                onChange={(e) => changeLanguage(e.target.value)}
-                defaultValue={i18n.language}
-                className="border px-2 py-1 rounded-lg text-sm w-full"
-              >
-                <option value="en">English</option>
-                <option value="ta">தமிழ்</option>
-                <option value="hi">हिंदी</option>
-                <option value="te">తెలుగు</option>
-                <option value="ml">മലയാളം</option>
-              </select>
-
-              <button
-                onClick={() => navigate("/my-bag")}
-                className="flex items-center space-x-2 text-indigo-600 border border-indigo-300 px-3 py-2 rounded-full hover:text-indigo-700 w-full justify-center"
-              >
-                <TbShoppingBagHeart className="text-xl" />
-                <span>{t("my_bag") || "My Bag"}</span>
-              </button>
-
-              {userName !== "Guest" && (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-red-600 border border-red-300 px-3 py-2 rounded-full hover:text-red-700 w-full justify-center"
-                >
-                  <FaSignOutAlt />
-                  <span>{t("logout") || "Logout"}</span>
-                </button>
-              )}
-            </div>
-          </div>
+        {/* Logout */}
+        {userName !== "Guest" && (
+          <button
+            onClick={handleLogout}
+            className="hidden sm:flex items-center gap-1 text-red-600 hover:text-red-700"
+          >
+            <FaSignOutAlt />
+            <span>{t("logout") || "Logout"}</span>
+          </button>
         )}
-      </nav>
+      </div>
+    </div>
+  </div>
+
+  {/* MOBILE MENU */}
+  {isOpen && (
+    <div className="lg:hidden px-4 pt-4 pb-6 space-y-4 bg-white shadow-md">
+
+      {/* Mobile Search */}
+      <form onSubmit={handleSearch} className="relative flex items-center">
+        <input
+          type="text"
+          placeholder={t("search_placeholder") || "Search..."}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"
+        />
+        <FaSearch className="absolute left-3 text-gray-500" />
+        <button
+          type="submit"
+          className="absolute right-3 text-gray-600 hover:text-indigo-600"
+        >
+          <FaSearch />
+        </button>
+      </form>
+
+      {/* Mobile Buttons */}
+      <div className="flex flex-col gap-3 mt-4">
+
+        {/* Language Selector */}
+        <select
+          onChange={(e) => changeLanguage(e.target.value)}
+          defaultValue={i18n.language}
+          className="border px-3 py-2 rounded-lg text-sm w-full"
+        >
+          <option value="en">English</option>
+          <option value="ta">தமிழ்</option>
+          <option value="hi">हिंदी</option>
+          <option value="te">తెలుగు</option>
+          <option value="ml">മലയാളം</option>
+        </select>
+
+        {/* My Bag */}
+        <button
+          onClick={() => navigate("/my-bag")}
+          className="flex items-center gap-2 text-indigo-600 border border-indigo-300 px-4 py-2 rounded-full hover:text-indigo-700 w-full justify-center"
+        >
+          <TbShoppingBagHeart className="text-xl" />
+          <span>{t("my_bag") || "My Bag"}</span>
+        </button>
+
+        {/* Logout */}
+        {userName !== "Guest" && (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-red-600 border border-red-300 px-4 py-2 rounded-full hover:text-red-700 w-full justify-center"
+          >
+            <FaSignOutAlt />
+            <span>{t("logout") || "Logout"}</span>
+          </button>
+        )}
+      </div>
+    </div>
+  )}
+</nav>
+
     </>
   );
 };

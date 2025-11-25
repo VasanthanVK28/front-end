@@ -190,11 +190,11 @@ const brands = [
       <div className="p-10 max-w-7xl mx-auto">
         <div className="mt-10 mb-8 text-center">
           <h2 className="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2 text-center">
-  <MdStorefront className="text-4xl text-violet-600" />
-  {t("product_categories")}
-</h2>
+                <MdStorefront className="text-4xl text-violet-600" />
+                {t("product_categories")}
+              </h2>
 
-<p className="text-gray-500 mt-2">{t("explore_collections")}</p>
+              <p className="text-gray-500 mt-2">{t("explore_collections")}</p>
 
 
           

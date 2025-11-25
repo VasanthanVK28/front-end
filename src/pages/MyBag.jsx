@@ -6,6 +6,7 @@ import {
   FaStarHalfAlt,
   FaRegStar,
 } from "react-icons/fa";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTranslation } from "react-i18next";
 import "../i18n/i18n";
 import NavbarWithSidebar from "./NavbarWithSidebar";
@@ -185,20 +186,21 @@ const { t, i18n } = useTranslation();
 
                     {/* Buttons */}
                     <div className="flex gap-4 mt-5">
-                      <a
-                        href={p.product_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow flex items-center gap-2 transition"
-                      >
-                     {t("view")}
-                      </a>
+                      <a href={p.product_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow flex items-center gap-2 transition"
+                  >
+                    <VisibilityIcon className="text-white" /> {/* Eye icon */}
+                    
+                  </a>
+
 
                       <button
                         onClick={() => removeItem(index)}
                         className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow flex items-center gap-2 transition"
                       >
-                        <FaTrash /> {t("remove")}
+                        <FaTrash /> 
                       </button>
                     </div>
                   </div>

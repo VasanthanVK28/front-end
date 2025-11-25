@@ -10,8 +10,8 @@ function NotFound() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        background: "#1a1a1a",
-        color: "#fff",
+        background: "#f5f5f5", // ⭐ Light background color
+        color: "#333", // Dark text for better contrast
       }}
     >
       {/* 404 Text Animation */}
@@ -49,7 +49,7 @@ function NotFound() {
           borderRadius: "8px",
           color: "#fff",
         }}
-        onClick={() => window.location.href = "/home"}
+        onClick={() => (window.location.href = "/home")}
       >
         Go Back Home
       </motion.button>
