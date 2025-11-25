@@ -760,12 +760,12 @@ const handleScheduleScrape = async () => {
       const activeSchedules = schedules.filter(
         (s) => s.frequency && s.status?.toLowerCase() === "active"
       );
-
+      
       const completedSchedules = schedules.filter(
         (s) => s.frequency && s.status?.toLowerCase() === "complete" // <-- FIXED HERE
       );
       
-const safeCategories = (cats) => {
+  const safeCategories = (cats) => {
   if (!cats) return {};
 
   if (typeof cats === "object") return cats;
@@ -779,7 +779,7 @@ const safeCategories = (cats) => {
   }
 
   return {};
-};
+  };
 
       return (
         <>
@@ -834,7 +834,7 @@ const safeCategories = (cats) => {
       </div>
     );
   },
-}
+  }
 
 
                 ]}
@@ -908,7 +908,7 @@ const safeCategories = (cats) => {
       </div>
     );
   },
-}
+  }
 
 
                 ]}
@@ -934,7 +934,7 @@ const safeCategories = (cats) => {
       );
     })()}
   </div>
-)}
+  )}
 
         </div>
       </div>
