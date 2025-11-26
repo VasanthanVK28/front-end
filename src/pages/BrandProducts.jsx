@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { FaStar, FaRegStar, FaShoppingCart } from "react-icons/fa";
 import NavbarWithSidebar from "../pages/NavbarWithSidebar";
 import api from "../api/axios";
+import { useTranslation } from "react-i18next";
 
 const BrandProducts = () => {
   const { brandName } = useParams();
@@ -11,6 +12,8 @@ const BrandProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const perPage = 10;
+  const { t } = useTranslation();
+  const translatedBrand = t(brandName.toLowerCase());
 
   const fetchBrandProducts = async (page = 1) => {
     try {
@@ -74,10 +77,10 @@ const BrandProducts = () => {
       <div className="bg-gray-50 min-h-screen p-4 md:p-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-800 capitalize">
-            {brandName} 
+           {translatedBrand}
           </h1>
           <p className="text-gray-500 mt-2">
-            Discover top deals from <span className="font-semibold">{brandName}</span>
+            {t("discover_deals", { brand: translatedBrand})}
           </p>
 
           {/* Pagination */}
@@ -87,7 +90,8 @@ const BrandProducts = () => {
               disabled={currentPage === 1}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
             >
-              Previous
+              {t("prev")}
+
             </button>
             <span className="px-4 py-2">
               Page {currentPage} of {totalPages}
@@ -97,7 +101,8 @@ const BrandProducts = () => {
               disabled={currentPage === totalPages}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
             >
-              Next
+              {t("next")}
+
             </button>
           </div>
         </div>
@@ -180,7 +185,7 @@ const BrandProducts = () => {
                     className="flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                   >
                     <FaShoppingCart className="text-lg" />
-                    <span>Buy Now</span>
+                    {t("buy_now")}
                   </button>
                 </div>
               </div>
@@ -199,7 +204,8 @@ const BrandProducts = () => {
             disabled={currentPage === 1}
             className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >
-            Previous
+            {t("prev")}
+
           </button>
           <span className="px-4 py-2">
             Page {currentPage} of {totalPages}
@@ -209,7 +215,8 @@ const BrandProducts = () => {
             disabled={currentPage === totalPages}
             className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >
-            Next
+            {t("next")}
+
           </button>
         </div>
       </div>

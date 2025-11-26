@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 
 // Pagination Component
-const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => {
+const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect,t }) => {
   const getPageNumbers = () => {
     const pages = [];
     if (lastPage <= 7) {
@@ -49,7 +49,8 @@ const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => 
             : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
         }`}
       >
-        Prev
+        {t("prev")}
+
       </button>
 
       {getPageNumbers().map((page, idx) =>
@@ -81,7 +82,8 @@ const Pagination = ({ currentPage, lastPage, onPrev, onNext, onPageSelect }) => 
             : "bg-white text-gray-700 hover:bg-indigo-600 hover:text-white border-gray-300"
         }`}
       >
-        Next
+        {t("next")}
+
       </button>
     </div>
   );
@@ -372,6 +374,7 @@ const CategoryProducts = () => {
                 onPrev={handlePrevPage}
                 onNext={handleNextPage}
                 onPageSelect={(page) => setCurrentPage(page)}
+                t={t}
               />
             ) : (
               filteredProducts.length > itemsPerPage && (
@@ -385,6 +388,7 @@ const CategoryProducts = () => {
                     )
                   }
                   onPageSelect={(page) => setBrandPage(page)}
+                  t={t}
                 />
               )
             )}
@@ -546,6 +550,7 @@ const CategoryProducts = () => {
               onPrev={handlePrevPage}
               onNext={handleNextPage}
               onPageSelect={(page) => setCurrentPage(page)}
+              t={t}
             />
           ) : (
             filteredProducts.length > itemsPerPage && (
@@ -559,6 +564,7 @@ const CategoryProducts = () => {
                   )
                 }
                 onPageSelect={(page) => setBrandPage(page)}
+                t={t}
               />
             )
           )}

@@ -496,7 +496,9 @@
   
     "view": "View",
     "remove": "Remove",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "brand_title": "{{brand}}",
+  "discover_deals": "Discover top deals from {{brand}}"
 
 
 
