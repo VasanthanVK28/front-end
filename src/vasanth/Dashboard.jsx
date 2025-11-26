@@ -68,19 +68,42 @@ const [totalShirts, setTotalShirts] = useState(0);
 const [toyLoading, setToyLoading] = useState(true);
 const [totalToys, setTotalToys] = useState(0);
 
+// ---------------- Logs State ----------------
+
+const [logs, setLogs] = useState([]);
+
+const addLog = (message, type = "info") => {
+  const timestamp = new Date().toLocaleString();
+  const newLog = { message, type, timestamp };
+
+  const oldLogs = JSON.parse(localStorage.getItem("logs")) || [];
+  const updatedLogs = [...oldLogs, newLog];
+
+  localStorage.setItem("logs", JSON.stringify(updatedLogs));
+  setLogs(updatedLogs);
+};
+
+// Load logs on first render
+useEffect(() => {
+  const savedLogs = JSON.parse(localStorage.getItem("logs")) || [];
+  setLogs(savedLogs);
+    addLog("Dashboard opened", "info");
+}, []);
+
+
 
 // ---------------- Fetch Total Users ----------------
 useEffect(() => {
   const fetchTotalUsers = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/total-users`);
-      console.log("Total Users API response:", response.data);
-
       if (response.data.status === "success") {
         setTotalUsers(response.data.total_users);
+        addLog("Fetched total users count successfully", "success");
       }
     } catch (error) {
       console.error("Error fetching total users:", error);
+      addLog("Failed to fetch total users count", "error");
     } finally {
       setUsersLoading(false);
     }
@@ -88,6 +111,7 @@ useEffect(() => {
 
   fetchTotalUsers();
 }, []);
+
 
   // ---------------- Analytics States ----------------
   const [analytics, setAnalytics] = useState({
@@ -142,17 +166,17 @@ const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array
   };
 
   // ------------------ Mobile count Fetch ----------------
-  useEffect(() => {
+useEffect(() => {
   const fetchMobileCount = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/mobiles`);
-      console.log("Mobiles API response:", response.data);
-
       if (response.data.status === "success") {
         setTotalMobiles(response.data.count);
+        addLog("Fetched total mobiles successfully", "success");
       }
     } catch (error) {
       console.error("Error fetching mobiles:", error);
+      addLog("Failed to fetch total mobiles", "error");
     } finally {
       setMobilesLoading(false);
     }
@@ -162,15 +186,18 @@ const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array
 }, []);
 
 
+
 // ------------------ Laptop count Fetch ----------------
 useEffect(() => {
   const fetchLaptopCount = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/laptops");
+      const res = await fetch(`${API_URL}/api/laptops`);
       const data = await res.json();
       setTotalLaptops(data.count);
+      addLog("Fetched total laptops successfully", "success");
     } catch (err) {
       console.error("Error fetching laptop count", err);
+      addLog("Failed to fetch laptop count", "error");
     } finally {
       setLaptopLoading(false);
     }
@@ -179,18 +206,19 @@ useEffect(() => {
   fetchLaptopCount();
 }, []);
 
+
 // ------------------ Sofa count Fetch ----------------
 useEffect(() => {
   const fetchSofaCount = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/sofas`);
-      console.log("Sofa API response:", response.data);
-
       if (response.data.status === "success") {
         setTotalSofas(response.data.count);
+        addLog("Fetched total sofas successfully", "success");
       }
     } catch (error) {
       console.error("Error fetching sofas:", error);
+      addLog("Failed to fetch sofa count", "error");
     } finally {
       setSofaLoading(false);
     }
@@ -199,18 +227,19 @@ useEffect(() => {
   fetchSofaCount();
 }, []);
 
+
 // ------------------ Shirt count Fetch ----------------
 useEffect(() => {
   const fetchShirtCount = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/shirts`);
-      console.log("Shirt API response:", response.data);
-
       if (response.data.status === "success") {
         setTotalShirts(response.data.count);
+        addLog("Fetched total shirts successfully", "success");
       }
     } catch (error) {
       console.error("Error fetching shirts:", error);
+      addLog("Failed to fetch shirt count", "error");
     } finally {
       setShirtLoading(false);
     }
@@ -225,13 +254,13 @@ useEffect(() => {
   const fetchToyCount = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/toys`);
-      console.log("Toy API response:", response.data);
-
       if (response.data.status === "success") {
         setTotalToys(response.data.count);
+        addLog("Fetched total toys successfully", "success");
       }
     } catch (error) {
       console.error("Error fetching toys:", error);
+      addLog("Failed to fetch toys count", "error");
     } finally {
       setToyLoading(false);
     }
@@ -351,7 +380,7 @@ const handleScheduleScrape = async () => {
   };
 
   // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status"];
+  const menuItems = ["Home", "Scrape Products", "Scrape Status","Logs"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -490,6 +519,7 @@ const handleScheduleScrape = async () => {
           <p className="text-gray-700 mb-6">
             You have selected: <span className="font-semibold">{activeItem}</span>
           </p>
+
 
           
 {/* ---------------- Home Section ---------------- */}
@@ -649,6 +679,35 @@ const handleScheduleScrape = async () => {
   </>
 )}
 
+{activeItem === "Logs" && (
+  <div className="bg-white p-6 rounded-lg shadow mt-6">
+    <h2 className="text-2xl font-bold mb-4">Activity Logs</h2>
+
+    {logs.length === 0 ? (
+      <p className="text-gray-500">No logs available.</p>
+    ) : (
+      <div className="overflow-auto max-h-[400px] border p-3 rounded">
+        {logs.map((log, index) => (
+          <div key={index} className="border-b py-2">
+            <p className="text-sm text-gray-600">{log.timestamp}</p>
+            <p
+              className={`font-semibold ${
+                log.type === "error"
+                  ? "text-red-600"
+                  : log.type === "success"
+                  ? "text-green-600"
+                  : "text-blue-600"
+              }`}
+            >
+              {log.type.toUpperCase()}
+            </p>
+            <p>{log.message}</p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
 
 
