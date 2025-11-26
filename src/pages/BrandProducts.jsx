@@ -94,7 +94,7 @@ const BrandProducts = () => {
 
             </button>
             <span className="px-4 py-2">
-              Page {currentPage} of {totalPages}
+             {t("page")} {currentPage} of {totalPages}
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
@@ -208,7 +208,7 @@ const BrandProducts = () => {
 
           </button>
           <span className="px-4 py-2">
-            Page {currentPage} of {totalPages}
+           {t("page")} {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}

@@ -498,7 +498,8 @@
     "remove": "Remove",
     "cancel": "Cancel",
     "brand_title": "{{brand}}",
-  "discover_deals": "Discover top deals from {{brand}}"
+  "discover_deals": "Discover top deals from {{brand}}",
+   "page": "Page"
 
 
 
