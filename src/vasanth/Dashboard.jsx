@@ -6,6 +6,16 @@ import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import axios from "axios";
 import ProductPieChart from "../components/ProductPieChart";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
+
 
 import { DataGrid } from "@mui/x-data-grid";
 import {
@@ -69,27 +79,18 @@ const [toyLoading, setToyLoading] = useState(true);
 const [totalToys, setTotalToys] = useState(0);
 
 // ---------------- Logs State ----------------
-
 const [logs, setLogs] = useState([]);
-
 const addLog = (message, type = "info") => {
-  const timestamp = new Date().toLocaleString();
-  const newLog = { message, type, timestamp };
-
-  const oldLogs = JSON.parse(localStorage.getItem("logs")) || [];
-  const updatedLogs = [...oldLogs, newLog];
-
-  localStorage.setItem("logs", JSON.stringify(updatedLogs));
-  setLogs(updatedLogs);
+  setLogs((prev) => [
+    {
+      id: Date.now(),
+      message,
+      type,
+      time: new Date().toLocaleTimeString(),
+    },
+    ...prev, // latest first
+  ]);
 };
-
-// Load logs on first render
-useEffect(() => {
-  const savedLogs = JSON.parse(localStorage.getItem("logs")) || [];
-  setLogs(savedLogs);
-    addLog("Dashboard opened", "info");
-}, []);
-
 
 
 // ---------------- Fetch Total Users ----------------
@@ -679,6 +680,9 @@ const handleScheduleScrape = async () => {
   </>
 )}
 
+{/* ---------------- Settings Panel ---------------- */}
+
+{/* ---------------- Logs Section ---------------- */}
 {activeItem === "Logs" && (
   <div className="bg-white p-6 rounded-lg shadow mt-6">
     <h2 className="text-2xl font-bold mb-4">Activity Logs</h2>
@@ -686,24 +690,25 @@ const handleScheduleScrape = async () => {
     {logs.length === 0 ? (
       <p className="text-gray-500">No logs available.</p>
     ) : (
-      <div className="overflow-auto max-h-[400px] border p-3 rounded">
-        {logs.map((log, index) => (
-          <div key={index} className="border-b py-2">
-            <p className="text-sm text-gray-600">{log.timestamp}</p>
-            <p
-              className={`font-semibold ${
-                log.type === "error"
-                  ? "text-red-600"
-                  : log.type === "success"
-                  ? "text-green-600"
-                  : "text-blue-600"
+      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+
+        {logs.map((log) => (
+          <div
+            key={log.id}
+            className={`p-3 border-l-4 rounded shadow-sm 
+              ${
+                log.type === "success"
+                  ? "border-green-500 bg-green-50"
+                  : log.type === "error"
+                  ? "border-red-500 bg-red-50"
+                  : "border-blue-500 bg-blue-50"
               }`}
-            >
-              {log.type.toUpperCase()}
-            </p>
-            <p>{log.message}</p>
+          >
+            <div className="text-sm text-gray-600">{log.time}</div>
+            <div className="font-medium">{log.message}</div>
           </div>
         ))}
+
       </div>
     )}
   </div>
