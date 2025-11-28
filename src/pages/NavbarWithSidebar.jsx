@@ -324,19 +324,6 @@ const NavbarWithSidebar = () => {
       {/* Mobile Buttons */}
       <div className="flex flex-col gap-3 mt-4">
 
-        {/* Language Selector */}
-        <select
-          onChange={(e) => changeLanguage(e.target.value)}
-          defaultValue={i18n.language}
-          className="border px-3 py-2 rounded-lg text-sm w-full"
-        >
-          <option value="en">English</option>
-          <option value="ta">தமிழ்</option>
-          <option value="hi">हिंदी</option>
-          <option value="te">తెలుగు</option>
-          <option value="ml">മലയാളം</option>
-        </select>
-
         {/* My Bag */}
         <button
           onClick={() => navigate("/my-bag")}

@@ -1,33 +1,15 @@
 // src/components/Dashboard.jsx
-
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import axios from "axios";
 import ProductPieChart from "../components/ProductPieChart";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
-
-
+import {Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import {useReactTable,getCoreRowModel,getSortedRowModel,flexRender,} from "@tanstack/react-table";
 import ReactECharts from "echarts-for-react"; // ✅ Added for analytics chart
 import * as echarts from "echarts";
-
-
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -47,8 +29,7 @@ const Dashboard = () => {
   const [scrapeTime, setScrapeTime] = useState("03:00");
   const [scrapeDay, setScrapeDay] = useState("sun");
   const [scheduleLoading, setScheduleLoading] = useState(false);
-const [selectedCategories, setSelectedCategories] = useState(["all"]);
-
+  const [selectedCategories, setSelectedCategories] = useState(["all"]);
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
 
@@ -57,12 +38,10 @@ const [totalUsers, setTotalUsers] = useState(0);
 const [usersLoading, setUsersLoading] = useState(true);
 
 // ------------------- Mobile count Fetch ----------------
-
 const [totalMobiles, setTotalMobiles] = useState(0);
 const [mobilesLoading, setMobilesLoading] = useState(true);
 
 // ------------------ Laptop count Fetch ----------------
-
 const [laptopLoading, setLaptopLoading] = useState(true);
 const [totalLaptops, setTotalLaptops] = useState(0);
 
@@ -92,7 +71,6 @@ const addLog = (message, type = "info") => {
   ]);
 };
 
-
 // ---------------- Fetch Total Users ----------------
 useEffect(() => {
   const fetchTotalUsers = async () => {
@@ -113,7 +91,6 @@ useEffect(() => {
   fetchTotalUsers();
 }, []);
 
-
   // ---------------- Analytics States ----------------
   const [analytics, setAnalytics] = useState({
     impressions: 0,
@@ -129,8 +106,7 @@ useEffect(() => {
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const userApiKey = localStorage.getItem("api_key");
   const [showPages, setShowPages] = useState(false);
-const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array = show all by default
-
+  const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array = show all by default
 
   // ---------------- Load Settings & Fetch Schedules ----------------
   useEffect(() => {
@@ -167,7 +143,7 @@ const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array
   };
 
   // ------------------ Mobile count Fetch ----------------
-useEffect(() => {
+  useEffect(() => {
   const fetchMobileCount = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/mobiles`);
@@ -680,35 +656,49 @@ const handleScheduleScrape = async () => {
   </>
 )}
 
-{/* ---------------- Settings Panel ---------------- */}
-
-{/* ---------------- Logs Section ---------------- */}
 {activeItem === "Logs" && (
   <div className="bg-white p-6 rounded-lg shadow mt-6">
-    <h2 className="text-2xl font-bold mb-4">Activity Logs</h2>
+    <h2 className="text-2xl font-bold mb-4">Scrape Schedule Logs</h2>
 
-    {logs.length === 0 ? (
-      <p className="text-gray-500">No logs available.</p>
+    {schedules.length === 0 ? (
+      <p className="text-gray-500">No scrape schedules found.</p>
     ) : (
-      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-[500px] overflow-y-auto font-mono">
+        {schedules.map((schedule, index) => {
+          // Schedule time (keep as-is from DB)
+          const startTime = schedule.time || "-";
 
-        {logs.map((log) => (
-          <div
-            key={log.id}
-            className={`p-3 border-l-4 rounded shadow-sm 
-              ${
-                log.type === "success"
-                  ? "border-green-500 bg-green-50"
-                  : log.type === "error"
-                  ? "border-red-500 bg-red-50"
-                  : "border-blue-500 bg-blue-50"
-              }`}
-          >
-            <div className="text-sm text-gray-600">{log.time}</div>
-            <div className="font-medium">{log.message}</div>
-          </div>
-        ))}
+          // Last run: show exact MongoDB string or format in UTC
+          const lastRunTime = schedule.last_run
+            ? new Date(schedule.last_run).toISOString() // keep as UTC ISO string
+            : "-";
 
+          return (
+            <div key={schedule._id || index}>
+              <p className="text-yellow-600">
+                ⏱️ Starting scrape for schedule '{schedule.frequency}'... {startTime}
+              </p>
+
+              {schedule.status === "complete" && (
+                <p className="text-green-600">
+                  ✔️ Scrape complete | Last run: {lastRunTime}
+                </p>
+              )}
+
+              {schedule.status === "failed" && (
+                <p className="text-red-600">
+                  ❌ Scrape failed | Last run: {lastRunTime}
+                </p>
+              )}
+
+              {schedule.is_running && (
+                <p className="text-blue-600">
+                  ⏳ Scraping in progress...
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
     )}
   </div>
