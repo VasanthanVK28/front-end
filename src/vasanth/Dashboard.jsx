@@ -657,7 +657,6 @@ const handleScheduleScrape = async () => {
 )}
 
           {/* ---------------- Logs Panel ---------------- */}
-
 {activeItem === "Logs" && (
   <div className="bg-white p-6 rounded-lg shadow mt-6">
     <h2 className="text-2xl font-bold mb-4">Scrape Schedule Logs</h2>
