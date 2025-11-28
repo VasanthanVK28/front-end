@@ -492,7 +492,7 @@ const handleScheduleScrape = async () => {
 
         {/* ---------------- Main Content ---------------- */}
         <div className="flex-1 p-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Super Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-4">Welcome to Admin Dashboard</h1>
           <p className="text-gray-700 mb-6">
             You have selected: <span className="font-semibold">{activeItem}</span>
           </p>
@@ -657,6 +657,7 @@ const handleScheduleScrape = async () => {
 )}
 
           {/* ---------------- Logs Panel ---------------- */}
+
 {activeItem === "Logs" && (
   <div className="bg-white p-6 rounded-lg shadow mt-6">
     <h2 className="text-2xl font-bold mb-4">Scrape Schedule Logs</h2>
@@ -664,46 +665,66 @@ const handleScheduleScrape = async () => {
     {schedules.length === 0 ? (
       <p className="text-gray-500">No scrape schedules found.</p>
     ) : (
-      <div className="space-y-2 max-h-[500px] overflow-y-auto font-mono">
-        {schedules.map((schedule, index) => {
-          // Schedule time (keep as-is from DB)
-          const startTime = schedule.time || "-";
+      <div style={{ height: 500, width: "100%" }}>
+        <DataGrid
+          rows={schedules.map((schedule, index) => ({
+            id: schedule._id || index,
+            message: `Starting scrape for schedule '${schedule.frequency}': ${schedule.time || "-"}`,
+            status: schedule.status,
+            is_running: schedule.is_running,
+            last_run: schedule.last_run
+              ? new Date(schedule.last_run).toISOString()
+              : "-",
+          }))}
+          columns={[
+            {
+              field: "message",
+              headerName: "Message",
+              flex: 1,
+              renderCell: (params) => (
+                <span className="text-yellow-600">{params.value}</span>
+              ),
+            },
+            {
+              field: "status",
+              headerName: "Status",
+              flex: 0.5,
+              renderCell: (params) => {
+                const { row } = params;
 
-          // Last run: show exact MongoDB string or format in UTC
-          const lastRunTime = schedule.last_run
-            ? new Date(schedule.last_run).toISOString() // keep as UTC ISO string
-            : "-";
+                if (row.is_running) {
+                  return <span className="text-blue-600">⏳ Running</span>;
+                }
 
-          return (
-            <div key={schedule._id || index}>
-              <p className="text-yellow-600">
-                Starting scrape for schedule '{schedule.frequency}': {startTime}
-              </p>
+                if (row.status === "complete") {
+                  return <span className="text-green-600">✔ Complete</span>;
+                }
 
-              {schedule.status === "complete" && (
-                <p className="text-green-600">
-                  Scheduled Scrape complete: {lastRunTime}
-                </p>
-              )}
+                if (row.status === "failed") {
+                  return <span className="text-red-600">❌ Failed</span>;
+                }
 
-              {schedule.status === "failed" && (
-                <p className="text-red-600">
-                  ❌ Scrape failed | Last run: {lastRunTime}
-                </p>
-              )}
-
-              {schedule.is_running && (
-                <p className="text-blue-600">
-                  ⏳ Scraping in progress...
-                </p>
-              )}
-            </div>
-          );
-        })}
+                return <span className="text-gray-500">Pending</span>;
+              },
+            },
+            {
+              field: "last_run",
+              headerName: "Complete Time",
+              flex: 0.5,
+              renderCell: (params) => (
+                <span className="font-mono text-gray-700">{params.value}</span>
+              ),
+            },
+          ]}
+          pageSize={10}
+          rowsPerPageOptions={[10, 20, 50]}
+          disableSelectionOnClick
+        />
       </div>
     )}
   </div>
 )}
+
 
           {/* ---------------- Scrape Products Panel ---------------- */}
 {activeItem === "Scrape Products" && (

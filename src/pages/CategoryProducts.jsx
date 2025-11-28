@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/axios";
 import Slider from "@mui/material/Slider";
+import StarIcon from "@mui/icons-material/Star";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import {
@@ -481,9 +482,20 @@ const CategoryProducts = () => {
                             <FaRegStar key={`e-${i}`} />
                           ))}
                         </div>
-                        <span className="text-gray-600 text-sm">
-                          {p.rating.toFixed(1)} ({p.reviews})
-                        </span>
+                       <span className="inline-flex items-center text-sm">
+  {/* Rating Badge */}
+  <span className="inline-flex items-center bg-lime-300 text-cyan-800 font-semibold px-2 py-1 rounded-md">
+    <span className="mr-1">{p.rating.toFixed(1)}</span>
+    <StarIcon className="w-4 h-4" />
+  </span>
+
+  {/* Reviews Count */}
+  <span className="ml-2 text-gray-600">
+    ({p.reviews} Reviews)
+  </span>
+</span>
+
+
                       </div>
 
                       {/* Price & Actions */}

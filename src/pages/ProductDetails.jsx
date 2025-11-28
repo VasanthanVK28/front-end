@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import "../i18n/i18n";
 import NavbarWithSidebar from "./NavbarWithSidebar";
+import StarIcon from "@mui/icons-material/Star";
 
 const ProductDetail = () => {
   const { asin } = useParams();
@@ -135,7 +136,10 @@ const ProductDetail = () => {
             <h1 className="text-2xl font-semibold text-gray-800 leading-snug mb-2">
               {product.title}
             </h1>
-            <p className="text-indigo-600 text-sm mb-2">{t(product.brand ? product.brand.toLowerCase() : "Unknown")}</p>
+            <p className="text-indigo-600 text-sm mb-2">
+  {product.brand ? t(product.brand) : t("Unknown")}
+</p>
+
 
             {/* Ratings */}
             <div className="flex items-center gap-2 mb-3">
@@ -148,9 +152,20 @@ const ProductDetail = () => {
                   <FaRegStar key={`empty-${i}`} />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
-                {product.rating?.toFixed(1)} ({product.reviews || 0} ratings)
-              </span>
+              <span className="inline-flex items-center text-sm">
+  {/* Rating Badge */}
+  <span className="inline-flex items-center bg-lime-300 text-cyan-800 font-semibold px-2 py-1 rounded-md">
+    <span className="mr-1">{product.rating.toFixed(1)}</span>
+    <StarIcon className="w-4 h-4" />
+  </span>
+
+  {/* Reviews Count */}
+  <span className="ml-2 text-gray-600">
+    ({product.reviews} Reviews)
+  </span>
+</span>
+
+
             </div>
 
             {/* Price */}

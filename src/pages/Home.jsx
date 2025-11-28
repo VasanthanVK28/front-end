@@ -97,7 +97,7 @@ const brands = [
     // 📦 Fetch products
     const fetchProducts = async () => {
       try {
-        const res = await api.get("/products");
+        const res = await api.get(`/products?lang=${i18n.language}`);
         setProducts(res.data.data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -189,7 +189,7 @@ const brands = [
       {/* 🛍️ Categories Section */}
       <div className="p-10 max-w-7xl mx-auto">
         <div className="mt-10 mb-8 text-center">
-          <h2 className="text-3xl font-extrabold text-gray-800 flex items-center justify-center gap-2 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 text-center">
                 <MdStorefront className="text-4xl text-violet-600" />
                 {t("product_categories")}
               </h2>
@@ -248,9 +248,9 @@ const brands = [
         {visibleCount > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
-  <FaRegStar className="text-3xl text-yellow-500" />
-  {t("popular_products")}
-</h2>
+                <FaRegStar className="text-3xl text-yellow-500" />
+                {t("popular_products")}
+              </h2>
 
 
             <Swiper
@@ -297,7 +297,10 @@ const brands = [
                         {showLabels && (
                           <>
                             <h3 className="text-sm font-semibold line-clamp-2">
-                              {t(item.title)}
+                              <h3 className="text-sm font-semibold line-clamp-2">
+                              {item.translated_title || item.title}
+                            </h3>
+
                             </h3>
                             <p className="text-xs mt-1">
                            <p>{t(normalizeBrand(item.brand))}</p>

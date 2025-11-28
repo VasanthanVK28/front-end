@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import NavbarWithSidebar from "../pages/NavbarWithSidebar"; // adjust path if needed
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import StarIcon from "@mui/icons-material/Star";
 
 const PopularProduct = () => {
   const location = useLocation();
@@ -50,9 +51,14 @@ const PopularProduct = () => {
             {/* Rating */}
             <div className="flex items-center">
               {renderStars(product.rating || 4.2)}
-              <span className="ml-2 text-sm text-gray-600">
-                ({product.rating?.toFixed(1) || "4.2"})
-              </span>
+             <span className="inline-flex items-center text-sm">
+  {/* Rating Badge */}
+  <span className="inline-flex items-center bg-lime-300 text-cyan-800 font-semibold px-2 py-1 rounded-md">
+    <span className="mr-1">{product.rating.toFixed(1)}</span>
+    <StarIcon className="w-4 h-4" />
+  </span>
+</span>
+
             </div>
 
             {/* Price */}
