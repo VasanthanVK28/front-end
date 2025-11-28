@@ -656,6 +656,8 @@ const handleScheduleScrape = async () => {
   </>
 )}
 
+          {/* ---------------- Logs Panel ---------------- */}
+
 {activeItem === "Logs" && (
   <div className="bg-white p-6 rounded-lg shadow mt-6">
     <h2 className="text-2xl font-bold mb-4">Scrape Schedule Logs</h2>
@@ -676,12 +678,12 @@ const handleScheduleScrape = async () => {
           return (
             <div key={schedule._id || index}>
               <p className="text-yellow-600">
-                ⏱️ Starting scrape for schedule '{schedule.frequency}'... {startTime}
+                Starting scrape for schedule '{schedule.frequency}': {startTime}
               </p>
 
               {schedule.status === "complete" && (
                 <p className="text-green-600">
-                  ✔️ Scrape complete | Last run: {lastRunTime}
+                  Scheduled Scrape complete: {lastRunTime}
                 </p>
               )}
 
@@ -703,8 +705,6 @@ const handleScheduleScrape = async () => {
     )}
   </div>
 )}
-
-
 
           {/* ---------------- Scrape Products Panel ---------------- */}
 {activeItem === "Scrape Products" && (
