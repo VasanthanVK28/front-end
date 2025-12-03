@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import NavbarWithSidebar from "../pages/NavbarWithSidebar"; // adjust path if needed
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import StarIcon from "@mui/icons-material/Star";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 const PopularProduct = () => {
   const location = useLocation();
@@ -36,11 +38,13 @@ const PopularProduct = () => {
         <div className="flex flex-col md:flex-row gap-10">
           {/* Product Image */}
           <div className="flex justify-center items-center md:w-1/2 bg-gray-50 rounded-lg p-6">
+            <Zoom>
             <img
               src={product.image_url}
               alt={product.title}
               className="w-full max-w-sm h-auto object-contain"
             />
+            </Zoom>
           </div>
 
           {/* Product Details */}

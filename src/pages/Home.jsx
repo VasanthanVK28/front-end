@@ -187,7 +187,10 @@ const brands = [
 </div>
 
       {/* 🛍️ Categories Section */}
+      
       <div className="p-10 max-w-7xl mx-auto">
+        <div id="categories" className="p-10 max-w-7xl mx-auto">
+
         <div className="mt-10 mb-8 text-center">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2 text-center">
                 <MdStorefront className="text-4xl text-violet-600" />
@@ -198,6 +201,7 @@ const brands = [
 
 
           
+        </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -396,10 +400,164 @@ const brands = [
     `}
   </style>
 </div>
+</div>
+
+<div class="w-full bg-gradient-to-r from-gray-800 via-gray-700 to-amber-200 py-16 px-6">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+
+    
+<div class="relative w-full h-full flex items-center justify-center">
+  
+  <div class="absolute inset-0">
+    <img src="https://cdn.pixabay.com/photo/2022/03/24/22/57/online-shop-7090027_1280.png" alt="Promo Background" class="w-full h-full object-cover" />
+    
+    <div class="absolute inset-0 bg-black/40"></div>
+  </div>
+
+  
+  <div class="relative text-white space-y-6 text-center lg:text-left px-6">
+    <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight">
+      Up to <span class="text-black drop-shadow-lg">35% OFF</span>
+    </h1>
+    <p class="text-lg sm:text-xl font-semibold">
+      On your selected Products
+    </p>
+
+    <button
+  onClick={() => {
+    document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" });
+  }}
+  class="bg-black text-white px-8 sm:px-10 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-gray-900 transition"
+>
+  Shop Now
+</button>
+
+  </div>
+</div>
 
 
+    
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-6">
 
+  
+  <a href="#" class="flex flex-col items-center group cursor-pointer">
+    <div class="h-52 w-full bg-white shadow-2xl rounded-xl transform group-hover:-rotate-2 group-hover:scale-105 transition-all overflow-hidden border-l-8 border-red-500">
+      <img src="https://cdn.pixabay.com/photo/2021/07/10/15/45/online-shop-6401739_1280.png" class="w-full h-full object-cover" />
+    </div>
+    <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
+      Top Picks
+    </p>
+  </a>
+
+  
+  <a href="#" class="flex flex-col items-center group cursor-pointer">
+    <div class="h-52 w-full bg-white shadow-2xl rounded-xl transform group-hover:rotate-2 group-hover:scale-105 transition-all overflow-hidden border-l-8 border-blue-500">
+      <img src="https://cdn.pixabay.com/photo/2025/09/17/12/11/sale-9839498_1280.png" class="w-full h-full object-cover" />
+    </div>
+    <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
+      Flash Sale
+    </p>
+  </a>
+
+  
+  <a href="#" class="flex flex-col items-center group cursor-pointer">
+    <div class="h-52 w-full bg-white shadow-2xl rounded-xl transform group-hover:-rotate-3 group-hover:scale-105 transition-all overflow-hidden border-l-8 border-green-500">
+      <img src="https://static.vecteezy.com/system/resources/previews/023/892/435/non_2x/trending-now-button-speech-bubble-banner-label-trending-now-vector.jpg" class="w-full h-full object-cover" />
+    </div>
+    <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
+      Trending Now
+    </p>
+  </a>
+
+  
+  <a href="#" class="flex flex-col items-center group cursor-pointer">
+    <div class="h-52 w-full bg-white shadow-2xl rounded-xl transform group-hover:rotate-3 group-hover:scale-105 transition-all overflow-hidden border-l-8 border-yellow-600">
+      <img src="https://img.freepik.com/premium-vector/hot-deal-graphic-sales-promotions_1277164-9485.jpg" class="w-full h-full object-cover" />
+    </div>
+    <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
+      Hot Deals
+    </p>
+  </a>
+
+</div>
+
+  </div>
+</div>
+
+<section className="w-full bg-gray-50 py-16">
+  <div className="max-w-7xl mx-auto px-6">
+    <h2 className="text-2xl font-extrabold text-gray-900 text-center mb-10">
+      Why Shop With Us
+    </h2>
+
+    <div className="flex justify-center gap-8 flex-wrap">
+      {/* Feature 1 */}
+      <div className="flex flex-col items-center text-center">
+        <div className="bg-indigo-100 p-4 rounded-full mb-3">
+          <svg
+            className="w-12 h-12 text-indigo-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 10h4l3-6 4 12 3-6h4"
+            />
+          </svg>
+        </div>
+        <p className="font-semibold text-gray-800">EASY EXCHANGE</p>
       </div>
+
+      {/* Feature 2 */}
+      <div className="flex flex-col items-center text-center">
+        <div className="bg-green-100 p-4 rounded-full mb-3">
+          <svg
+            className="w-12 h-12 text-green-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <p className="font-semibold text-gray-800">100% HANDPICKED</p>
+      </div>
+
+      {/* Feature 3 */}
+      <div className="flex flex-col items-center text-center">
+        <div className="bg-yellow-100 p-4 rounded-full mb-3">
+          <svg
+            className="w-12 h-12 text-yellow-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <p className="font-semibold text-gray-800">ASSURED QUALITY</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
       {/* Footer */}
       <footer className="w-full bg-gray-900 text-gray-300 mt-20">
         {/* Gradient Top Border */}

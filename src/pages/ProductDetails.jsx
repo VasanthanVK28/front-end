@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 import "../i18n/i18n";
 import NavbarWithSidebar from "./NavbarWithSidebar";
 import StarIcon from "@mui/icons-material/Star";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 const ProductDetail = () => {
   const { asin } = useParams();
@@ -123,13 +125,16 @@ const ProductDetail = () => {
       <div className="max-w-6xl mx-auto mt-16 p-6 bg-white rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row gap-8">
           {/* LEFT: Product Image */}
-          <div className="md:w-1/2 flex flex-col items-center">
-            <img
-              src={product.image_url}
-              alt={product.title}
-              className="w-96 h-96 object-contain mb-4 rounded-lg shadow-sm"
-            />
-          </div>
+<div className="md:w-1/2 flex flex-col items-center">
+  <Zoom>
+    <img
+      src={product.image_url}
+      alt={product.title}
+      className="w-96 h-96 object-contain rounded-lg shadow-sm cursor-zoom-in"
+    />
+  </Zoom>
+</div>
+
 
           {/* RIGHT: Product Info */}
           <div className="md:w-1/2">
