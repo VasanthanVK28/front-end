@@ -26,9 +26,11 @@ const NavbarWithSidebar = () => {
 
   const apiKey = localStorage.getItem("user_api_key");
   const token = localStorage.getItem("token");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
-const open = Boolean(anchorEl);
+  const open = Boolean(anchorEl);
 
 const handleClick = (event) => {
   setAnchorEl(event.currentTarget);
@@ -166,6 +168,40 @@ const startVoiceSearch = () => {
       setSearchTerm("");
     }
   };
+  useEffect(() => {
+  if (searchTerm.trim().length === 0) {
+    setSuggestions([]);
+    setShowSuggestions(false);
+    return;
+  }
+
+  const delay = setTimeout(() => {
+    const token = localStorage.getItem("token"); // get the token
+
+    axios.get(
+      `http://127.0.0.1:8000/api/search/suggestions?q=${searchTerm}`,
+      {
+        headers: {
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`, // 🔥 add this
+          "x-api-key": apiKey,               // keep if required by your backend
+        }
+      }
+    )
+    .then((res) => {
+      setSuggestions(res.data);
+      setShowSuggestions(true);
+    })
+    .catch((err) => {
+      console.log("Error fetching suggestions:", err);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    });
+  }, 300);
+
+  return () => clearTimeout(delay);
+}, [searchTerm]);
+
 
   // Logout
   const handleLogout = async () => {
@@ -246,8 +282,37 @@ const startVoiceSearch = () => {
       <form
         onSubmit={handleSearch}
         className="hidden md:flex flex-1 max-w-lg relative items-center">
-        <input type="text" placeholder={t("search_placeholder") || "Search..."} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"/>
+        <input type="text" placeholder={t("search_placeholder") || "Search..."} value={searchTerm} onChange={(e) => {
+  setSearchTerm(e.target.value);
+  setShowSuggestions(true);
+}}
+ className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"/>
         <FaSearch className="absolute left-3 text-gray-500" />
+        {showSuggestions && suggestions.length > 0 && (
+  <ul className="absolute top-12 w-full bg-white shadow-lg border rounded-lg max-h-64 overflow-y-auto z-50">
+    {suggestions.map((item) => (
+      <li
+        key={item.asin}
+        onClick={() => {
+          navigate(`/product/${item.asin}`);
+          setShowSuggestions(false);
+          setSearchTerm("");
+        }}
+        className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer"
+      >
+        <img
+          src={item.image_url}
+          alt={item.title}
+          className="w-10 h-10 object-contain"
+        />
+        <div className="flex flex-col">
+          <span className="font-medium">{item.title}</span>
+          <span className="text-sm text-gray-500">{item.brand}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+)}
 
         {/* Mic Icon */}
               <button type="button" onClick={startVoiceSearch} className="absolute right-10 text-xl">
