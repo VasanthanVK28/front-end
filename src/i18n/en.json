@@ -499,8 +499,16 @@
     "cancel": "Cancel",
     "brand_title": "{{brand}}",
   "discover_deals": "Discover top deals from {{brand}}",
-   "page": "Page"
-
+   "page": "Page",
+   "top_picks": "Top Picks",
+  "flash_sale": "Flash Sale",
+  "trending_now": "Trending Now",
+  "hot_deals": "Hot Deals",
+  "shop_now": "Shop Now",
+  "easy_exchange": "Easy Exchange",
+  "handpicked": "Handpicked",
+  "assured_quality": "Assured Quality",
+  "why_shop_with_us": "Why Shop With Us"
 
 
 }

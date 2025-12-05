@@ -481,5 +481,14 @@
    "ok": "हाँ",
   "brand_title": "{{brand}}",
   "discover_deals": "ट्रेंडीमार्ट पर {{brand}} से शीर्ष डील्स की खोज करें",
-  "page": "पृष्ठ"
+  "page": "पृष्ठ",
+  "top_picks": "टॉप पिक्स",
+  "flash_sale": "फ्लैश सेल",
+  "trending_now": "ट्रेंडिंग अब",
+  "hot_deals": "हॉट डील्स",
+  "shop_now": "अभी खरीदें",
+  "easy_exchange": "आसान एक्सचेंज",
+  "handpicked": "हैंडपिक्ड",
+  "assured_quality": "सुनिश्चित गुणवत्ता",
+   "why_shop_with_us": "हमसे खरीदारी क्यों करें"
 }

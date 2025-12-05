@@ -288,9 +288,12 @@ const startVoiceSearch = () => {
 }}
  className="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-400 outline-none"/>
         <FaSearch className="absolute left-3 text-gray-500" />
+        
+        {/* Suggestions Dropdown */}
+        
         {showSuggestions && suggestions.length > 0 && (
-  <ul className="absolute top-12 w-full bg-white shadow-lg border rounded-lg max-h-64 overflow-y-auto z-50">
-    {suggestions.map((item) => (
+  <ul className="absolute top-12 w-full bg-white shadow-xl border border-gray-200 rounded-xl max-h-80 overflow-y-auto z-50 animate-fadeIn">
+    {suggestions.map((item, index) => (
       <li
         key={item.asin}
         onClick={() => {
@@ -298,21 +301,22 @@ const startVoiceSearch = () => {
           setShowSuggestions(false);
           setSearchTerm("");
         }}
-        className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer"
+        className="flex items-center gap-3 p-3 hover:bg-indigo-50 cursor-pointer transition-colors duration-150"
       >
         <img
           src={item.image_url}
           alt={item.title}
-          className="w-10 h-10 object-contain"
+          className="w-12 h-12 object-contain rounded-lg"
         />
-        <div className="flex flex-col">
-          <span className="font-medium">{item.title}</span>
-          <span className="text-sm text-gray-500">{item.brand}</span>
+        <div className="flex flex-col overflow-hidden">
+          <span className="font-medium text-gray-900 truncate">{item.title}</span>
+          <span className="text-sm text-gray-500 truncate">{item.brand}</span>
         </div>
       </li>
     ))}
   </ul>
 )}
+
 
         {/* Mic Icon */}
               <button type="button" onClick={startVoiceSearch} className="absolute right-10 text-xl">

@@ -429,7 +429,7 @@ const brands = [
   }}
   class="bg-black text-white px-8 sm:px-10 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-gray-900 transition"
 >
-  Shop Now
+  {t("shop_now")}
 </button>
 
   </div>
@@ -445,7 +445,7 @@ const brands = [
       <img src="https://cdn.pixabay.com/photo/2021/07/10/15/45/online-shop-6401739_1280.png" class="w-full h-full object-cover" />
     </div>
     <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
-      Top Picks
+      {t("top_picks")}
     </p>
   </a>
 
@@ -455,7 +455,7 @@ const brands = [
       <img src="https://cdn.pixabay.com/photo/2025/09/17/12/11/sale-9839498_1280.png" class="w-full h-full object-cover" />
     </div>
     <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
-      Flash Sale
+      {t("flash_sale")}
     </p>
   </a>
 
@@ -465,7 +465,7 @@ const brands = [
       <img src="https://static.vecteezy.com/system/resources/previews/023/892/435/non_2x/trending-now-button-speech-bubble-banner-label-trending-now-vector.jpg" class="w-full h-full object-cover" />
     </div>
     <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
-      Trending Now
+      {t("trending_now")}
     </p>
   </a>
 
@@ -475,7 +475,7 @@ const brands = [
       <img src="https://img.freepik.com/premium-vector/hot-deal-graphic-sales-promotions_1277164-9485.jpg" class="w-full h-full object-cover" />
     </div>
     <p class="mt-3 text-center bg-white/30 backdrop-blur-md text-white font-bold text-lg px-4 py-2 rounded-full shadow-lg">
-      Hot Deals
+      {t("hot_deals")}
     </p>
   </a>
 
@@ -487,7 +487,7 @@ const brands = [
 <section className="w-full bg-gray-50 py-16">
   <div className="max-w-7xl mx-auto px-6">
     <h2 className="text-2xl font-extrabold text-gray-900 text-center mb-10">
-      Why Shop With Us
+      {t("why_shop_with_us")}
     </h2>
 
     <div className="flex justify-center gap-8 flex-wrap">
@@ -509,7 +509,7 @@ const brands = [
             />
           </svg>
         </div>
-        <p className="font-semibold text-gray-800">EASY EXCHANGE</p>
+        <p className="font-semibold text-gray-800">{t("easy_exchange")}</p>
       </div>
 
       {/* Feature 2 */}
@@ -530,7 +530,7 @@ const brands = [
             />
           </svg>
         </div>
-        <p className="font-semibold text-gray-800">100% HANDPICKED</p>
+        <p className="font-semibold text-gray-800">100% {t("handpicked")}</p>
       </div>
 
       {/* Feature 3 */}
@@ -551,7 +551,7 @@ const brands = [
             />
           </svg>
         </div>
-        <p className="font-semibold text-gray-800">ASSURED QUALITY</p>
+        <p className="font-semibold text-gray-800">{t("assured_quality")}</p>
       </div>
     </div>
   </div>
