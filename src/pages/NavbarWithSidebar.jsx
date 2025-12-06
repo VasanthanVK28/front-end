@@ -510,8 +510,9 @@ const startVoiceSearch = () => {
   onClick={() => setIsChatOpen(!isChatOpen)}
   className="fixed bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl text-2xl hover:bg-indigo-700 z-[999]"
 >
-  💬
+  <i className="fa-regular fa-message"></i>
 </button>
+
 
 {/* Chat Window */}
 {isChatOpen && (

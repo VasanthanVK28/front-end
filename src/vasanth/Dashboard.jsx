@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import axios from "axios";
+import ProductsTable from "../components/ProductsTable";
 import ProductPieChart from "../components/ProductPieChart";
 import {Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
@@ -357,7 +358,7 @@ const handleScheduleScrape = async () => {
   };
 
   // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status","Logs"];
+  const menuItems = ["Home", "Scrape Products", "Scrape Status","Logs","Products table"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -722,6 +723,14 @@ const handleScheduleScrape = async () => {
         />
       </div>
     )}
+  </div>
+)}
+
+{/* ---------------- Products Table Section ---------------- */}
+{activeItem === "Products table" && (
+  <div>
+    <h2 className="text-2xl font-semibold mb-6">All Products</h2>
+    <ProductsTable />
   </div>
 )}
 

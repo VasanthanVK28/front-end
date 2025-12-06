@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import Navbar from "./Navbar";
-
+ 
 const AdminAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({

@@ -39,6 +39,39 @@ const Dashboard2 = () => {
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
 
+  // ---------------- Scrape Products State ----------------
+const [scrapeCategory, setScrapeCategory] = useState("");
+const [scrapeResult, setScrapeResult] = useState(null);
+const [scrapeLoading, setScrapeLoading] = useState(false);
+
+const handleScrape = async () => {
+  if (!scrapeCategory.trim()) {
+    Swal.fire({ icon: "warning", title: "Enter a category" });
+    return;
+  }
+
+  setScrapeLoading(true);
+  setScrapeResult(null);
+
+  try {
+    const res = await axios.post(`${API_URL}/api/scrape-products`, {
+      category: scrapeCategory,
+      max_products: visibleCount, // use the visible count from settings
+    });
+
+    if (res.data.status === "success") {
+      setScrapeResult(`✅ Successfully scraped ${res.data.scraped} products for "${scrapeCategory}"`);
+    } else {
+      setScrapeResult(`⚠️ Failed to scrape: ${res.data.message || "Unknown error"}`);
+    }
+  } catch (err) {
+    setScrapeResult(`⚠️ Error: ${err.message}`);
+  } finally {
+    setScrapeLoading(false);
+  }
+};
+
+
   // ---------------- Analytics States ----------------
   const [analytics, setAnalytics] = useState({
     impressions: 0,
@@ -239,7 +272,7 @@ const fetchAnalytics = async () => {
   
   
   // ---------------- Menu Items ----------------
-  const menuItems = [ "View Analytics", "Configurable layout"];
+  const menuItems = [ "View Analytics", "Configurable layout","Scrape Products"];
 
   // ---------------- React Table Setup ----------------
   const columns = useMemo(
@@ -299,7 +332,8 @@ const fetchAnalytics = async () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-emerald-200">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-purple-100 via-pink-100 to-blue-100">
+
       
 
       <div className="flex flex-1">
@@ -548,6 +582,35 @@ const fetchAnalytics = async () => {
   </div>
 )}
 
+{/* ---------------- Scrape Products Panel ---------------- */}
+{activeItem === "Scrape Products" && (
+  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
+    <h2 className="text-2xl font-bold mb-6 text-gray-800">Scrape Products</h2>
+
+    <div className="flex gap-4 items-center mb-4">
+      <input
+        type="text"
+        placeholder="Enter category (e.g., mobile, laptop)"
+        value={scrapeCategory}
+        onChange={(e) => setScrapeCategory(e.target.value)}
+        className="flex-1 border border-gray-300 rounded-md p-2"
+      />
+      <button
+        onClick={handleScrape}
+        disabled={scrapeLoading}
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+      >
+        {scrapeLoading ? "Scraping..." : "Scrape"}
+      </button>
+    </div>
+
+    {scrapeResult && (
+      <div className="mt-4 p-3 bg-gray-100 rounded text-gray-800">
+        {scrapeResult}
+      </div>
+    )}
+  </div>
+)}
 
 
 
