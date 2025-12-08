@@ -46,26 +46,44 @@ const [scrapeLoading, setScrapeLoading] = useState(false);
 
 const handleScrape = async () => {
   if (!scrapeCategory.trim()) {
-    Swal.fire({ icon: "warning", title: "Enter a category" });
+    Swal.fire({
+      icon: "warning",
+      title: "Enter a category",
+      text: "Please type a valid category before scheduling."
+    });
     return;
   }
 
   setScrapeLoading(true);
-  setScrapeResult(null);
 
   try {
-    // ✅ Call Laravel API to queue category for scraping
     const res = await axios.post(`${API_URL}/api/scraper/add`, {
       query: scrapeCategory.trim(),
+      frequency: scrapeFrequency,
+      time: scrapeTime,
+      day: scrapeDay,
     });
 
     if (res.data.status === "ok") {
-      setScrapeResult(`✅ ${res.data.message}`);
+      Swal.fire({
+        icon: "success",
+        title: "Scheduled Successfully!",
+        text: res.data.message,
+        confirmButtonColor: "#2563eb",
+      });
     } else {
-      setScrapeResult(`⚠️ Failed: ${res.data.message}`);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: res.data.message,
+      });
     }
   } catch (err) {
-    setScrapeResult(`⚠️ Error: ${err.response?.data?.message || err.message}`);
+    Swal.fire({
+      icon: "error",
+      title: "Error Occurred",
+      text: err.response?.data?.message || err.message,
+    });
   } finally {
     setScrapeLoading(false);
   }
