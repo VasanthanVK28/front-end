@@ -54,18 +54,18 @@ const handleScrape = async () => {
   setScrapeResult(null);
 
   try {
-    const res = await axios.post(`${API_URL}/api/scrape-products`, {
-      category: scrapeCategory,
-      max_products: visibleCount, // use the visible count from settings
+    // ✅ Call Laravel API to queue category for scraping
+    const res = await axios.post(`${API_URL}/api/scraper/add`, {
+      query: scrapeCategory.trim(),
     });
 
-    if (res.data.status === "success") {
-      setScrapeResult(`✅ Successfully scraped ${res.data.scraped} products for "${scrapeCategory}"`);
+    if (res.data.status === "ok") {
+      setScrapeResult(`✅ ${res.data.message}`);
     } else {
-      setScrapeResult(`⚠️ Failed to scrape: ${res.data.message || "Unknown error"}`);
+      setScrapeResult(`⚠️ Failed: ${res.data.message}`);
     }
   } catch (err) {
-    setScrapeResult(`⚠️ Error: ${err.message}`);
+    setScrapeResult(`⚠️ Error: ${err.response?.data?.message || err.message}`);
   } finally {
     setScrapeLoading(false);
   }
@@ -587,23 +587,73 @@ const fetchAnalytics = async () => {
   <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
     <h2 className="text-2xl font-bold mb-6 text-gray-800">Scrape Products</h2>
 
+    {/* ---------------- Category Input ---------------- */}
     <div className="flex gap-4 items-center mb-4">
       <input
         type="text"
-        placeholder="Enter category (e.g., mobile, laptop)"
         value={scrapeCategory}
         onChange={(e) => setScrapeCategory(e.target.value)}
-        className="flex-1 border border-gray-300 rounded-md p-2"
+        placeholder="Enter category (e.g., shoes)"
+        className="border p-2 rounded w-full"
       />
-      <button
-        onClick={handleScrape}
-        disabled={scrapeLoading}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-      >
-        {scrapeLoading ? "Scraping..." : "Scrape"}
-      </button>
     </div>
 
+    {/* ---------------- Schedule Settings ---------------- */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      {/* Frequency Dropdown */}
+      <div>
+        <label className="block mb-1 font-semibold text-gray-700">Frequency</label>
+        <select
+          value={scrapeFrequency}
+          onChange={(e) => setScrapeFrequency(e.target.value)}
+          className="w-full border p-2 rounded"
+        >
+          <option value="hourly">Hourly</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+
+      {/* Time Picker */}
+      <div>
+        <label className="block mb-1 font-semibold text-gray-700">Time</label>
+        <input
+          type="time"
+          value={scrapeTime}
+          onChange={(e) => setScrapeTime(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+      </div>
+
+      {/* Day Picker (only for weekly) */}
+      <div className={`${scrapeFrequency !== "weekly" ? "opacity-50 pointer-events-none" : ""}`}>
+        <label className="block mb-1 font-semibold text-gray-700">Day</label>
+        <select
+          value={scrapeDay}
+          onChange={(e) => setScrapeDay(e.target.value)}
+          className="w-full border p-2 rounded"
+        >
+          <option value="sun">Sunday</option>
+          <option value="mon">Monday</option>
+          <option value="tue">Tuesday</option>
+          <option value="wed">Wednesday</option>
+          <option value="thu">Thursday</option>
+          <option value="fri">Friday</option>
+          <option value="sat">Saturday</option>
+        </select>
+      </div>
+    </div>
+
+    {/* ---------------- Scrape Button ---------------- */}
+    <button
+      onClick={handleScrape}
+      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition"
+      disabled={scrapeLoading}
+    >
+      {scrapeLoading ? "Scheduling..." : "Schedule Scrape"}
+    </button>
+
+    {/* ---------------- Result ---------------- */}
     {scrapeResult && (
       <div className="mt-4 p-3 bg-gray-100 rounded text-gray-800">
         {scrapeResult}
@@ -611,7 +661,6 @@ const fetchAnalytics = async () => {
     )}
   </div>
 )}
-
 
 
           {/* ---------------- Configurable Layout Panel ---------------- */}
