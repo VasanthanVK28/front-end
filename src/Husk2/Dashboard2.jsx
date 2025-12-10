@@ -1,26 +1,35 @@
-// src/components/Dashboard.jsx
+// src/components/Dashboard2.jsx
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-
+import ScrapedProductsTable from "../components/ScrapedProductsTable";
+import ProductCount from "../components/ProductCount";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { DataGrid } from "@mui/x-data-grid";
 import {
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
 } from "@tanstack/react-table";
-import ReactECharts from "echarts-for-react"; // ✅ Added for analytics chart
+import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
-
-
+import {
+  FaHome,
+  FaChartPie,
+  FaCogs,
+  FaCloudDownloadAlt,
+  FaTable,
+  FaSignOutAlt,
+  FaFingerprint,
+  FaSearch,
+  FaBell,
+  FaUserCircle
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const Dashboard2 = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("Home");
-  
+
   // ---------------- Customization States ----------------
   const [showPrice, setShowPrice] = useState(true);
   const [showRating, setShowRating] = useState(true);
@@ -34,79 +43,23 @@ const Dashboard2 = () => {
   const [scrapeFrequency, setScrapeFrequency] = useState("daily");
   const [scrapeTime, setScrapeTime] = useState("03:00");
   const [scrapeDay, setScrapeDay] = useState("sun");
-  const [scheduleLoading, setScheduleLoading] = useState(false);
-
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
 
   // ---------------- Scrape Products State ----------------
-const [scrapeCategory, setScrapeCategory] = useState("");
-const [scrapeResult, setScrapeResult] = useState(null);
-const [scrapeLoading, setScrapeLoading] = useState(false);
-
-const handleScrape = async () => {
-  if (!scrapeCategory.trim()) {
-    Swal.fire({
-      icon: "warning",
-      title: "Enter a category",
-      text: "Please type a valid category before scheduling."
-    });
-    return;
-  }
-
-  setScrapeLoading(true);
-
-  try {
-    const res = await axios.post(`${API_URL}/api/scraper/add`, {
-      query: scrapeCategory.trim(),
-      frequency: scrapeFrequency,
-      time: scrapeTime,
-      day: scrapeDay,
-    });
-
-    if (res.data.status === "ok") {
-      Swal.fire({
-        icon: "success",
-        title: "Scheduled Successfully!",
-        text: res.data.message,
-        confirmButtonColor: "#2563eb",
-      });
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Failed!",
-        text: res.data.message,
-      });
-    }
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Error Occurred",
-      text: err.response?.data?.message || err.message,
-    });
-  } finally {
-    setScrapeLoading(false);
-  }
-};
-
+  const [scrapeCategory, setScrapeCategory] = useState("");
+  const [scrapeResult, setScrapeResult] = useState(null);
+  const [scrapeLoading, setScrapeLoading] = useState(false);
 
   // ---------------- Analytics States ----------------
   const [analytics, setAnalytics] = useState({
-    impressions: 0,
-    clicks: 0,
-    ctr: 0,
-    chartData: [],
-    pieImpressions: [],
-    pieClicks: [],
-    pages: [],
+    impressions: 0, clicks: 0, ctr: 0, chartData: [], pieImpressions: [], pieClicks: [], pages: [],
   });
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
   const userApiKey = localStorage.getItem("api_key");
   const [showPages, setShowPages] = useState(false);
-const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array = show all by default
-
+  const [selectedMetrics, setSelectedMetrics] = React.useState([]);
 
   // ---------------- Load Settings & Fetch Schedules ----------------
   useEffect(() => {
@@ -120,658 +73,334 @@ const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array
       setTextColor(savedSettings.textColor);
       setStarColor(savedSettings.starColor);
     }
-
     fetchSchedules();
-
-    // Auto-refresh every 5 seconds for scrape status
-    const interval = setInterval(() => {
-      if (activeItem === "Scrape Status") fetchSchedules();
-    }, 5000);
-
+    const interval = setInterval(() => { if (activeItem === "Scrape Status") fetchSchedules(); }, 5000);
     return () => clearInterval(interval);
   }, [activeItem]);
 
-  // ---------------- Fetch schedules from backend ----------------
   const fetchSchedules = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/schedule-scrapes`);
       setSchedules(response.data.data || []);
       setFetchError(null);
-    } catch (err) {
-      setFetchError(err.message || "Failed to fetch schedules");
-    }
+    } catch (err) { setFetchError(err.message || "Failed to fetch schedules"); }
   };
 
-  // ---------------- Fetch Analytics ----------------
-  useEffect(() => {
-    if (activeItem === "View Analytics") fetchAnalytics();
-  }, [activeItem]);
-
-const fetchAnalytics = async () => {
-  setAnalyticsLoading(true);
-  try {
-    const res = await axios.get(`${API_URL}/api/analytics`);
-    console.log("Analytics API response:", res.data);
-
-    if (res.data.status === "success") {
-      const data = res.data.data;
-
-        console.log("Analytics data:", data);
-
-       // ---------------- Aggregate totals ----------------
-      const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
-      const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
-      const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
-
-
-        // ---------------- Aggregate by date for line chart ----------------
-      const dailyTotals = {};
-      data.forEach((d) => {
-        const date = d.date.split("T")[0];
-        if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
-        dailyTotals[date].impressions += d.impressions;
-        dailyTotals[date].clicks += d.clicks;
+  const handleScrape = async () => {
+    if (!scrapeCategory.trim()) {
+      Swal.fire({ icon: "warning", title: "Enter a category", text: "Please type a valid category before scheduling." });
+      return;
+    }
+    setScrapeLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/scraper/add`, {
+        query: scrapeCategory.trim(), frequency: scrapeFrequency, time: scrapeTime, day: scrapeDay,
       });
+      if (res.data.status === "ok") {
+        Swal.fire({ icon: "success", title: "Scheduled Successfully!", text: res.data.message, confirmButtonColor: "#3b82f6" });
+      } else {
+        Swal.fire({ icon: "error", title: "Failed!", text: res.data.message });
+      }
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Error Occurred", text: err.response?.data?.message || err.message });
+    } finally { setScrapeLoading(false); }
+  };
 
-       const chartData = Object.keys(dailyTotals)
-        .sort()
-        .map((date) => {
-          const imp = dailyTotals[date].impressions;
-          const clk = dailyTotals[date].clicks;
-          return {
-            date,
-            impressions: imp,
-            clicks: clk,
-            ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0,
-          };
+  useEffect(() => { if (activeItem === "View Analytics") fetchAnalytics(); }, [activeItem]);
+
+  const fetchAnalytics = async () => {
+    setAnalyticsLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/api/analytics`);
+      if (res.data.status === "success") {
+        const data = res.data.data;
+        const totalImpressions = data.reduce((sum, d) => sum + (d.impressions || 0), 0);
+        const totalClicks = data.reduce((sum, d) => sum + (d.clicks || 0), 0);
+        const ctr = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+
+        const dailyTotals = {};
+        data.forEach((d) => {
+          const date = d.date.split("T")[0];
+          if (!dailyTotals[date]) dailyTotals[date] = { impressions: 0, clicks: 0 };
+          dailyTotals[date].impressions += d.impressions;
+          dailyTotals[date].clicks += d.clicks;
         });
 
-         // ---------------- Aggregate by product for Pie Charts ----------------
-      const productMap = {};
-      data.forEach((d) => { 
-        if (!d.product_name) return; // skip null product_name
-        if (!productMap[d.product_id]) {
-          productMap[d.product_id] = {
-            product_id: d.product_id,
-            product_name: d.product_name,
-            clicks: d.clicks,
-            impressions: d.impressions,
-          };
-        } else {
-          productMap[d.product_id].clicks += d.clicks;
-          productMap[d.product_id].impressions += d.impressions;
-        }
-      });
+        const chartData = Object.keys(dailyTotals).sort().map((date) => {
+          const imp = dailyTotals[date].impressions;
+          const clk = dailyTotals[date].clicks;
+          return { date, impressions: imp, clicks: clk, ctr: imp ? ((clk / imp) * 100).toFixed(2) : 0 };
+        });
 
-      const uniqueProducts = Object.values(productMap);
+        const productMap = {};
+        data.forEach((d) => {
+          if (!d.product_name) return;
+          if (!productMap[d.product_id]) {
+            productMap[d.product_id] = { product_id: d.product_id, product_name: d.product_name, clicks: d.clicks, impressions: d.impressions };
+          } else {
+            productMap[d.product_id].clicks += d.clicks;
+            productMap[d.product_id].impressions += d.impressions;
+          }
+        });
+        const uniqueProducts = Object.values(productMap);
 
-
-       // ---------------- Page URLs ----------------
-       const pages = [
-          {
-            url: `${API_URL}/home?api_key=${userApiKey}`,
-            productName: "Home",
-            clicks: 0,
-          },
-          ...uniqueProducts.map((p) => ({
-            url: `${API_URL}/products/${p.product_id}?api_key=${userApiKey}`,
-            productName: p.product_name,
-            clicks: p.clicks,
-          })),
+        const pages = [
+          { url: `${API_URL}/home?api_key=${userApiKey}`, productName: "Home", clicks: 0 },
+          ...uniqueProducts.map((p) => ({ url: `${API_URL}/products/${p.product_id}?api_key=${userApiKey}`, productName: p.product_name, clicks: p.clicks })),
         ];
 
-
-
-
-       // ---------------- Pie Charts ----------------
-      const pieImpressions = uniqueProducts.map((p) => ({ name: p.product_name, value: p.impressions }));
-      const pieClicks = uniqueProducts.map((p) => ({ name: p.product_name, value: p.clicks }));
-
-      setAnalytics({
-        impressions: totalImpressions,
-        clicks: totalClicks,
-        ctr,
-        chartData,
-        pieImpressions,
-        pieClicks,
-        pages,
-      });
-    }
-  } catch (err) {
-    console.error("Error fetching analytics:", err);
-  } finally {
-    setAnalyticsLoading(false);
-  }
-};
-
-        // ---------------- Helper: map backend URLs to frontend ----------------
-          const mapBackendUrlToFrontend = (backendUrl) => {
-            if (!backendUrl) return "";
-
-            const cleanUrl = backendUrl.split("?")[0];
-
-            // Map backend -> frontend URLs
-            if (cleanUrl.includes("/home")) {
-              return "http://localhost:5173/home";
-            } else if (cleanUrl.includes("69035845fa769dce7dac484c")) {
-              return "http://localhost:5173/products/laptop";
-            } else if (cleanUrl.includes("69035845fa769dce7dac484b")) {
-              return "http://localhost:5173/products/mobile";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484d")) {
-              return "http://localhost:5173/products/sofa";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484e")) {
-              return "http://localhost:5173/products/toys";
-            } else if (cleanUrl.includes("69035846fa769dce7dac484f")) {
-              return "http://localhost:5173/products/shirt";
-            } else {
-              return cleanUrl;
-            }
-          };
-
-  // ---------------- Logout ----------------
-  const handleLogout = () => {
-    localStorage.removeItem("admin");
-    navigate("/");
+        setAnalytics({ impressions: totalImpressions, clicks: totalClicks, ctr, chartData, pieImpressions: [], pieClicks: [], pages });
+      }
+    } catch (err) { console.error("Error fetching analytics:", err); } finally { setAnalyticsLoading(false); }
   };
 
-  // ---------------- Save Settings ----------------
+  const handleLogout = () => { localStorage.removeItem("admin"); navigate("/"); };
   const handleSaveSettings = () => {
     const settings = { showPrice, showRating, showLabels, visibleCount, cardColor, textColor, starColor };
     localStorage.setItem("productSettings", JSON.stringify(settings));
-    Swal.fire({
-      icon: "success",
-      title: "Saved!",
-      text: "Settings saved successfully.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
+    Swal.fire({ icon: "success", title: "Saved!", text: "Settings saved successfully.", timer: 2000, showConfirmButton: false });
   };
 
-  
-  
-  // ---------------- Menu Items ----------------
-  const menuItems = [ "View Analytics", "Configurable layout","Scrape Products"];
-
-  // ---------------- React Table Setup ----------------
-  const columns = useMemo(
-    () => [
-      { accessorKey: "frequency", header: "Frequency" },
-      { accessorKey: "time", header: "Time", cell: info => info.getValue() || "-" },
-      { accessorKey: "day", header: "Day", cell: info => info.getValue() || "-" },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const schedule = row.original;
-          let displayStatus = "";
-          let textColor = "";
-
-          if (schedule.is_running) {
-            displayStatus = "Running...";
-            textColor = "text-yellow-600";
-          } else if (schedule.status === "complete") {
-            displayStatus = "Complete";
-            textColor = "text-green-600";
-          } else if (schedule.status === "failed") {
-            displayStatus = "Failed";
-            textColor = "text-red-600";
-          } else if (schedule.status === "active") {
-            displayStatus = "Scheduled";
-            textColor = "text-blue-600";
-          } else {
-            displayStatus = "Incomplete";
-            textColor = "text-red-600";
-          }
-
-          return <span className={`font-semibold ${textColor}`}>{displayStatus}</span>;
-        },
-      },
-    ],
-    []
-  );
-
-  const table = useReactTable({
-    data: schedules,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  // ---------------- Chart Options ----------------
-  const chartOption = {
-    title: { text: "📈 Clicks & Impressions Over Time", left: "center" },
-    tooltip: { trigger: "axis" },
-    legend: { data: ["Impressions", "Clicks"], bottom: 0 },
-    xAxis: { type: "category", data: analytics.chartData.map(d => d.date) },
-    yAxis: { type: "value" },
-    series: [
-      { name: "Impressions", type: "line", smooth: true, data: analytics.chartData.map(d => d.impressions) },
-      { name: "Clicks", type: "line", smooth: true, data: analytics.chartData.map(d => d.clicks) },
-    ],
-  };
+  const menuItems = [
+    { name: "Home", icon: <FaHome /> },
+    { name: "View Analytics", icon: <FaChartPie /> },
+    { name: "Configurable layout", icon: <FaCogs /> },
+    { name: "Scrape Products", icon: <FaCloudDownloadAlt /> },
+    { name: "Product Table", icon: <FaTable /> }
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-r from-purple-100 via-pink-100 to-blue-100">
-
-      
-
-      <div className="flex flex-1">
-        {/* ---------------- Sidebar ---------------- */}
-        <div className="w-64 bg-white shadow-lg flex flex-col justify-between border-r border-black-700">
-          <div>
-            <div className="text-2xl font-bold p-6 border-b border-gray-200 text-gray-800">Dashboard</div>
-            <ul className="mt-4">
-              {menuItems.map((item) => (
-                <li
-                  key={item}
-                  onClick={() => setActiveItem(item)}
-                  className={`px-6 py-4 cursor-pointer transition-all duration-300 rounded-r-full ${
-                    activeItem === item ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
-                  } text-gray-700`}
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
+    <div className="flex h-screen bg-[#f1f5f9] font-sans">
+      {/* 🌒 Sidebar */}
+      <aside className="w-72 bg-[#0f172a] text-slate-300 flex flex-col shadow-xl z-20">
+        <div className="h-20 flex items-center px-8 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white">
+              <FaFingerprint size={16} />
+            </div>
+            <span className="text-lg font-bold text-white tracking-tight">Admin<span className="text-blue-500">Panel</span></span>
           </div>
+        </div>
 
-          <div className="p-6 border-t border-gray-200">
+        <nav className="flex-1 py-6 px-4 space-y-1">
+          {menuItems.map((item) => (
             <button
-              onClick={handleLogout}
-              className="w-full bg-red-500 hover:bg-red-600 py-2 rounded font-semibold text-white transition-colors"
+              key={item.name}
+              onClick={() => setActiveItem(item.name)}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${activeItem === item.name
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
+                : "hover:bg-slate-800 text-slate-400 hover:text-white"
+                }`}
             >
-              Logout
+              <span className={`text-xl transition-colors ${activeItem === item.name ? "text-white" : "text-slate-500 group-hover:text-white"}`}>{item.icon}</span>
+              <span className="font-medium">{item.name}</span>
             </button>
-          </div>
-        </div>
+          ))}
+        </nav>
 
-        {/* ---------------- Main Content ---------------- */}
-        <div className="flex-1 p-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Dashboard 2</h1>
-        
-     {/* ---------------- View Analytics Panel ---------------- */}
-{activeItem === "View Analytics" && (
-  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-6xl">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800">
-      Product Analytics
-    </h2>
-
-    {analyticsLoading ? (
-      <p>Loading analytics...</p>
-    ) : (
-      <>
-        {/* ---------------- Summary Cards with Checkboxes ---------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-6">
-          {["impressions", "clicks", "ctr"].map((metric) => {
-            const metricClasses = {
-              impressions: {
-                bg: "bg-blue-50",
-                bgSelected: "bg-blue-100 border border-blue-400",
-                text: "text-blue-700",
-                valueText: "text-blue-900",
-              },
-              clicks: {
-                bg: "bg-green-50",
-                bgSelected: "bg-green-100 border border-green-400",
-                text: "text-green-700",
-                valueText: "text-green-900",
-              },
-              ctr: {
-                bg: "bg-purple-50",
-                bgSelected: "bg-purple-100 border border-purple-400",
-                text: "text-purple-700",
-                valueText: "text-purple-900",
-              },
-            };
-
-            const classes = selectedMetrics.includes(metric)
-              ? metricClasses[metric].bgSelected
-              : metricClasses[metric].bg;
-
-            return (
-              <div
-                key={metric}
-                className={`p-4 rounded-lg shadow transition-all flex flex-col items-center cursor-pointer ${classes}`}
-              >
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedMetrics.includes(metric)}
-                    onChange={() => {
-                      setSelectedMetrics((prev) =>
-                        prev.includes(metric)
-                          ? prev.filter((m) => m !== metric)
-                          : [...prev, metric]
-                      );
-                    }}
-                  />
-                  <span className={`text-lg font-semibold ${metricClasses[metric].text} capitalize`}>
-                    {metric}
-                  </span>
-                </label>
-                <p className={`text-2xl font-bold mt-2 ${metricClasses[metric].valueText}`}>
-                  {analytics[metric] ?? 0}
-                  {metric === "ctr" ? "%" : ""}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ---------------- Chart Section ---------------- */}
-        <ReactECharts
-  key={selectedMetrics.join("-")}
-  style={{ height: "400px" }}
-  option={{
-    title: { text: "📈 Analytics Over Time", left: "center" },
-    tooltip: { trigger: "axis" },
-    legend: {
-      data: ["Impressions", "Clicks", "CTR"],
-      bottom: 0,
-    },
-    xAxis: {
-      type: "category",
-      data:
-        analytics.chartData.length === 1
-          ? [
-              new Date(new Date(analytics.chartData[0].date).getTime() - 86400000)
-                .toISOString()
-                .slice(0, 10),
-              analytics.chartData[0].date,
-            ]
-          : analytics.chartData.map((d) => d.date),
-      axisLabel: { color: "#555" },
-    },
-    yAxis: {
-      type: "value",
-      axisLabel: { color: "#555" },
-    },
-    series: [
-      ...(selectedMetrics.length === 0 || selectedMetrics.includes("impressions")
-        ? [
-            {
-              name: "Impressions",
-              type: "line",
-              smooth: true,
-              areaStyle: { color: "rgba(30,144,255,0.2)" }, // wave effect
-              data:
-                analytics.chartData.length === 1
-                  ? [0, analytics.chartData[0].impressions]
-                  : analytics.chartData.map((d) => d.impressions),
-              lineStyle: { color: "#1E90FF", width: 3 },
-              itemStyle: { color: "#1E90FF" },
-            },
-          ]
-        : []),
-      ...(selectedMetrics.length === 0 || selectedMetrics.includes("clicks")
-        ? [
-            {
-              name: "Clicks",
-              type: "line",
-              smooth: true,
-              areaStyle: { color: "rgba(50,205,50,0.2)" },
-              data:
-                analytics.chartData.length === 1
-                  ? [0, analytics.chartData[0].clicks]
-                  : analytics.chartData.map((d) => d.clicks),
-              lineStyle: { color: "#32CD32", width: 3 },
-              itemStyle: { color: "#32CD32" },
-            },
-          ]
-        : []),
-      ...(selectedMetrics.length === 0 || selectedMetrics.includes("ctr")
-        ? [
-            {
-              name: "CTR",
-              type: "line",
-              smooth: true,
-              areaStyle: { color: "rgba(128,0,128,0.2)" },
-              data:
-                analytics.chartData.length === 1
-                  ? [0, analytics.chartData[0].ctr]
-                  : analytics.chartData.map((d) => d.ctr),
-              lineStyle: { color: "#800080", width: 3 },
-              itemStyle: { color: "#800080" },
-            },
-          ]
-        : []),
-    ],
-  }}
-/>
-
-
-        {/* ---------------- Pages Button ---------------- */}
-        <div className="text-center mt-6">
-          <button
-            onClick={() => setShowPages((prev) => !prev)}
-            className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full shadow hover:from-indigo-600 hover:to-purple-600 transition-all duration-300"
-          >
-            {showPages ? "Hide Pages" : "Show Pages"}
+        <div className="p-4 border-t border-slate-800">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-400 py-3 rounded-xl transition-all font-medium text-sm">
+            <FaSignOutAlt /> Sign Out
           </button>
         </div>
+      </aside>
 
-        {/* ---------------- Page URLs (Local Stats) ---------------- */}
-        {showPages && (
-          <div className="mt-8 animate-fadeIn">
-            <h3 className="text-xl font-semibold mb-4 text-gray-700">
-              Page URLs (Local Stats)
-            </h3>
+      {/* ☀️ Main Content */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
 
-            {(() => {
-              const stored = JSON.parse(localStorage.getItem("pageAnalytics")) || {};
-              const entries = Object.entries(stored);
+        {/* Header */}
+        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 sticky top-0">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold text-slate-800">{activeItem}</h2>
+          </div>
+          <div className="flex items-center gap-6">
+            <button className="text-slate-400 hover:text-slate-600 relative">
+              <FaBell size={20} />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+            <div className="h-8 w-[1px] bg-slate-200"></div>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden md:block">
+                <p className="text-sm font-bold text-slate-800">Administrator</p>
+                <p className="text-xs text-slate-500">Super User</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                <FaUserCircle size={24} />
+              </div>
+            </div>
+          </div>
+        </header>
 
-              if (entries.length === 0) {
-                return <p className="text-gray-500">No pages tracked yet.</p>;
-              }
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto p-8 relative">
 
-              return (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100">
+          {activeItem === "Home" && (
+            <ProductCount />
+          )}
+
+          {activeItem === "View Analytics" && (
+            <div className="space-y-6 max-w-7xl mx-auto">
+              {/* Metric Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {["impressions", "clicks", "ctr"].map((metric) => (
+                  <div key={metric}
+                    onClick={() => {
+                      setSelectedMetrics(prev => prev.includes(metric) ? prev.filter(m => m !== metric) : [...prev, metric]);
+                    }}
+                    className={`p-6 bg-white rounded-2xl shadow-sm border cursor-pointer transition-all hover:-translate-y-1 ${selectedMetrics.includes(metric) ? "border-blue-500 ring-1 ring-blue-500" : "border-slate-100 hover:shadow-md"
+                      }`}
+                  >
+                    <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-2">{metric}</p>
+                    <h3 className="text-3xl font-bold text-slate-800">
+                      {analytics[metric] ?? 0}{metric === "ctr" ? "%" : ""}
+                    </h3>
+                  </div>
+                ))}
+              </div>
+
+              {/* Main Chart */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <ReactECharts
+                  key={selectedMetrics.join("-")}
+                  style={{ height: "400px" }}
+                  option={{
+                    tooltip: { trigger: "axis" },
+                    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+                    xAxis: {
+                      type: "category",
+                      data: analytics.chartData.map(d => d.date),
+                      axisLine: { lineStyle: { color: "#cbd5e1" } },
+                      axisLabel: { color: "#64748b" }
+                    },
+                    yAxis: {
+                      type: "value",
+                      splitLine: { lineStyle: { color: "#f1f5f9" } },
+                      axisLabel: { color: "#64748b" }
+                    },
+                    series: [
+                      {
+                        name: "Impressions", type: "line", smooth: true, showSymbol: false,
+                        data: analytics.chartData.map(d => d.impressions),
+                        lineStyle: { width: 4, color: "#3b82f6" },
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,0.3)' }, { offset: 1, color: 'rgba(59,130,246,0.01)' }]) },
+                        itemStyle: { color: "#3b82f6" }
+                      },
+                      {
+                        name: "Clicks", type: "line", smooth: true, showSymbol: false,
+                        data: analytics.chartData.map(d => d.clicks),
+                        lineStyle: { width: 4, color: "#10b981" },
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(16,185,129,0.3)' }, { offset: 1, color: 'rgba(16,185,129,0.01)' }]) },
+                        itemStyle: { color: "#10b981" }
+                      }
+                    ].filter(s => selectedMetrics.length === 0 || selectedMetrics.includes(s.name.toLowerCase()))
+                  }}
+                />
+              </div>
+
+              {/* Pages Table Toggle */}
+              <button onClick={() => setShowPages(!showPages)} className="text-blue-600 font-semibold hover:underline bg-white px-4 py-2 rounded-lg border border-slate-200">
+                {showPages ? "Hide Page Details" : "Show Page Details"}
+              </button>
+
+              {showPages && (
+                <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 border-b border-slate-100">
                       <tr>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">No</th>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Page URL</th>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Visits</th>
+                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Page Name</th>
+                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">URL</th>
+                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Clicks</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {entries
-                        .sort((a, b) => b[1] - a[1])
-                        .map(([url, count], index) => (
-                          <tr key={index} className="border-t hover:bg-gray-50 transition-all">
-                            <td className="px-4 py-2 text-sm text-gray-600">{index + 1}</td>
-                            <td className="px-4 py-2 text-sm text-blue-600 break-all">
-                              <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
-                                {url}
-                              </a>
-                            </td>
-                            <td className="px-4 py-2 text-sm text-gray-800 font-semibold">{count}</td>
-                          </tr>
-                        ))}
+                    <tbody className="divide-y divide-slate-100">
+                      {analytics.pages.map((p, i) => (
+                        <tr key={i} className="hover:bg-slate-50">
+                          <td className="px-6 py-4 font-medium text-slate-700">{p.productName}</td>
+                          <td className="px-6 py-4 text-sm text-blue-500 truncate max-w-xs">{p.url}</td>
+                          <td className="px-6 py-4 text-sm text-slate-700 font-bold text-right">{p.clicks}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
-              );
-            })()}
-          </div>
-        )}
-      </>
-    )}
-  </div>
-)}
+              )}
+            </div>
+          )}
 
-{/* ---------------- Scrape Products Panel ---------------- */}
-{activeItem === "Scrape Products" && (
-  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
-    <h2 className="text-2xl font-bold mb-6 text-gray-800">Scrape Products</h2>
-
-    {/* ---------------- Category Input ---------------- */}
-    <div className="flex gap-4 items-center mb-4">
-      <input
-        type="text"
-        value={scrapeCategory}
-        onChange={(e) => setScrapeCategory(e.target.value)}
-        placeholder="Enter category (e.g., shoes)"
-        className="border p-2 rounded w-full"
-      />
-    </div>
-
-    {/* ---------------- Schedule Settings ---------------- */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-      {/* Frequency Dropdown */}
-      <div>
-        <label className="block mb-1 font-semibold text-gray-700">Frequency</label>
-        <select
-          value={scrapeFrequency}
-          onChange={(e) => setScrapeFrequency(e.target.value)}
-          className="w-full border p-2 rounded"
-        >
-          <option value="hourly">Hourly</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-        </select>
-      </div>
-
-      {/* Time Picker */}
-      <div>
-        <label className="block mb-1 font-semibold text-gray-700">Time</label>
-        <input
-          type="time"
-          value={scrapeTime}
-          onChange={(e) => setScrapeTime(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-      </div>
-
-      {/* Day Picker (only for weekly) */}
-      <div className={`${scrapeFrequency !== "weekly" ? "opacity-50 pointer-events-none" : ""}`}>
-        <label className="block mb-1 font-semibold text-gray-700">Day</label>
-        <select
-          value={scrapeDay}
-          onChange={(e) => setScrapeDay(e.target.value)}
-          className="w-full border p-2 rounded"
-        >
-          <option value="sun">Sunday</option>
-          <option value="mon">Monday</option>
-          <option value="tue">Tuesday</option>
-          <option value="wed">Wednesday</option>
-          <option value="thu">Thursday</option>
-          <option value="fri">Friday</option>
-          <option value="sat">Saturday</option>
-        </select>
-      </div>
-    </div>
-
-    {/* ---------------- Scrape Button ---------------- */}
-    <button
-      onClick={handleScrape}
-      className="mt-4 bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition"
-      disabled={scrapeLoading}
-    >
-      {scrapeLoading ? "Scheduling..." : "Schedule Scrape"}
-    </button>
-
-    {/* ---------------- Result ---------------- */}
-    {scrapeResult && (
-      <div className="mt-4 p-3 bg-gray-100 rounded text-gray-800">
-        {scrapeResult}
-      </div>
-    )}
-  </div>
-)}
-
-
-          {/* ---------------- Configurable Layout Panel ---------------- */}
           {activeItem === "Configurable layout" && (
-            <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-4xl">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">⚙️ Customize Product Display</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Show / Hide Options */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-700 mb-2">Visibility</h3>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center">
-                      <input type="checkbox" checked={showPrice} onChange={() => setShowPrice(!showPrice)} className="mr-2" />
-                      Show Price
-                    </label>
-                    <label className="flex items-center">
-                      <input type="checkbox" checked={showRating} onChange={() => setShowRating(!showRating)} className="mr-2" />
-                      Show Ratings
-                    </label>
-                    <label className="flex items-center">
-                      <input type="checkbox" checked={showLabels} onChange={() => setShowLabels(!showLabels)} className="mr-2" />
-                      Show Labels
-                    </label>
+            <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold text-slate-800 mb-6">Display Settings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Features</h4>
+                  <div className="space-y-4">
+                    {[
+                      { label: "Show Price", val: showPrice, set: setShowPrice },
+                      { label: "Show Ratings", val: showRating, set: setShowRating },
+                      { label: "Show Labels", val: showLabels, set: setShowLabels }
+                    ].map((opt, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-700">{opt.label}</span>
+                        <button
+                          onClick={() => opt.set(!opt.val)}
+                          className={`w-12 h-6 rounded-full transition-colors relative ${opt.val ? "bg-blue-600" : "bg-slate-300"}`}
+                        >
+                          <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${opt.val ? "translate-x-6" : ""}`}></div>
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Number of Items */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-700 mb-2">Number of Items</h3>
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={visibleCount}
-                    onChange={(e) => setVisibleCount(parseInt(e.target.value))}
-                    className="w-full border border-gray-300 rounded-md p-2"
-                  />
-                </div>
-
-                               {/* Color Customization */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-700 mb-2">Colors</h3>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-gray-700 font-medium">Card Background</label>
-                      <input
-                        type="color"
-                        value={cardColor}
-                        onChange={(e) => setCardColor(e.target.value)}
-                        className="w-16 h-8 border rounded"
-                      />
+                <div>
+                  <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Appearance</h4>
+                  <div className="space-y-4">
+                    <div className="p-3 bg-slate-50 rounded-lg flex items-center justify-between">
+                      <span className="font-medium text-slate-700">Items Count</span>
+                      <input type="number" min="1" max="20" value={visibleCount} onChange={(e) => setVisibleCount(parseInt(e.target.value))} className="w-16 p-1 border rounded text-center" />
                     </div>
-
-                    <div className="flex items-center justify-between">
-                      <label className="text-gray-700 font-medium">Text Color</label>
-                      <input
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => setTextColor(e.target.value)}
-                        className="w-16 h-8 border rounded"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <label className="text-gray-700 font-medium">Star Color</label>
-                      <input
-                        type="color"
-                        value={starColor}
-                        onChange={(e) => setStarColor(e.target.value)}
-                        className="w-16 h-8 border rounded"
-                      />
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Card Color</span><input type="color" value={cardColor} onChange={(e) => setCardColor(e.target.value)} /></div>
+                      <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Text Color</span><input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} /></div>
+                      <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Star Color</span><input type="color" value={starColor} onChange={(e) => setStarColor(e.target.value)} /></div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              
-
-
-              {/* Save Button */}
-              <div className="mt-8 flex justify-end">
-                <button
-                  onClick={handleSaveSettings}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  Save Settings
-                </button>
+              <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                <button onClick={handleSaveSettings} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all">Save Changes</button>
               </div>
             </div>
           )}
+
+          {activeItem === "Scrape Products" && (
+            <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold text-slate-800 mb-6">New Scrape Task</h3>
+              <div className="flex gap-4 mb-6">
+                <input
+                  type="text"
+                  value={scrapeCategory}
+                  onChange={(e) => setScrapeCategory(e.target.value)}
+                  placeholder="Enter product category..."
+                  className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <button onClick={handleScrape} disabled={scrapeLoading} className="px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-50">
+                  {scrapeLoading ? "Starting..." : "Start Scrape"}
+                </button>
+              </div>
+              {scrapeResult && <div className="p-4 bg-slate-100 rounded-xl text-slate-700 text-sm">{scrapeResult}</div>}
+            </div>
+          )}
+
+          {activeItem === "Product Table" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <ScrapedProductsTable />
+            </div>
+          )}
+
         </div>
-      </div>
+
+      </main>
     </div>
   );
 };

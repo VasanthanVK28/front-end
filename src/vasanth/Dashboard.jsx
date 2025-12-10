@@ -6,16 +6,33 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import ProductsTable from "../components/ProductsTable";
 import ProductPieChart from "../components/ProductPieChart";
-import {Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper,} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import {useReactTable,getCoreRowModel,getSortedRowModel,flexRender,} from "@tanstack/react-table";
-import ReactECharts from "echarts-for-react"; // ✅ Added for analytics chart
-import * as echarts from "echarts";
+import {
+  useReactTable,
+  getCoreRowModel,
+} from "@tanstack/react-table";
+import {
+  FaHome,
+  FaDatabase,
+  FaClipboardList,
+  FaTable,
+  FaSignOutAlt,
+  FaUserFriends,
+  FaMobileAlt,
+  FaLaptop,
+  FaCouch,
+  FaTshirt,
+  FaGamepad,
+  FaRobot,
+  FaCalendarCheck,
+  FaSearch
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState("Home");
-  
+
   // ---------------- Customization States ----------------
   const [showPrice, setShowPrice] = useState(true);
   const [showRating, setShowRating] = useState(true);
@@ -34,993 +51,391 @@ const Dashboard = () => {
   const [schedules, setSchedules] = useState([]);
   const [fetchError, setFetchError] = useState(null);
 
-// ---------------- User Count State ----------------
-const [totalUsers, setTotalUsers] = useState(0);
-const [usersLoading, setUsersLoading] = useState(true);
+  // ---------------- User Count State ----------------
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [usersLoading, setUsersLoading] = useState(true);
 
-// ------------------- Mobile count Fetch ----------------
-const [totalMobiles, setTotalMobiles] = useState(0);
-const [mobilesLoading, setMobilesLoading] = useState(true);
+  // ------------------- Category Counts ----------------
+  const [totalMobiles, setTotalMobiles] = useState(0);
+  const [mobilesLoading, setMobilesLoading] = useState(true);
 
-// ------------------ Laptop count Fetch ----------------
-const [laptopLoading, setLaptopLoading] = useState(true);
-const [totalLaptops, setTotalLaptops] = useState(0);
+  const [laptopLoading, setLaptopLoading] = useState(true);
+  const [totalLaptops, setTotalLaptops] = useState(0);
 
-// ------------------ Sofa count Fetch ----------------
-const [sofaLoading, setSofaLoading] = useState(true);
-const [totalSofas, setTotalSofas] = useState(0);
+  const [sofaLoading, setSofaLoading] = useState(true);
+  const [totalSofas, setTotalSofas] = useState(0);
 
-// ------------------ Shirt count Fetch ----------------
-const [shirtLoading, setShirtLoading] = useState(true);
-const [totalShirts, setTotalShirts] = useState(0);
+  const [shirtLoading, setShirtLoading] = useState(true);
+  const [totalShirts, setTotalShirts] = useState(0);
 
-// ------------------ Toys count Fetch ----------------
-const [toyLoading, setToyLoading] = useState(true);
-const [totalToys, setTotalToys] = useState(0);
+  const [toyLoading, setToyLoading] = useState(true);
+  const [totalToys, setTotalToys] = useState(0);
 
-// ---------------- Logs State ----------------
-const [logs, setLogs] = useState([]);
-const addLog = (message, type = "info") => {
-  setLogs((prev) => [
-    {
-      id: Date.now(),
-      message,
-      type,
-      time: new Date().toLocaleTimeString(),
-    },
-    ...prev, // latest first
-  ]);
-};
-
-// ---------------- Fetch Total Users ----------------
-useEffect(() => {
-  const fetchTotalUsers = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/total-users`);
-      if (response.data.status === "success") {
-        setTotalUsers(response.data.total_users);
-        addLog("Fetched total users count successfully", "success");
-      }
-    } catch (error) {
-      console.error("Error fetching total users:", error);
-      addLog("Failed to fetch total users count", "error");
-    } finally {
-      setUsersLoading(false);
-    }
+  // ---------------- Logs State ----------------
+  const [logs, setLogs] = useState([]);
+  const addLog = (message, type = "info") => {
+    setLogs((prev) => [{ id: Date.now(), message, type, time: new Date().toLocaleTimeString() }, ...prev]);
   };
 
-  fetchTotalUsers();
-}, []);
-
-  // ---------------- Analytics States ----------------
-  const [analytics, setAnalytics] = useState({
-    impressions: 0,
-    clicks: 0,
-    ctr: 0,
-    chartData: [],
-    pieImpressions: [],
-    pieClicks: [],
-    pages: [],
-  });
-  const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
-  const userApiKey = localStorage.getItem("api_key");
-  const [showPages, setShowPages] = useState(false);
-  const [selectedMetrics, setSelectedMetrics] = React.useState([]); // empty array = show all by default
+
+  // ---------------- Fetch Data ----------------
+  useEffect(() => {
+    const fetchTotalUsers = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/total-users`);
+        if (response.data.status === "success") setTotalUsers(response.data.total_users);
+      } catch (error) { console.error(error); } finally { setUsersLoading(false); }
+    };
+    fetchTotalUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async (endpoint, setter, loader) => {
+      try {
+        const res = await axios.get(`${API_URL}/api/${endpoint}`);
+        if (res.data.status === "success" || res.data.count !== undefined) {
+          setter(res.data.count);
+        }
+      } catch (e) { console.error(e); } finally { loader(false); }
+    };
+
+    fetchData("mobiles", setTotalMobiles, setMobilesLoading);
+    fetchData("laptops", setTotalLaptops, setLaptopLoading); // Note: verify endpoint
+    fetchData("sofas", setTotalSofas, setSofaLoading);
+    fetchData("shirts", setTotalShirts, setShirtLoading);
+    fetchData("toys", setTotalToys, setToyLoading);
+  }, []);
+
+  // Laptops endpoint fetch separately if needed differently
+  useEffect(() => {
+    const fetchLaptopCount = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/laptops`);
+        const data = await res.json();
+        setTotalLaptops(data.count);
+      } catch (err) { console.error(err); } finally { setLaptopLoading(false); }
+    };
+    fetchLaptopCount();
+  }, []);
+
 
   // ---------------- Load Settings & Fetch Schedules ----------------
   useEffect(() => {
     const savedSettings = JSON.parse(localStorage.getItem("productSettings"));
     if (savedSettings) {
       setShowPrice(savedSettings.showPrice);
-      setShowRating(savedSettings.showRating);
-      setShowLabels(savedSettings.showLabels);
       setVisibleCount(savedSettings.visibleCount);
-      setCardColor(savedSettings.cardColor);
-      setTextColor(savedSettings.textColor);
-      setStarColor(savedSettings.starColor);
     }
-
     fetchSchedules();
-
-    // Auto-refresh every 5 seconds for scrape status
-    const interval = setInterval(() => {
-      if (activeItem === "Scrape Status") fetchSchedules();
-    }, 5000);
-
+    const interval = setInterval(() => { if (activeItem === "Scrape Status") fetchSchedules(); }, 5000);
     return () => clearInterval(interval);
   }, [activeItem]);
 
-  // ---------------- Fetch schedules from backend ----------------
   const fetchSchedules = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/schedule-scrapes`);
       setSchedules(response.data.data || []);
-      setFetchError(null);
-    } catch (err) {
-      setFetchError(err.message || "Failed to fetch schedules");
-    }
+    } catch (err) { setFetchError(err.message); }
   };
 
-  // ------------------ Mobile count Fetch ----------------
-  useEffect(() => {
-  const fetchMobileCount = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/mobiles`);
-      if (response.data.status === "success") {
-        setTotalMobiles(response.data.count);
-        addLog("Fetched total mobiles successfully", "success");
-      }
-    } catch (error) {
-      console.error("Error fetching mobiles:", error);
-      addLog("Failed to fetch total mobiles", "error");
-    } finally {
-      setMobilesLoading(false);
-    }
-  };
-
-  fetchMobileCount();
-}, []);
-
-
-
-// ------------------ Laptop count Fetch ----------------
-useEffect(() => {
-  const fetchLaptopCount = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/laptops`);
-      const data = await res.json();
-      setTotalLaptops(data.count);
-      addLog("Fetched total laptops successfully", "success");
-    } catch (err) {
-      console.error("Error fetching laptop count", err);
-      addLog("Failed to fetch laptop count", "error");
-    } finally {
-      setLaptopLoading(false);
-    }
-  };
-
-  fetchLaptopCount();
-}, []);
-
-
-// ------------------ Sofa count Fetch ----------------
-useEffect(() => {
-  const fetchSofaCount = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/sofas`);
-      if (response.data.status === "success") {
-        setTotalSofas(response.data.count);
-        addLog("Fetched total sofas successfully", "success");
-      }
-    } catch (error) {
-      console.error("Error fetching sofas:", error);
-      addLog("Failed to fetch sofa count", "error");
-    } finally {
-      setSofaLoading(false);
-    }
-  };
-
-  fetchSofaCount();
-}, []);
-
-
-// ------------------ Shirt count Fetch ----------------
-useEffect(() => {
-  const fetchShirtCount = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/shirts`);
-      if (response.data.status === "success") {
-        setTotalShirts(response.data.count);
-        addLog("Fetched total shirts successfully", "success");
-      }
-    } catch (error) {
-      console.error("Error fetching shirts:", error);
-      addLog("Failed to fetch shirt count", "error");
-    } finally {
-      setShirtLoading(false);
-    }
-  };
-
-  fetchShirtCount();
-}, []);
-
-// ------------------ Toys count Fetch ----------------
-
-useEffect(() => {
-  const fetchToyCount = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/toys`);
-      if (response.data.status === "success") {
-        setTotalToys(response.data.count);
-        addLog("Fetched total toys successfully", "success");
-      }
-    } catch (error) {
-      console.error("Error fetching toys:", error);
-      addLog("Failed to fetch toys count", "error");
-    } finally {
-      setToyLoading(false);
-    }
-  };
-
-  fetchToyCount();
-}, []);
-
-
-         
-
-  // ---------------- Logout ----------------
   const handleLogout = () => {
     localStorage.removeItem("admin");
     navigate("/");
   };
 
-  // ---------------- Save Settings ----------------
-  const handleSaveSettings = () => {
-    const settings = { showPrice, showRating, showLabels, visibleCount, cardColor, textColor, starColor };
-    localStorage.setItem("productSettings", JSON.stringify(settings));
-    Swal.fire({
-      icon: "success",
-      title: "Saved!",
-      text: "Settings saved successfully.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
+  // ---------------- Schedule Scrape ----------------
+  const handleScheduleScrape = async () => {
+    if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
+      Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
+      return;
+    }
+    if (scrapeFrequency === "weekly" && !scrapeDay) {
+      Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
+      return;
+    }
+    if (!selectedCategories.length) {
+      Swal.fire({ icon: "warning", title: "Select Category", text: "Please select at least one category" });
+      return;
+    }
+
+    setScheduleLoading(true);
+    try {
+      const categoryMap = { mobiles: "mobiles_collection", laptops: "laptops_collection", shirts: "shirts_collection", toys: "toys_collection", sofas: "sofas_collection" };
+      let categoriesPayload = {};
+      if (selectedCategories.includes("all")) categoriesPayload = categoryMap;
+      else selectedCategories.forEach(cat => { if (categoryMap[cat]) categoriesPayload[cat] = categoryMap[cat]; });
+
+      const payload = { scrapeFrequency, scrapeTime, scrapeDay, categories: categoriesPayload };
+      const res = await fetch(`${API_URL}/api/schedule-scrape`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        Swal.fire({ icon: "success", title: "Scheduled!", timer: 2000, showConfirmButton: false });
+        fetchSchedules();
+      } else throw new Error("Failed to schedule");
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Error", text: err.message });
+    } finally { setScheduleLoading(false); }
   };
 
-  // ---------------- Schedule Scrape ----------------
-  // ---------------- Schedule Scrape ----------------
-const handleScheduleScrape = async () => {
-  if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
-    Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
-    return;
-  }
-  if (scrapeFrequency === "weekly" && !scrapeDay) {
-    Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
-    return;
-  }
+  const menuItems = [
+    { name: "Home", icon: <FaHome /> },
+    { name: "Scrape Products", icon: <FaRobot /> },
+    { name: "Scrape Status", icon: <FaDatabase /> },
+    { name: "Logs", icon: <FaClipboardList /> },
+    { name: "Products table", icon: <FaTable /> }
+  ];
 
-  if (!selectedCategories.length) {
-    Swal.fire({ icon: "warning", title: "Select Category", text: "Please select at least one category" });
-    return;
-  }
-
-  setScheduleLoading(true);
-  try {
-    // Map categories to MongoDB collections
-    const categoryMap = {
-      mobiles: "mobiles_collection",
-      laptops: "laptops_collection",
-      shirts: "shirts_collection",
-      toys: "toys_collection",
-      sofas: "sofas_collection",
-    };
-
-    let categoriesPayload = {};
-    if (selectedCategories.includes("all")) {
-      categoriesPayload = categoryMap; // all categories
-    } else {
-      selectedCategories.forEach(cat => {
-        if (categoryMap[cat]) categoriesPayload[cat] = categoryMap[cat];
-      });
-    }
-
-    const payload = {
-      scrapeFrequency,
-      scrapeTime,
-      scrapeDay,
-      categories: categoriesPayload, // send object {query: collection_name}
-    };
-
-    const res = await fetch(`${API_URL}/api/schedule-scrape`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      Swal.fire({
-        icon: "success",
-        title: "Scheduled!",
-        text: "Scraping task scheduled successfully.",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      fetchSchedules();
-    } else {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Failed to schedule scraping task");
-    }
-  } catch (err) {
-    Swal.fire({ icon: "error", title: "Error", text: err.message });
-  } finally {
-    setScheduleLoading(false);
-  }
-};
-
-
-  // ---------------- Helper: calculate schedule datetime ----------------
-  const getScheduleTime = (schedule) => {
-    const now = new Date();
-    const [hours, minutes] = (schedule.time || "00:00").split(":");
-    const scheduleDate = new Date(now);
-
-    if (schedule.frequency === "weekly") {
-      const dayMap = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0 };
-      const targetDay = dayMap[schedule.day || "sun"];
-      const diff = (targetDay + 7 - scheduleDate.getDay()) % 7;
-      scheduleDate.setDate(scheduleDate.getDate() + diff);
-    }
-
-    scheduleDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return scheduleDate;
-  };
-
-  // ---------------- Menu Items ----------------
-  const menuItems = ["Home", "Scrape Products", "Scrape Status","Logs","Products table"];
-
-  // ---------------- React Table Setup ----------------
-  const columns = useMemo(
-  () => [
-    { accessorKey: "frequency", header: "Frequency" },
-    { accessorKey: "time", header: "Time", cell: info => info.getValue() || "-" },
-    { accessorKey: "day", header: "Day", cell: info => info.getValue() || "-" },
-
-    // ✅ Categories Column
-    {
-  field: "categories",
-  headerName: "Categories",
-  flex: 2,
-  renderCell: (params) => {
-    const cats = params.value || {};
-
-    return (
-      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-        {Object.keys(cats).length === 0 ? (
-          <span>-</span>
+  // ---------------- Render Function ----------------
+  const StatsCard = ({ title, count, loading, icon, colorClass, borderClass, textClass }) => (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between relative overflow-hidden`}
+    >
+      <div className={`absolute top-0 right-0 p-4 opacity-10 ${textClass}`}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">{title}</p>
+        {loading ? (
+          <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
         ) : (
-          Object.keys(cats).map((key) => (
-            <span
-              key={key}
-              style={{
-                background: "#e5e7eb",
-                padding: "2px 6px",
-                borderRadius: "4px",
-                fontSize: "12px",
-                fontWeight: "600",
-              }}
-            >
-              {key}
-            </span>
-          ))
+          <h3 className="text-3xl font-bold text-gray-900">{count}</h3>
         )}
       </div>
-    );
-  },
-}
-
-,
-
-
-    // ✅ Status Column
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const schedule = row.original;
-        let displayStatus = "";
-        let textColor = "";
-
-        if (schedule.is_running) {
-          displayStatus = "Running...";
-          textColor = "text-yellow-600";
-        } else if (schedule.status === "complete") {
-          displayStatus = "Complete";
-          textColor = "text-green-600";
-        } else if (schedule.status === "failed") {
-          displayStatus = "Failed";
-          textColor = "text-red-600";
-        } else if (schedule.status === "active") {
-          displayStatus = "Scheduled";
-          textColor = "text-blue-600";
-        } else {
-          displayStatus = "Incomplete";
-          textColor = "text-red-600";
-        }
-
-        return (
-          <span className={`font-semibold ${textColor}`}>{displayStatus}</span>
-        );
-      },
-    },
-  ],
-  []
-);
-
-  const table = useReactTable({
-    data: schedules,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  // ---------------- Chart Options ----------------
-  const chartOption = {
-    title: { text: "📈 Clicks & Impressions Over Time", left: "center" },
-    tooltip: { trigger: "axis" },
-    legend: { data: ["Impressions", "Clicks"], bottom: 0 },
-    xAxis: { type: "category", data: analytics.chartData.map(d => d.date) },
-    yAxis: { type: "value" },
-    series: [
-      { name: "Impressions", type: "line", smooth: true, data: analytics.chartData.map(d => d.impressions) },
-      { name: "Clicks", type: "line", smooth: true, data: analytics.chartData.map(d => d.clicks) },
-    ],
-  };
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${colorClass} ${textClass}`}>
+        {icon}
+      </div>
+    </motion.div>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
-      <Navbar />
+    <div className="flex h-screen bg-gray-50 font-sans overflow-hidden">
 
-      <div className="flex flex-1">
-        {/* ---------------- Sidebar ---------------- */}
-        <div className="w-64 bg-white shadow-lg flex flex-col justify-between border-r border-gray-200">
-          <div>
-            <div className="text-2xl font-bold p-6 border-b border-gray-200 text-gray-800">Dashboard</div>
-            <ul className="mt-4">
-              {menuItems.map((item) => (
-                <li
-                  key={item}
-                  onClick={() => setActiveItem(item)}
-                  className={`px-6 py-4 cursor-pointer transition-all duration-300 rounded-r-full ${
-                    activeItem === item ? "bg-gray-200 font-semibold" : "hover:bg-gray-100"
-                  } text-gray-700`}
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* 🌒 SIDEBAR */}
+      <aside className="w-64 bg-[#0F172A] text-white flex flex-col shadow-2xl z-20">
+        {/* Logo area */}
+        <div className="h-20 flex items-center px-8 border-b border-gray-800">
+          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+            Trendy<span className="text-white">Admin</span>
+          </span>
+        </div>
 
-          <div className="p-6 border-t border-gray-200">
+        {/* Nav Links */}
+        <nav className="flex-1 py-6 space-y-2 px-4">
+          {menuItems.map((item) => (
             <button
-              onClick={handleLogout}
-              className="w-full bg-red-500 hover:bg-red-600 py-2 rounded font-semibold text-white transition-colors"
+              key={item.name}
+              onClick={() => setActiveItem(item.name)}
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${activeItem === item.name
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
+                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                }`}
             >
-              Logout
+              <span className="text-lg">{item.icon}</span>
+              <span>{item.name}</span>
             </button>
-          </div>
-        </div>
+          ))}
+        </nav>
 
-        {/* ---------------- Main Content ---------------- */}
-        <div className="flex-1 p-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Admin Dashboard</h1>
-          <p className="text-gray-700 mb-6">
-            You have selected: <span className="font-semibold">{activeItem}</span>
-          </p>
-
-
-          
-{/* ---------------- Home Section ---------------- */}
-{activeItem === "Home" && (
-  <>
-    {/* ---------------- Home Cards ---------------- */}
-    <div className="flex gap-16 flex-wrap">
-
-      {/* ---- USER CARD ---- */}
-      <div className="bg-blue-100 border border-blue-200 text-blue-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Users</h2>
-          {usersLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-blue-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalUsers}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total registered users</p>
-        </div>
-
-        <div className="text-blue-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M5.121 17.804A12 12 0 1112 12a12 12 0 01-6.879 5.804z" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ---- MOBILE CARD ---- */}
-      <div className="bg-green-100 border border-green-200 text-green-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Mobiles</h2>
-          {mobilesLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-green-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalMobiles}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total mobile products</p>
-        </div>
-
-        <div className="text-green-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7 4h10v16H7z" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ---- LAPTOP CARD ---- */}
-      <div className="bg-purple-100 border border-purple-200 text-purple-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Laptops</h2>
-          {laptopLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-purple-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalLaptops}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total laptop products</p>
-        </div>
-
-        <div className="text-purple-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M3 4h18v12H3z M7 20h10" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ---- SOFA CARD ---- */}
-      <div className="bg-orange-100 border border-orange-200 text-orange-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Sofas</h2>
-          {sofaLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-orange-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalSofas}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total sofa products</p>
-        </div>
-
-        <div className="text-orange-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M4 10h16v6H4z M2 16h20M6 10V7h12v3" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ---- SHIRT CARD ---- */}
-      <div className="bg-lime-200 border border-lime-200 text-lime-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Shirts</h2>
-          {shirtLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-lime-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalShirts}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total shirt products</p>
-        </div>
-
-        <div className="text-lime-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M4 6l4-2 4 2 4-2 4 2v12H4V6z" />
-          </svg>
-        </div>
-      </div>
-
-      {/* ---- TOY CARD ---- */}
-      <div className="bg-cyan-300 border border-purple-200 text-cyan-800 rounded-xl shadow-md 
-        w-72 p-6 mb-6 flex items-center justify-between
-        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 hover:shadow-xl">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Toys</h2>
-          {toyLoading ? (
-            <p className="text-3xl font-bold animate-pulse text-cyan-400">Loading...</p>
-          ) : (
-            <p className="text-4xl font-bold">{totalToys}</p>
-          )}
-          <p className="text-sm opacity-70 mt-1">Total toy products</p>
-        </div>
-
-        <div className="text-cyan-700 text-6xl opacity-70">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M5 15l7-7 7 7M5 9h14" />
-          </svg>
-        </div>
-      </div>
-
-    </div>
-
-    {/* ---- PIE CHART SECTION ---- */}
-    <ProductPieChart
-      totalUsers={totalUsers}
-      totalMobiles={totalMobiles}
-      totalLaptops={totalLaptops}
-      totalSofas={totalSofas}
-      totalShirts={totalShirts}
-      totalToys={totalToys}
-    />
-  </>
-)}
-
-          {/* ---------------- Logs Panel ---------------- */}
-
-{activeItem === "Logs" && (
-  <div className="bg-white p-6 rounded-lg shadow mt-6">
-    <h2 className="text-2xl font-bold mb-4">Scrape Schedule Logs</h2>
-
-    {schedules.length === 0 ? (
-      <p className="text-gray-500">No scrape schedules found.</p>
-    ) : (
-      <div style={{ height: 500, width: "100%" }}>
-        <DataGrid
-          rows={schedules.map((schedule, index) => ({
-            id: schedule._id || index,
-            message: `Starting scrape for schedule '${schedule.frequency}': ${schedule.time || "-"}`,
-            status: schedule.status,
-            is_running: schedule.is_running,
-            last_run: schedule.last_run
-              ? new Date(schedule.last_run).toISOString()
-              : "-",
-          }))}
-          columns={[
-            {
-              field: "message",
-              headerName: "Message",
-              flex: 1,
-              renderCell: (params) => (
-                <span className="text-yellow-600">{params.value}</span>
-              ),
-            },
-            {
-              field: "status",
-              headerName: "Status",
-              flex: 0.5,
-              renderCell: (params) => {
-                const { row } = params;
-
-                if (row.is_running) {
-                  return <span className="text-blue-600">⏳ Running</span>;
-                }
-
-                if (row.status === "complete") {
-                  return <span className="text-green-600">✔ Complete</span>;
-                }
-
-                if (row.status === "failed") {
-                  return <span className="text-red-600">❌ Failed</span>;
-                }
-
-                return <span className="text-gray-500">Pending</span>;
-              },
-            },
-            {
-              field: "last_run",
-              headerName: "Complete Time",
-              flex: 0.5,
-              renderCell: (params) => (
-                <span className="font-mono text-gray-700">{params.value}</span>
-              ),
-            },
-          ]}
-          pageSize={10}
-          rowsPerPageOptions={[10, 20, 50]}
-          disableSelectionOnClick
-        />
-      </div>
-    )}
-  </div>
-)}
-
-{/* ---------------- Products Table Section ---------------- */}
-{activeItem === "Products table" && (
-  <div>
-    <h2 className="text-2xl font-semibold mb-6">All Products</h2>
-    <ProductsTable />
-  </div>
-)}
-
-
-          {/* ---------------- Scrape Products Panel ---------------- */}
-{activeItem === "Scrape Products" && (
-  <div className="bg-white mt-6 p-6 rounded-xl shadow-md max-w-3xl">
-    <h2 className="text-2xl font-bold mb-4 text-gray-800">Schedule Scraping Task</h2>
-    <div className="flex flex-col gap-4">
-      <label className="block font-semibold text-gray-700">Frequency</label>
-      <select
-        value={scrapeFrequency}
-        onChange={(e) => setScrapeFrequency(e.target.value)}
-        className="border border-gray-300 rounded-md p-2 w-full"
-      >
-        <option value="hourly">Hourly</option>
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly Once</option>
-      </select>
-
-      {(scrapeFrequency === "daily" || scrapeFrequency === "weekly") && (
-        <>
-          <label className="block font-semibold text-gray-700">Time (HH:MM)</label>
-          <input
-            type="time"
-            value={scrapeTime}
-            onChange={(e) => setScrapeTime(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 w-full"
-          />
-        </>
-      )}
-
-      {scrapeFrequency === "weekly" && (
-        <>
-          <label className="block font-semibold text-gray-700">Day of Week</label>
-          <select
-            value={scrapeDay}
-            onChange={(e) => setScrapeDay(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 w-full"
+        {/* Logout */}
+        <div className="p-4 border-t border-gray-800">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white py-3 rounded-xl transition-all font-semibold"
           >
-            <option value="mon">Monday</option>
-            <option value="tue">Tuesday</option>
-            <option value="wed">Wednesday</option>
-            <option value="thu">Thursday</option>
-            <option value="fri">Friday</option>
-            <option value="sat">Saturday</option>
-            <option value="sun">Sunday</option>
-          </select>
-        </>
-      )}
+            <FaSignOutAlt /> Sign Out
+          </button>
+        </div>
+      </aside>
 
-      
-      {/* ---------------- Category Checkbox ---------------- */}
-<div>
-  <label className="block font-semibold text-gray-700 mb-1">Category</label>
+      {/* ☀️ MAIN CONTENT */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
 
-  <div className="flex flex-wrap gap-4">
-    {["all", "mobiles", "laptops", "shirts", "toys", "sofas"].map((cat) => (
-      <label key={cat} className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={selectedCategories.includes(cat)}
-          onChange={() => {
-            if (cat === "all") {
-              setSelectedCategories(["all"]);
-            } else {
-              let updated = [...selectedCategories];
+        {/* Header */}
+        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 z-10">
+          <h2 className="text-2xl font-bold text-gray-800">{activeItem}</h2>
+          <div className="flex items-center gap-4">
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-bold text-gray-900">Admin User</p>
+              <p className="text-xs text-gray-500">Super Administrator</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500"></div>
+          </div>
+        </header>
 
-              // Remove "all" if other category is selected
-              if (updated.includes("all")) {
-                updated = updated.filter((c) => c !== "all");
-              }
+        {/* Scrollable Area */}
+        <div className="flex-1 overflow-y-auto p-8 relative">
 
-              if (updated.includes(cat)) {
-                updated = updated.filter((c) => c !== cat);
-              } else {
-                updated.push(cat);
-              }
+          {activeItem === "Home" && (
+            <div className="space-y-8">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <StatsCard title="Total Users" count={totalUsers} loading={usersLoading} icon={<FaUserFriends size={24} />} colorClass="bg-blue-100" textClass="text-blue-600" />
+                <StatsCard title="Mobiles" count={totalMobiles} loading={mobilesLoading} icon={<FaMobileAlt size={24} />} colorClass="bg-green-100" textClass="text-green-600" />
+                <StatsCard title="Laptops" count={totalLaptops} loading={laptopLoading} icon={<FaLaptop size={24} />} colorClass="bg-purple-100" textClass="text-purple-600" />
+                <StatsCard title="Sofas" count={totalSofas} loading={sofaLoading} icon={<FaCouch size={24} />} colorClass="bg-orange-100" textClass="text-orange-600" />
+                <StatsCard title="Shirts" count={totalShirts} loading={shirtLoading} icon={<FaTshirt size={24} />} colorClass="bg-lime-100" textClass="text-lime-600" />
+                <StatsCard title="Toys" count={totalToys} loading={toyLoading} icon={<FaGamepad size={24} />} colorClass="bg-cyan-100" textClass="text-cyan-600" />
+              </div>
 
-              setSelectedCategories(updated);
-            }
-          }}
-        />
-        <span className="capitalize">{cat}</span>
-      </label>
-    ))}
-  </div>
-</div>
-
-      <button
-        onClick={handleScheduleScrape}
-        disabled={scheduleLoading}
-        className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
-      >
-        {scheduleLoading ? "Scheduling..." : "Schedule Scrape"}
-      </button>
-    </div>
-  </div>
-)}
-
-         
-
-{/* ---------------- Daily Runs Table ---------------- */}
-{activeItem === "Scrape Status" && (
-  <div className="bg-white mt-8 p-6 rounded-xl shadow-md max-w-5xl">
-    <h2 className="text-2xl font-bold mb-4 text-gray-800">Scrape Schedule</h2>
-
-    {(() => {
-      // FILTER SCHEDULE LISTS
-      const activeSchedules = schedules.filter(
-        (s) => s.frequency && s.status?.toLowerCase() === "active"
-      );
-      
-      const completedSchedules = schedules.filter(
-        (s) => s.frequency && s.status?.toLowerCase() === "complete" // <-- FIXED HERE
-      );
-      
-  const safeCategories = (cats) => {
-  if (!cats) return {};
-
-  if (typeof cats === "object") return cats;
-
-  if (typeof cats === "string") {
-    try {
-      return JSON.parse(cats);
-    } catch (e) {
-      return {};
-    }
-  }
-
-  return {};
-  };
-
-      return (
-        <>
-          {/* ---------------- ACTIVE TABLE ---------------- */}
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-green-700">
-            Active Schedules
-          </h3>
-
-          {activeSchedules.length === 0 ? (
-            <p>No active schedules found.</p>
-          ) : (
-            <div style={{ height: 350, width: "100%", marginBottom: "40px" }}>
-              <DataGrid
-                rows={activeSchedules.map((run, index) => ({
-                  id: run._id || index,
-                  frequency: run.frequency,
-                  time: run.time,
-                  status: run.status,
-               categories: safeCategories(run.categories),
-
-                }))}
-                columns={[
-                  { field: "frequency", headerName: "Frequency", flex: 1 },
-                  { field: "time", headerName: "Time", flex: 1 },
-                  { field: "status", headerName: "Status", flex: 1 },
-  {
-  field: "categories",
-  headerName: "Categories",
-  flex: 2,
-  renderCell: (params) => {
-    const cats = params.value || {};
-    const keys = Object.keys(cats);
-
-    if (keys.length === 0) return "-";
-
-    // ✅ Show "All" if more than one category
-    if (keys.length > 1) return "All";
-
-    // ✅ Otherwise show the single category
-    return (
-      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-        <span
-          style={{
-            padding: "2px 6px",
-            borderRadius: "4px",
-            fontSize: "15px",
-            fontWeight: "300",
-          }}
-        >
-          {keys[0]}
-        </span>
-      </div>
-    );
-  },
-  }
-
-
-                ]}
-                pageSizeOptions={[5, 10, 20]}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } },
-                }}
-                sx={{
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#d1fae5",
-                    color: "#065f46",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                  },
-                  "& .MuiDataGrid-row:hover": {
-                    backgroundColor: "#f0fdf4",
-                  },
-                }}
-              />
+              {/* Chart Section */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Product Distribution</h3>
+                <ProductPieChart
+                  totalUsers={totalUsers}
+                  totalMobiles={totalMobiles}
+                  totalLaptops={totalLaptops}
+                  totalSofas={totalSofas}
+                  totalShirts={totalShirts}
+                  totalToys={totalToys}
+                />
+              </div>
             </div>
           )}
 
-          {/* ---------------- COMPLETED TABLE ---------------- */}
-          <h3 className="text-xl font-semibold mt-4 mb-2 text-red-700">
-            Completed Schedules
-          </h3>
+          {activeItem === "Scrape Products" && (
+            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
+                  <FaRobot size={24} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Task Scheduler</h3>
+                  <p className="text-sm text-gray-500">Automate your data collection</p>
+                </div>
+              </div>
 
-          {completedSchedules.length === 0 ? (
-            <p>No completed schedules found.</p>
-          ) : (
-            <div style={{ height: 350, width: "100%" }}>
-              <DataGrid
-                rows={completedSchedules.map((run, index) => ({
-                  id: run._id || index,
-                  frequency: run.frequency,
-                  time: run.time,
-                  status: run.status,
-                 categories: safeCategories(run.categories),
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Frequency</label>
+                  <select
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                    value={scrapeFrequency}
+                    onChange={(e) => setScrapeFrequency(e.target.value)}
+                  >
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
 
-                }))}
-                columns={[
-                  { field: "frequency", headerName: "Frequency", flex: 1 },
-                  { field: "time", headerName: "Time", flex: 1 },
-                  { field: "status", headerName: "Status", flex: 1 },
-                 {
-  field: "categories",
-  headerName: "Categories",
-  flex: 2,
-  renderCell: (params) => {
-    const cats = params.value || {};
-    const keys = Object.keys(cats);
+                <div className="grid grid-cols-2 gap-4">
+                  {(scrapeFrequency === "daily" || scrapeFrequency === "weekly") && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Time</label>
+                      <input
+                        type="time"
+                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                        value={scrapeTime}
+                        onChange={(e) => setScrapeTime(e.target.value)}
+                      />
+                    </div>
+                  )}
+                  {scrapeFrequency === "weekly" && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Day</label>
+                      <select
+                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                        value={scrapeDay}
+                        onChange={(e) => setScrapeDay(e.target.value)}
+                      >
+                        <option value="mon">Monday</option>
+                        <option value="sun">Sunday</option>
+                        {/* Add others as needed */}
+                      </select>
+                    </div>
+                  )}
+                </div>
 
-    if (keys.length === 0) return "-";
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Target Categories</label>
+                  <div className="flex flex-wrap gap-2">
+                    {["all", "mobiles", "laptops", "shirts", "toys", "sofas"].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          if (cat === "all") setSelectedCategories(["all"]);
+                          else {
+                            const newCats = selectedCategories.includes("all") ? [] : [...selectedCategories];
+                            if (newCats.includes(cat)) setSelectedCategories(newCats.filter(c => c !== cat));
+                            else setSelectedCategories([...newCats, cat]);
+                          }
+                        }}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedCategories.includes(cat)
+                            ? "bg-black text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
+                      >
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-    // ✅ Show "All" if more than one category
-    if (keys.length > 1) return "All";
-
-    // ✅ Otherwise show the single category
-    return (
-      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-        <span
-          style={{
-            padding: "2px 6px",
-            borderRadius: "4px",
-            fontSize: "15px",
-            fontWeight: "300",
-          }}
-        >
-          {keys[0]}
-        </span>
-      </div>
-    );
-  },
-  }
-
-
-                ]}
-                pageSizeOptions={[5, 10, 20]}
-                initialState={{
-                  pagination: { paginationModel: { pageSize: 5 } },
-                }}
-                sx={{
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#fee2e2",
-                    color: "#7f1d1d",
-                    textTransform: "uppercase",
-                    fontWeight: "bold",
-                  },
-                  "& .MuiDataGrid-row:hover": {
-                    backgroundColor: "#fef2f2",
-                  },
-                }}
-              />
+                <button
+                  onClick={handleScheduleScrape}
+                  disabled={scheduleLoading}
+                  className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2"
+                >
+                  {scheduleLoading ? "Scheduling..." : <><FaCalendarCheck /> Schedule Task</>}
+                </button>
+              </div>
             </div>
           )}
-        </>
-      );
-    })()}
-  </div>
-  )}
+
+          {activeItem === "Scrape Status" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <h3 className="text-lg font-bold text-gray-900">Active Schedules</h3>
+              </div>
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={schedules.map((s, i) => ({ id: s._id || i, ...s }))}
+                  columns={[
+                    { field: "frequency", headerName: "Frequency", flex: 1 },
+                    { field: "time", headerName: "Time", flex: 1 },
+                    {
+                      field: "status", headerName: "Status", flex: 1, renderCell: (p) => (
+                        <span className={`font-bold ${p.value === 'complete' ? 'text-green-500' : 'text-orange-500'}`}>
+                          {p.value?.toUpperCase()}
+                        </span>
+                      )
+                    },
+                  ]}
+                  pageSize={5}
+                  checkboxSelection={false}
+                  sx={{ border: "none" }}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeItem === "Logs" && (
+            <div className="bg-black text-green-400 p-6 rounded-2xl font-mono text-sm h-[600px] overflow-y-auto shadow-2xl">
+              <div className="border-b border-gray-800 pb-2 mb-4 flex justify-between">
+                <span>System Logs</span>
+                <span className="text-gray-500">Live Stream</span>
+              </div>
+              {logs.length === 0 ? <p className="opacity-50">No logs generated yet...</p>
+                : logs.map(log => (
+                  <div key={log.id} className="mb-2">
+                    <span className="text-gray-500">[{log.time}]</span> <span className={log.type === 'error' ? 'text-red-400' : 'text-green-300'}>{log.message}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {activeItem === "Products table" && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <ProductsTable />
+            </div>
+          )}
 
         </div>
-      </div>
+      </main>
     </div>
   );
 };

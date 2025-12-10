@@ -3,7 +3,9 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import Navbar from "./Navbar";
- 
+import { motion, AnimatePresence } from "framer-motion";
+import { FaUserCircle, FaLock, FaEnvelope, FaFingerprint } from "react-icons/fa";
+
 const AdminAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -23,10 +25,13 @@ const AdminAuth = () => {
 
     if (!formData.email || !formData.password || (!isLogin && !formData.username)) {
       Swal.fire({
-        icon: "error",
-        title: "Missing Fields",
-        text: "Please fill in all required fields!",
-        confirmButtonColor: "#d33",
+        icon: "warning",
+        title: "Required Fields",
+        text: "Please fill in all the details.",
+        confirmButtonColor: "rgba(255,255,255,0.2)",
+        background: "rgba(0,0,0,0.8)",
+        color: "#fff",
+        backdrop: `rgba(0,0,0,0.4)`
       });
       return;
     }
@@ -37,10 +42,14 @@ const AdminAuth = () => {
 
       Swal.fire({
         icon: "success",
-        title: response.data.message || (isLogin ? "Login Success" : "Register Success"),
+        title: isLogin ? "Welcome" : "Registered",
+        text: "Access Granted.",
         timer: 1500,
         showConfirmButton: false,
-        background: "#fef3f8",
+        background: "rgba(0,0,0,0.8)",
+        color: "#fff",
+        iconColor: "#10b981",
+        backdrop: `rgba(0,0,0,0.4)`
       });
 
       localStorage.setItem("admin", JSON.stringify(response.data.admin));
@@ -53,98 +62,122 @@ const AdminAuth = () => {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Authentication Failed",
-        text: error.response?.data?.message || "Something went wrong!",
-        confirmButtonColor: "#d33",
+        title: "Error",
+        text: error.response?.data?.message || "Authentication failed.",
+        confirmButtonColor: "#f43f5e",
+        background: "rgba(0,0,0,0.8)",
+        color: "#fff",
+        backdrop: `rgba(0,0,0,0.4)`
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-200 via-pink-200 to-orange-100">
-      {/* Navbar at the top */}
-      <Navbar />
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-sans">
+      {/* 🌌 Background with Overlay */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')"
+        }}
+      ></div>
+      <div className="absolute inset-0 z-0 bg-black/40 backdrop-blur-[2px]"></div>
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
-        {/* Login/Register Card */}
-        <div className="bg-white bg-opacity-60 backdrop-blur-md rounded-3xl shadow-xl p-10 w-[380px] transition-all duration-500">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-center mb-6 drop-shadow-md">
-            Admin
-          </h1>
+      {/* 🧭 Navbar (Floating) */}
+      <div className="absolute top-0 w-full z-50 bg-transparent">
+        <Navbar />
+      </div>
 
-          {/* Toggle Login/Register */}
-          <div className="flex justify-center mb-6">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`px-4 py-2 text-sm font-semibold rounded-l-lg transition-all duration-300 ${
-                isLogin
-                  ? "bg-white text-purple-700 border border-purple-400"
-                  : "bg-purple-600 text-white hover:bg-purple-700"
-              }`}
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`px-4 py-2 text-sm font-semibold rounded-r-lg transition-all duration-300 ${
-                !isLogin
-                  ? "bg-white text-purple-700 border border-purple-400"
-                  : "bg-purple-600 text-white hover:bg-purple-700"
-              }`}
-            >
-              Register
-            </button>
+      {/* 💎 Glass Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-md p-8 m-4 rounded-[30px] shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] border border-white/20 bg-white/10 backdrop-blur-xl"
+      >
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 mb-4 shadow-lg shadow-purple-500/30">
+            <FaFingerprint className="text-3xl text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-white tracking-wide drop-shadow-md">
+            {isLogin ? "Admin Login" : "Join Admin"}
+          </h2>
+          <p className="text-blue-100/70 text-sm mt-2 font-light tracking-wider">
+            SECURE ACCESS PORTAL
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+
+          <AnimatePresence>
+            {!isLogin && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+              >
+                <div className="relative group">
+                  <FaUserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/50 group-focus-within:text-white transition-colors" />
+                  <input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full pl-12 pr-4 py-3.5 bg-black/20 border border-white/10 rounded-xl text-white placeholder-blue-100/30 focus:outline-none focus:bg-black/30 focus:border-purple-400 transition-all shadow-inner"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="relative group">
+            <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/50 group-focus-within:text-white transition-colors" />
+            <input
+              type="email"
+              name="email"
+              placeholder="Admin Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full pl-12 pr-4 py-3.5 bg-black/20 border border-white/10 rounded-xl text-white placeholder-blue-100/30 focus:outline-none focus:bg-black/30 focus:border-purple-400 transition-all shadow-inner"
+            />
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-4 text-gray-800">
-            {!isLogin && (
-              <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700">Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Enter username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="p-3 rounded-xl bg-white border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 w-full"
-                />
-              </div>
-            )}
+          <div className="relative group">
+            <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-200/50 group-focus-within:text-white transition-colors" />
+            <input
+              type="password"
+              name="password"
+              placeholder="Secret Key"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full pl-12 pr-4 py-3.5 bg-black/20 border border-white/10 rounded-xl text-white placeholder-blue-100/30 focus:outline-none focus:bg-black/30 focus:border-purple-400 transition-all shadow-inner"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter email"
-                value={formData.email}
-                onChange={handleChange}
-                className="p-3 rounded-xl bg-white border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 w-full"
-              />
-            </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold tracking-wider shadow-lg shadow-purple-900/40 hover:shadow-purple-700/50 border border-white/20 transition-all"
+          >
+            {isLogin ? "AUTHENTICATE" : "REGISTER PROFILE"}
+          </motion.button>
+        </form>
 
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700">Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter password"
-                value={formData.password}
-                onChange={handleChange}
-                className="p-3 rounded-xl bg-white border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 w-full"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white py-3 rounded-xl font-bold shadow-lg transition-transform transform hover:scale-105"
-            >
-              {isLogin ? "Login" : "Register"}
-            </button>
-          </form>
+        {/* Footer Toggle */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-sm text-blue-100/60 hover:text-white transition-colors border-b border-transparent hover:border-white/40 pb-0.5"
+          >
+            {isLogin ? "Create new admin access" : "Back to login"}
+          </button>
         </div>
-      </div>
+
+      </motion.div>
     </div>
   );
 };
