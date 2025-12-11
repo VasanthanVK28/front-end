@@ -80,29 +80,58 @@ const CategoryProducts = () => {
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+
+  // Price Range: Actual filter applied to API
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100000 });
-  const [sortOrder, setSortOrder] = useState("title-asc");
+  // Slider Value: Visual state for the slider UI (prevents API spam)
+  const [sliderValue, setSliderValue] = useState([0, 100000]);
+
+  const [sortOrder, setSortOrder] = useState(""); // Default empty or set a specific default like 'title-asc'
   const [view, setView] = useState("grid");
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [lastPage, setLastPage] = useState(1);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [brandPage, setBrandPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Sync sliderValue with priceRange when priceRange changes externally (optional, but good practice)
+  useEffect(() => {
+    setSliderValue([priceRange.min, priceRange.max]);
+  }, [priceRange]);
 
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       setLoading(true);
       try {
-        const res = await api.get(`/external/products/filter?category=${category}&page=${currentPage}`);
+        // Build Query Parameters
+        const params = new URLSearchParams();
+        params.append("category", category);
+        params.append("page", currentPage);
+        // Assuming API supports comma-separated brands
+        if (selectedBrands.length > 0) {
+          params.append("brand", selectedBrands.join(","));
+        }
+        params.append("min_price", priceRange.min);
+        params.append("max_price", priceRange.max);
+        if (sortOrder) {
+          const [field, direction] = sortOrder.split("-");
+          params.append("sort_by", field);
+          params.append("order", direction);
+        }
+
+        const res = await api.get(`/external/products/filter?${params.toString()}`);
+
         const data = res.data?.data || [];
         const brand_counts = res.data?.brand_counts || {};
         const total = res.data?.total || 0;
-        const per_page = res.data?.per_page || 12;
+        const per_page = res.data?.per_page || itemsPerPage;
 
         setProducts(data);
+        // Only update brands list if we want to show all available brands for the category 
+        // regardless of current filters, OR if the API returns refined facets.
+        // We'll trust the API returns relevant brand counts.
         setBrands(Object.entries(brand_counts));
+
         setCurrentPage(res.data?.current_page || 1);
         setLastPage(Math.ceil(total / per_page));
         setTotalProducts(total);
@@ -112,34 +141,35 @@ const CategoryProducts = () => {
         setLoading(false);
       }
     };
+
+    // Add debounce or just rely on dependencies. 
+    // Since we separated sliderValue and priceRange, this is safe.
     fetchCategoryProducts();
-  }, [category, currentPage]);
+  }, [category, currentPage, selectedBrands, priceRange, sortOrder]);
 
   const handleBrandChange = (brand) => {
-    const b = brand.toLowerCase();
-    setSelectedBrands(prev => prev.includes(b) ? prev.filter(x => x !== b) : [...prev, b]);
+    // Toggle brand selection
+    setSelectedBrands(prev => {
+      const isSelected = prev.includes(brand);
+      if (isSelected) return prev.filter(b => b !== brand);
+      return [...prev, brand];
+    });
+    setCurrentPage(1); // Reset to first page on filter change
   };
 
-  useEffect(() => {
-    let filtered = [...products];
-    if (selectedBrands.length > 0) filtered = filtered.filter(p => selectedBrands.includes(p.brand?.trim().toLowerCase()));
-    filtered = filtered.filter(p => p.price >= priceRange.min && p.price <= priceRange.max);
+  const handlePriceChange = (event, newValue) => {
+    setSliderValue(newValue);
+  };
 
-    const sorters = {
-      "title-asc": (a, b) => a.title.localeCompare(b.title),
-      "title-desc": (a, b) => b.title.localeCompare(a.title),
-      "price-asc": (a, b) => a.price - b.price,
-      "price-desc": (a, b) => b.price - a.price,
-    };
-    if (sorters[sortOrder]) filtered.sort(sorters[sortOrder]);
+  const handlePriceCommit = (event, newValue) => {
+    setPriceRange({ min: newValue[0], max: newValue[1] });
+    setCurrentPage(1);
+  };
 
-    setFilteredProducts(filtered);
-    setBrandPage(1);
-  }, [selectedBrands, priceRange, sortOrder, products]);
-
-  const paginatedBrandProducts = selectedBrands.length > 0
-    ? filteredProducts.slice((brandPage - 1) * itemsPerPage, brandPage * itemsPerPage)
-    : filteredProducts;
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+    setCurrentPage(1);
+  }
 
   const handlePrevPage = () => currentPage > 1 && setCurrentPage(p => p - 1);
   const handleNextPage = () => currentPage < lastPage && setCurrentPage(p => p + 1);
@@ -240,8 +270,9 @@ const CategoryProducts = () => {
           <div className="mb-10">
             <h3 className="text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-2">Price</h3>
             <Slider
-              value={[priceRange.min, priceRange.max]}
-              onChange={(e, v) => setPriceRange({ min: v[0], max: v[1] })}
+              value={sliderValue}
+              onChange={handlePriceChange}
+              onChangeCommitted={handlePriceCommit}
               min={0} max={100000} step={1000}
               sx={{
                 color: '#000',
@@ -253,8 +284,8 @@ const CategoryProducts = () => {
               }}
             />
             <div className="flex justify-between text-xs font-medium text-gray-500 mt-2">
-              <span>₹{priceRange.min}</span>
-              <span>₹{priceRange.max}+</span>
+              <span>₹{sliderValue[0]}</span>
+              <span>₹{sliderValue[1]}+</span>
             </div>
           </div>
 
@@ -264,11 +295,11 @@ const CategoryProducts = () => {
             <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
               {brands.map(([brand, count]) => (
                 <label key={brand} className="flex items-center gap-3 cursor-pointer group select-none">
-                  <div className={`w-5 h-5 border rounded flex items-center justify-center transition-colors ${selectedBrands.includes(brand.toLowerCase()) ? 'bg-black border-black text-white' : 'border-gray-300 bg-white group-hover:border-gray-500'}`}>
-                    {selectedBrands.includes(brand.toLowerCase()) && <FaCheck size={10} />}
+                  <div className={`w-5 h-5 border rounded flex items-center justify-center transition-colors ${selectedBrands.includes(brand) ? 'bg-black border-black text-white' : 'border-gray-300 bg-white group-hover:border-gray-500'}`}>
+                    {selectedBrands.includes(brand) && <FaCheck size={10} />}
                   </div>
-                  <input type="checkbox" className="hidden" onChange={() => handleBrandChange(brand)} checked={selectedBrands.includes(brand.toLowerCase())} />
-                  <span className={`text-sm capitalize ${selectedBrands.includes(brand.toLowerCase()) ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>{brand}</span>
+                  <input type="checkbox" className="hidden" onChange={() => handleBrandChange(brand)} checked={selectedBrands.includes(brand)} />
+                  <span className={`text-sm capitalize ${selectedBrands.includes(brand) ? 'font-semibold text-gray-900' : 'text-gray-600'}`}>{brand}</span>
                   <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{count}</span>
                 </label>
               ))}
@@ -283,15 +314,16 @@ const CategoryProducts = () => {
           <div className="flex flex-wrap gap-4 justify-between items-center mb-8 pb-6 border-b border-gray-200">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg font-bold text-sm"><FaFilter /> FILTER</button>
 
-            <p className="hidden md:block text-sm text-gray-500">Showing <span className="font-bold text-gray-900">{filteredProducts.length}</span> results</p>
+            <p className="hidden md:block text-sm text-gray-500">Showing <span className="font-bold text-gray-900">{totalProducts}</span> results</p>
 
             <div className="flex items-center gap-4 ml-auto">
               <div className="relative">
                 <select
                   value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
+                  onChange={handleSortChange}
                   className="appearance-none bg-transparent pl-2 pr-8 py-1 text-sm font-semibold cursor-pointer focus:outline-none hover:text-gray-600 transition-colors"
                 >
+                  <option value="">Sort By</option>
                   <option value="title-asc">Alphabetical A-Z</option>
                   <option value="title-desc">Alphabetical Z-A</option>
                   <option value="price-asc">Price Low-High</option>
@@ -312,11 +344,11 @@ const CategoryProducts = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <div key={n} className="aspect-[4/5] bg-gray-200 rounded-xl animate-pulse"></div>)}
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : products.length === 0 ? (
             <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 shadow-sm">
               <div className="text-4xl mb-4 opacity-30">🔍</div>
               <h3 className="text-lg font-bold text-gray-900">No products match your criteria.</h3>
-              <button onClick={() => { setSelectedBrands([]); setPriceRange({ min: 0, max: 100000 }) }} className="mt-4 text-sm font-bold text-indigo-600 hover:underline">Clear all filters</button>
+              <button onClick={() => { setSelectedBrands([]); setPriceRange({ min: 0, max: 100000 }); setSliderValue([0, 100000]); }} className="mt-4 text-sm font-bold text-indigo-600 hover:underline">Clear all filters</button>
             </div>
           ) : (
             <motion.div
@@ -326,7 +358,7 @@ const CategoryProducts = () => {
               className={view === 'grid' ? "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10" : "space-y-6"}
             >
               <AnimatePresence>
-                {paginatedBrandProducts.map((p) => (
+                {products.map((p) => (
                   <motion.div
                     layout
                     variants={fadeInUp}
@@ -412,23 +444,13 @@ const CategoryProducts = () => {
           )}
 
           {/* Pagination */}
-          {filteredProducts.length > 0 && selectedBrands.length === 0 && (
+          {products.length > 0 && lastPage > 1 && (
             <Pagination
               currentPage={currentPage}
               lastPage={lastPage}
               onPrev={handlePrevPage}
               onNext={handleNextPage}
               onPageSelect={setCurrentPage}
-              t={t}
-            />
-          )}
-          {filteredProducts.length > 0 && selectedBrands.length > 0 && (
-            <Pagination
-              currentPage={brandPage}
-              lastPage={Math.ceil(filteredProducts.length / itemsPerPage)}
-              onPrev={() => setBrandPage(p => Math.max(1, p - 1))}
-              onNext={() => setBrandPage(p => Math.min(Math.ceil(filteredProducts.length / itemsPerPage), p + 1))}
-              onPageSelect={setBrandPage}
               t={t}
             />
           )}

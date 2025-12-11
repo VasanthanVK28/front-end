@@ -83,9 +83,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchTotalUsers = async () => {
       try {
+        addLog("Fetching total users...", "info");
         const response = await axios.get(`${API_URL}/api/total-users`);
-        if (response.data.status === "success") setTotalUsers(response.data.total_users);
-      } catch (error) { console.error(error); } finally { setUsersLoading(false); }
+        if (response.data.status === "success") {
+          setTotalUsers(response.data.total_users);
+          addLog(`✓ Loaded ${response.data.total_users} total users`, "success");
+        }
+      } catch (error) {
+        console.error(error);
+        addLog(`✗ Error fetching users: ${error.message}`, "error");
+      } finally { setUsersLoading(false); }
     };
     fetchTotalUsers();
   }, []);
@@ -93,11 +100,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async (endpoint, setter, loader) => {
       try {
+        addLog(`Fetching ${endpoint} data...`, "info");
         const res = await axios.get(`${API_URL}/api/${endpoint}`);
         if (res.data.status === "success" || res.data.count !== undefined) {
           setter(res.data.count);
+          addLog(`✓ Loaded ${res.data.count} ${endpoint}`, "success");
         }
-      } catch (e) { console.error(e); } finally { loader(false); }
+      } catch (e) {
+        console.error(e);
+        addLog(`✗ Error fetching ${endpoint}: ${e.message}`, "error");
+      } finally { loader(false); }
     };
 
     fetchData("mobiles", setTotalMobiles, setMobilesLoading);
@@ -134,9 +146,14 @@ const Dashboard = () => {
 
   const fetchSchedules = async () => {
     try {
+      addLog("Fetching scrape schedules...", "info");
       const response = await axios.get(`${API_URL}/api/schedule-scrapes`);
       setSchedules(response.data.data || []);
-    } catch (err) { setFetchError(err.message); }
+      addLog(`✓ Loaded ${response.data.data?.length || 0} schedules`, "success");
+    } catch (err) {
+      setFetchError(err.message);
+      addLog(`✗ Error fetching schedules: ${err.message}`, "error");
+    }
   };
 
   const handleLogout = () => {
@@ -148,18 +165,22 @@ const Dashboard = () => {
   const handleScheduleScrape = async () => {
     if ((scrapeFrequency === "daily" || scrapeFrequency === "weekly") && !scrapeTime) {
       Swal.fire({ icon: "warning", title: "Time required", text: "Please select a time" });
+      addLog("⚠ Scrape schedule failed: Time not selected", "error");
       return;
     }
     if (scrapeFrequency === "weekly" && !scrapeDay) {
       Swal.fire({ icon: "warning", title: "Day required", text: "Please select a day" });
+      addLog("⚠ Scrape schedule failed: Day not selected", "error");
       return;
     }
     if (!selectedCategories.length) {
       Swal.fire({ icon: "warning", title: "Select Category", text: "Please select at least one category" });
+      addLog("⚠ Scrape schedule failed: No categories selected", "error");
       return;
     }
 
     setScheduleLoading(true);
+    addLog(`Scheduling ${scrapeFrequency} scrape for categories: ${selectedCategories.join(", ")}`, "info");
     try {
       const categoryMap = { mobiles: "mobiles_collection", laptops: "laptops_collection", shirts: "shirts_collection", toys: "toys_collection", sofas: "sofas_collection" };
       let categoriesPayload = {};
@@ -173,10 +194,12 @@ const Dashboard = () => {
 
       if (res.ok) {
         Swal.fire({ icon: "success", title: "Scheduled!", timer: 2000, showConfirmButton: false });
+        addLog(`✓ Successfully scheduled ${scrapeFrequency} scrape at ${scrapeTime || 'hourly'}`, "success");
         fetchSchedules();
       } else throw new Error("Failed to schedule");
     } catch (err) {
       Swal.fire({ icon: "error", title: "Error", text: err.message });
+      addLog(`✗ Scrape scheduling failed: ${err.message}`, "error");
     } finally { setScheduleLoading(false); }
   };
 
@@ -230,8 +253,8 @@ const Dashboard = () => {
               key={item.name}
               onClick={() => setActiveItem(item.name)}
               className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${activeItem === item.name
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
+                : "text-gray-400 hover:bg-gray-800 hover:text-white"
                 }`}
             >
               <span className="text-lg">{item.icon}</span>
@@ -365,8 +388,8 @@ const Dashboard = () => {
                           }
                         }}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedCategories.includes(cat)
-                            ? "bg-black text-white"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          ? "bg-black text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                           }`}
                       >
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
