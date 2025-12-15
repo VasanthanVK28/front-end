@@ -231,7 +231,7 @@ const CategoryProducts = () => {
             animate={{ opacity: 1 }}
             className="text-xs font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 block"
           >
-            Collection 2024
+            Collection 2025
           </motion.span>
           <motion.h1
             initial={{ y: 20, opacity: 0 }}

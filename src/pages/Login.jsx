@@ -29,7 +29,7 @@ const Login = () => {
       Swal.fire({
         icon: "success",
         title: "Welcome Back",
-        text: "Redirecting you to the dashboard...",
+        text: "Redirecting you to the Home Page...",
         timer: 1500,
         showConfirmButton: false,
       }).then(() => {

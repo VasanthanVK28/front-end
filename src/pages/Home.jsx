@@ -69,54 +69,54 @@ const Home = () => {
       <NavbarWithSidebar />
 
       {/* 🚀 HERO SECTION WITH PARALLAX & GLASSMORPHISM */}
-      <div className="relative w-full h-[600px] overflow-hidden">
+      <div className="relative w-full h-auto min-h-96 sm:min-h-[500px] lg:h-[600px] overflow-hidden">
         {/* Animated Background Blobs */}
         <motion.div
           animate={{ scale: [1, 1.2, 1], x: [0, 50, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-100px] right-[-100px] w-96 h-96 bg-purple-400 blur-[150px] opacity-40 z-0"
+          className="absolute top-[-100px] right-[-100px] w-48 sm:w-72 lg:w-96 h-48 sm:h-72 lg:h-96 bg-purple-400 blur-[150px] opacity-40 z-0"
         />
         <motion.div
           animate={{ scale: [1, 1.3, 1], x: [0, -50, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-[-50px] left-[-100px] w-[500px] h-[500px] bg-pink-400 blur-[150px] opacity-40 z-0"
+          className="absolute bottom-[-50px] left-[-100px] w-64 sm:w-96 lg:w-[500px] h-64 sm:h-96 lg:h-[500px] bg-pink-400 blur-[150px] opacity-40 z-0"
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 h-full flex flex-col-reverse lg:flex-row items-center justify-between gap-10 lg:gap-0">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-96 sm:min-h-[500px] lg:h-full flex flex-col-reverse lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-0 py-8 sm:py-12 lg:py-0">
           {/* Text Content */}
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
-            className="flex-1 text-center lg:text-left pt-10 lg:pt-0"
+            className="flex-1 text-center lg:text-left"
           >
-            <div className="inline-block px-4 py-2 bg-white/60 backdrop-blur-md rounded-full shadow-sm mb-4 border border-white/40">
-              <span className="text-purple-600 font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
+            <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-white/60 backdrop-blur-md rounded-full shadow-sm mb-3 sm:mb-4 border border-white/40">
+              <span className="text-purple-600 font-bold flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm uppercase tracking-wider">
                 <LuSparkle /> {t("new_arrivals")} 2025
               </span>
             </div>
-            <h1 className="text-5xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black text-gray-900 leading-tight mb-4 sm:mb-6">
               Discover <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-500">
                 Luxury
               </span>
             </h1>
-            <p className="text-lg text-gray-800 font-medium mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-800 font-medium mb-6 sm:mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
               {t("explore_collections")} Experience the best in class electronics, fashion, and lifestyle products tailored for you.
             </p>
-            <div className="flex justify-center lg:justify-start gap-4">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })}
-                className="px-8 py-3 bg-gray-900 text-white rounded-full font-bold shadow-lg hover:shadow-xl transition-shadow"
+                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gray-900 text-white rounded-full font-bold text-sm sm:text-base shadow-lg hover:shadow-xl transition-shadow w-full sm:w-auto"
               >
                 {t("shop_now")}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-white text-gray-900 border border-gray-200 rounded-full font-bold shadow-md hover:bg-gray-50 transition-colors"
+                className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-gray-900 border border-gray-200 rounded-full font-bold text-sm sm:text-base shadow-md hover:bg-gray-50 transition-colors w-full sm:w-auto"
               >
                 {t("view_deals")}
               </motion.button>
@@ -128,21 +128,21 @@ const Home = () => {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex-1 relative w-full h-[400px] lg:h-full flex items-center justify-center lg:justify-end"
+            className="flex-1 relative w-full h-64 sm:h-80 lg:h-full flex items-center justify-center lg:justify-end"
           >
             {/* Abstract Glass Cards Composition */}
-            <div className="relative w-[300px] sm:w-[400px] h-[300px] sm:h-[400px]">
+            <div className="relative w-48 sm:w-72 lg:w-[400px] h-48 sm:h-80 lg:h-[400px]">
               <motion.img
                 src="https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=2929&auto=format&fit=crop"
                 alt="Hero 1"
-                className="absolute top-0 right-0 w-64 h-80 object-cover rounded-2xl shadow-2xl border-4 border-white transform rotate-6 z-10"
+                className="absolute top-0 right-0 w-36 sm:w-56 lg:w-64 h-44 sm:h-64 lg:h-80 object-cover rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg sm:shadow-xl lg:shadow-2xl border-2 sm:border-3 lg:border-4 border-white transform rotate-3 sm:rotate-4 lg:rotate-6 z-10"
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               />
               <motion.img
                 src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
                 alt="Hero 2"
-                className="absolute bottom-10 left-0 w-64 h-64 object-cover rounded-2xl shadow-2xl border-4 border-white transform -rotate-6 z-20"
+                className="absolute bottom-4 sm:bottom-8 lg:bottom-10 left-0 w-36 sm:w-56 lg:w-64 h-36 sm:h-56 lg:h-64 object-cover rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg sm:shadow-xl lg:shadow-2xl border-2 sm:border-3 lg:border-4 border-white transform -rotate-3 sm:-rotate-4 lg:-rotate-6 z-20"
                 animate={{ y: [0, 20, 0] }}
                 transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
               />
@@ -153,9 +153,9 @@ const Home = () => {
       </div>
 
       {/* ✨ LIVE TICKER */}
-      <div className="bg-gray-900 py-3 overflow-hidden border-b border-gray-800">
+      <div className="bg-gray-900 py-2 sm:py-3 overflow-hidden border-b border-gray-800">
         <motion.div
-          className="flex gap-10 whitespace-nowrap text-white font-medium text-sm tracking-wider uppercase"
+          className="flex gap-6 sm:gap-10 whitespace-nowrap text-white font-medium text-xs sm:text-sm tracking-wider uppercase"
           animate={{ x: ["100%", "-100%"] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         >
@@ -170,19 +170,19 @@ const Home = () => {
       </div>
 
       {/* 🛍️ CATEGORIES SECTION (GLASS CARDS) */}
-      <div id="categories" className="py-20 max-w-7xl mx-auto px-6">
+      <div id="categories" className="py-12 sm:py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeInUp}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
-          <h2 className="text-3xl font-extrabold text-gray-900 flex items-center justify-center gap-3">
-            <MdStorefront className="text-purple-600 text-4xl" />
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 flex items-center justify-center gap-2 sm:gap-3">
+            <MdStorefront className="text-purple-600 text-2xl sm:text-3xl lg:text-4xl" />
             {t("product_categories")}
           </h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-linear-to-r from-purple-500 to-pink-500 mx-auto mt-4 rounded-full"></div>
         </motion.div>
 
         <motion.div
@@ -190,7 +190,7 @@ const Home = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-5 gap-6"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6"
         >
           {[
             { name: t("laptops"), key: "laptop", img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop" },
@@ -204,12 +204,12 @@ const Home = () => {
               variants={fadeInUp}
               whileHover={{ y: -10, boxShadow: "0 20px 40px -5px rgba(0, 0, 0, 0.1)" }}
               onClick={() => handleCategoryClick(cat.key)}
-              className="relative group cursor-pointer h-64 rounded-3xl overflow-hidden shadow-lg"
+              className="relative group cursor-pointer h-40 sm:h-48 md:h-56 lg:h-64 rounded-lg sm:rounded-xl lg:rounded-3xl overflow-hidden shadow-md sm:shadow-lg hover:shadow-xl transition-all"
             >
               <img src={cat.img} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
               <div className="absolute bottom-0 left-0 w-full p-6 text-center">
-                <h3 className="text-white font-bold text-xl tracking-wide">{cat.name}</h3>
+                <h3 className="text-white font-bold text-sm sm:text-base lg:text-xl tracking-wide">{cat.name}</h3>
                 <div className="w-0 group-hover:w-full h-0.5 bg-yellow-400 mx-auto transition-all duration-300 mt-2"></div>
               </div>
             </motion.div>
@@ -218,23 +218,23 @@ const Home = () => {
       </div>
 
       {/* ⭐ POPULAR PRODUCTS (FLOATING CARDS) */}
-      <div className="bg-white py-20 relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="bg-white py-12 sm:py-16 lg:py-20 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="flex flex-col md:flex-row items-center justify-between mb-12"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12"
           >
             <div>
-              <h2 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 flex items-center gap-2">
                 <FaRegStar className="text-yellow-500" />
                 {t("popular_products")}
               </h2>
-              <p className="text-gray-500 mt-2">Handpicked favorites just for you</p>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-500 mt-2">Handpicked favorites just for you</p>
             </div>
-            <button className="hidden md:flex items-center gap-2 text-purple-600 font-semibold hover:text-purple-700 transition">
+            <button className="hidden lg:flex items-center gap-2 text-sm lg:text-base text-purple-600 font-semibold hover:text-purple-700 transition mt-4 sm:mt-0">
               View All <FaArrowRight />
             </button>
           </motion.div>
@@ -289,11 +289,11 @@ const Home = () => {
       </div>
 
       {/* 🏷️ BRANDS MARQUEE (INFINITE SCROLL) */}
-      <div className="py-16 bg-white border-t border-gray-100">
-        <h2 className="text-center text-xl font-bold text-gray-400 uppercase tracking-[0.2em] mb-10">{t("trusted_by_brands")}</h2>
+      <div className="py-10 sm:py-14 lg:py-16 bg-white border-t border-gray-100">
+        <h2 className="text-center text-xs sm:text-sm lg:text-lg font-bold text-gray-400 uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-6 sm:mb-8 lg:mb-10 px-4">{t("trusted_by_brands")}</h2>
         <div className="overflow-hidden relative w-full">
-          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-white to-transparent z-10"></div>
-          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-white to-transparent z-10"></div>
+          <div className="absolute left-0 top-0 w-20 h-full bg-linear-to-r from-white to-transparent z-10"></div>
+          <div className="absolute right-0 top-0 w-20 h-full bg-linear-to-l from-white to-transparent z-10"></div>
 
           <motion.div
             className="flex gap-16 w-max"
@@ -302,7 +302,7 @@ const Home = () => {
           >
             {[...brands, ...brands, ...brands].map((brand, idx) => (
               <div key={idx} className="flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100">
-                <img src={brand.logo} alt={brand.name} className="h-12 w-auto object-contain" />
+                <img src={brand.logo} alt={brand.name} className="h-7 sm:h-9 lg:h-12 w-auto object-contain" />
               </div>
             ))}
           </motion.div>
@@ -310,9 +310,9 @@ const Home = () => {
       </div>
 
       {/* 🔥 PROMO BANNER */}
-      <section className="relative py-24 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 transform skew-y-3 origin-bottom-left -z-10 h-full w-full scale-110"></div>
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between text-white gap-12 relative z-10">
+      <section className="relative py-12 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-br from-pink-50 via-purple-50 to-indigo-50 transform skew-y-3 origin-bottom-left -z-10 h-full w-full scale-110"></div>
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between text-white gap-6 sm:gap-8 lg:gap-12 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -320,9 +320,9 @@ const Home = () => {
             variants={fadeInUp}
             className="flex-1 text-center lg:text-left"
           >
-            <h2 className="text-4xl lg:text-6xl font-black mb-6 text-gray-900 leading-tight">Big Savings. <br /> Bigger Dreams.</h2>
-            <p className="text-gray-700 text-xl mb-8 font-medium">Up to 50% off on premium electronics and fashion. Limited time only.</p>
-            <button className="bg-gray-900 text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-black transition-all transform hover:-translate-y-1 hover:shadow-2xl">
+            <h2 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-black mb-3 sm:mb-4 lg:mb-6 text-gray-900 leading-tight">Big Savings. <br /> Bigger Dreams.</h2>
+            <p className="text-xs sm:text-sm lg:text-lg text-gray-700 mb-4 sm:mb-6 lg:mb-8 font-medium">Up to 50% off on premium electronics and fashion. Limited time only.</p>
+            <button className="bg-gray-900 text-white px-6 sm:px-8 lg:px-10 py-2.5 sm:py-3 lg:py-4 rounded-full font-bold text-sm sm:text-base lg:text-lg shadow-xl hover:bg-black transition-all transform hover:-translate-y-1 hover:shadow-2xl w-full sm:w-auto">
               {t("view_deals") || "View Deals"}
             </button>
           </motion.div>
@@ -331,17 +331,17 @@ const Home = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="flex-1 relative"
+            className="flex-1 relative w-full"
           >
             <div className="absolute inset-0 bg-white/20 blur-[80px] rounded-full"></div>
-            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" alt="Shopping Promo" className="w-full max-w-lg mx-auto drop-shadow-2xl rounded-2xl transform rotate-2 hover:rotate-0 transition-all duration-500 border-4 border-white/20 relative z-10" />
+            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" alt="Shopping Promo" className="w-full max-w-xs sm:max-w-md lg:max-w-lg mx-auto drop-shadow-lg sm:drop-shadow-xl lg:drop-shadow-2xl rounded-lg sm:rounded-xl lg:rounded-2xl transform rotate-1 sm:rotate-2 hover:rotate-0 transition-all duration-500 border border-white/20 sm:border-2 lg:border-4 relative z-10" />
           </motion.div>
         </div>
       </section>
 
       {/* ✅ FEATURES SECTION */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {[
             { icon: <LuTrendingUp />, title: t("easy_exchange"), desc: "Hassle-free returns within 30 days." },
             { icon: <MdVerified />, title: t("handpicked"), desc: "100% authentic products verified by us." },
@@ -350,51 +350,51 @@ const Home = () => {
             <motion.div
               key={idx}
               whileHover={{ y: -5 }}
-              className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-all"
+              className="bg-white p-4 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-all"
             >
-              <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6">
+              <div className="w-12 sm:w-14 lg:w-16 h-12 sm:h-14 lg:h-16 bg-purple-100 text-purple-600 rounded-lg sm:rounded-xl lg:rounded-2xl flex items-center justify-center text-xl sm:text-2xl lg:text-3xl mx-auto mb-3 sm:mb-4 lg:mb-6">
                 {feat.icon}
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{feat.title}</h3>
-              <p className="text-gray-500">{feat.desc}</p>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-2 sm:mb-3">{feat.title}</h3>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-500">{feat.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="w-full bg-gray-900 text-gray-300 mt-0 pt-20 pb-10 border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+      <footer className="w-full bg-gray-900 text-gray-300 mt-0 pt-12 sm:pt-16 lg:pt-20 pb-6 sm:pb-8 lg:pb-10 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 mb-10 sm:mb-12 lg:mb-16">
           <div>
-            <h3 className="text-2xl font-bold text-white mb-6">Trendy<span className="text-purple-500">Mart</span></h3>
-            <p className="text-gray-400 leading-relaxed">Your one-stop destination for premium products. Experience quality like never before.</p>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4 lg:mb-6">Trendy<span className="text-purple-500">Mart</span></h3>
+            <p className="text-xs sm:text-sm lg:text-base text-gray-400 leading-relaxed">Your one-stop destination for premium products. Experience quality like never before.</p>
           </div>
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Shop</h4>
-            <ul className="space-y-3">
-              <li><a href="#" className="hover:text-purple-400 transition">Electronics</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition">Fashion</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition">Home</a></li>
+            <h4 className="text-white font-bold mb-3 sm:mb-4 lg:mb-6 uppercase tracking-wider text-xs sm:text-sm">Shop</h4>
+            <ul className="space-y-1.5 sm:space-y-2 lg:space-y-3">
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">Electronics</a></li>
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">Fashion</a></li>
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">Home</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Help</h4>
-            <ul className="space-y-3">
-              <li><a href="#" className="hover:text-purple-400 transition">Shipping</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition">Returns</a></li>
-              <li><a href="#" className="hover:text-purple-400 transition">FAQ</a></li>
+            <h4 className="text-white font-bold mb-3 sm:mb-4 lg:mb-6 uppercase tracking-wider text-xs sm:text-sm">Help</h4>
+            <ul className="space-y-1.5 sm:space-y-2 lg:space-y-3">
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">Shipping</a></li>
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">Returns</a></li>
+              <li><a href="#" className="text-xs sm:text-sm hover:text-purple-400 transition">FAQ</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Social</h4>
-            <div className="flex gap-4 text-xl">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all"><i className="fab fa-facebook-f"></i></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all"><i className="fab fa-twitter"></i></a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all"><i className="fab fa-instagram"></i></a>
+            <h4 className="text-white font-bold mb-3 sm:mb-4 lg:mb-6 uppercase tracking-wider text-xs sm:text-sm">Social</h4>
+            <div className="flex gap-3 text-lg">
+              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all text-sm sm:text-base"><i className="fab fa-facebook-f"></i></a>
+              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all text-sm sm:text-base"><i className="fab fa-twitter"></i></a>
+              <a href="#" className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all text-sm sm:text-base"><i className="fab fa-instagram"></i></a>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 border-t border-gray-800 text-center text-xs sm:text-sm text-gray-500">
           <p>&copy; {new Date().getFullYear()} TrendyMart. Made with <span className="text-red-500">❤</span> for the future.</p>
         </div>
       </footer>

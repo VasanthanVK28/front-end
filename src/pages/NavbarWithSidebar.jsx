@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaSearch, FaMicrophone } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { FaBars, FaTimes, FaSearch, FaMicrophone, FaImage } from "react-icons/fa";
 import { HiOutlineUser, HiOutlineLogout, HiOutlineShoppingBag, HiOutlineHeart } from "react-icons/hi";
 import { FormControl, Select, MenuItem, Tooltip } from "@mui/material";
-import ReactCountryFlag from "react-country-flag";
 import { useTranslation } from "react-i18next";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +15,10 @@ const NavbarWithSidebar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showGoogleLens, setShowGoogleLens] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [imageName, setImageName] = useState("");
+  const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -166,6 +169,43 @@ const NavbarWithSidebar = () => {
     });
   };
 
+  // Google Lens Image Upload Handler
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedImage(event.target.result);
+        setImageName(file.name);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle image search
+  const handleImageSearch = () => {
+    if (uploadedImage) {
+      Swal.fire({
+        icon: "info",
+        title: "Image Search",
+        text: "Searching for similar products...",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      setShowGoogleLens(false);
+      setUploadedImage(null);
+      setImageName("");
+      // You can integrate with a real image recognition API here
+      // For now, redirect to home with a message
+      navigate("/home");
+    }
+  };
+
+  // Trigger file input
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <>
       {/* SPACER FOR FIXED NAVBAR */}
@@ -221,6 +261,15 @@ const NavbarWithSidebar = () => {
                   className="w-full bg-transparent border-none py-3 px-4 text-sm text-gray-800 focus:ring-0 placeholder-gray-400 font-medium"
                 />
                 <div className="pr-2 flex items-center gap-2">
+                  <Tooltip title="Google Lens - Search by Image">
+                    <button
+                      type="button"
+                      onClick={() => setShowGoogleLens(!showGoogleLens)}
+                      className="p-2.5 rounded-full hover:bg-blue-50 transition-all duration-200 text-gray-400 hover:text-blue-600"
+                    >
+                      <FaImage size={16} />
+                    </button>
+                  </Tooltip>
                   <Tooltip title="Voice Search">
                     <button
                       type="button"
@@ -279,6 +328,85 @@ const NavbarWithSidebar = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Google Lens Modal */}
+              <AnimatePresence>
+                {showGoogleLens && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-8 right-8 bg-white shadow-2xl border border-gray-100 rounded-2xl overflow-hidden z-20 -mt-[2px]"
+                  >
+                    <div className="p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <FaImage className="text-blue-600" />
+                        Google Lens Search
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">Upload an image to find similar products</p>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                        className="hidden"
+                      />
+
+                      {!uploadedImage ? (
+                        <div
+                          onClick={triggerFileInput}
+                          className="border-2 border-dashed border-blue-400 rounded-xl p-8 text-center cursor-pointer hover:bg-blue-50 hover:border-blue-500 transition-all group"
+                        >
+                          <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">
+                            📸
+                          </div>
+                          <p className="font-semibold text-gray-800 mb-1">Drag and drop an image</p>
+                          <p className="text-xs text-gray-500">or click to browse from your device</p>
+                          <p className="text-xs text-gray-400 mt-3">Supported formats: JPG, PNG, WebP</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="relative bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                            <img
+                              src={uploadedImage}
+                              alt="Uploaded"
+                              className="w-full h-48 object-cover"
+                            />
+                            <button
+                              onClick={() => {
+                                setUploadedImage(null);
+                                setImageName("");
+                              }}
+                              className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-colors"
+                            >
+                              <FaTimes size={16} />
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-600 font-medium">📄 {imageName}</p>
+                          <button
+                            onClick={handleImageSearch}
+                            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+                          >
+                            <FaSearch size={16} />
+                            Search Similar Products
+                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4 bg-blue-50 border-t border-blue-100 text-xs text-gray-600">
+                      💡 Tip: Use clear, well-lit photos for better results
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* RIGHT: Actions */}
@@ -293,13 +421,8 @@ const NavbarWithSidebar = () => {
                     disableUnderline
                     displayEmpty
                     renderValue={(selected) => (
-                      <div className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer">
-                        <ReactCountryFlag
-                          countryCode={selected === "en" ? "US" : "IN"}
-                          svg
-                          style={{ width: "1.5em", height: "1.5em", borderRadius: "50%", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}
-                          title={selected === "en" ? "English" : "Indian Languages"}
-                        />
+                      <div className="flex items-center justify-center p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer text-lg">
+                        {selected === "en" ? "🇺🇸" : selected === "ta" ? "🇮🇳" : "🇮🇳"}
                       </div>
                     )}
                     MenuProps={{
@@ -309,13 +432,13 @@ const NavbarWithSidebar = () => {
                     }}
                   >
                     {[
-                      { code: "en", label: "English", country: "US" },
-                      { code: "ta", label: "தமிழ்", country: "IN" },
-                      { code: "hi", label: "हिंदी", country: "IN" }
+                      { code: "en", label: "English", emoji: "🇺🇸" },
+                      { code: "ta", label: "தமிழ்", emoji: "🇮🇳" },
+                      { code: "hi", label: "हिंदी", emoji: "🇮🇳" }
                     ].map((lang) => (
                       <MenuItem key={lang.code} value={lang.code} className="text-sm font-medium hover:bg-indigo-50 text-gray-700">
                         <div className="flex items-center gap-3 py-1">
-                          <ReactCountryFlag countryCode={lang.country} svg style={{ width: "1.2em", borderRadius: '2px' }} />
+                          <span className="text-lg">{lang.emoji}</span>
                           {lang.label}
                         </div>
                       </MenuItem>
