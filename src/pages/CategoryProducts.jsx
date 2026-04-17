@@ -223,33 +223,45 @@ const CategoryProducts = () => {
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <NavbarWithSidebar />
 
-      {/* 🏛️ MODERN HEADER */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16 text-center">
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-xs font-bold tracking-[0.2em] text-gray-500 uppercase mb-3 block"
+      {/* 🏛️ PREMIUM CATEGORY HEADER */}
+      <section className="relative pt-32 pb-16 md:pt-40 md:pb-24 bg-[#FEF9F5] overflow-hidden">
+        {/* Ambient Decorative Blurs */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-100 rounded-full blur-[100px] opacity-60 -mr-48 -mt-48" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-100 rounded-full blur-[100px] opacity-40 -ml-48 -mb-48" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            Collection 2025
-          </motion.span>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-4xl md:text-5xl font-black text-gray-900 capitalize tracking-tight mb-4"
-          >
-            {t(category) || category}
-          </motion.h1>
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-500 max-w-lg mx-auto text-lg font-light leading-relaxed"
-          >
-            Explore our premium range of {category}, curated for quality and style.
-          </motion.p>
+            <span className="inline-block text-xs font-black tracking-[0.3em] text-purple-500 uppercase mb-4 py-1.5 px-4 bg-white rounded-full shadow-sm border border-purple-50">
+              {category === 'all' ? 'The Complete' : 'Premium'} Collection
+            </span>
+
+            <h1 className="text-5xl md:text-7xl font-black text-gray-900 capitalize tracking-tighter mb-8 leading-[1.1]">
+              {category === 'premium-pads' ? (
+                <>Luxury <span className="text-purple-600 block sm:inline">Premium Pads</span></>
+              ) : category === 'bamboo-pads' ? (
+                <>Organic <span className="text-purple-600 block sm:inline">Bamboo Pads</span></>
+              ) : (
+                <>PureComfort <span className="text-purple-600 block sm:inline">All Products</span></>
+              )}
+            </h1>
+
+            <div className="w-20 h-1.5 bg-black mx-auto rounded-full mb-8" />
+
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg md:text-xl font-medium leading-relaxed">
+              {category === 'premium-pads'
+                ? "Experience the pinnacle of comfort and protection with our luxury range, designed for your most demanding days."
+                : category === 'bamboo-pads'
+                  ? "Sustainably sourced and exceptionally soft. Our bamboo range is kind to both your skin and the environment."
+                  : "Discover our entire collection of wellness products, crafted with care to support your cycle and your lifestyle."
+              }
+            </p>
+          </motion.div>
         </div>
-      </div>
+      </section>
 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12 flex flex-col md:flex-row gap-8 lg:gap-12 relative">

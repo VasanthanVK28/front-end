@@ -60,7 +60,7 @@ const PopularProduct = () => {
     let bag = JSON.parse(localStorage.getItem(key)) || [];
 
     // Check if already exists (optional: update qty instead)
-    if (bag.find(i => i.asin === product.asin)) {
+    if (bag.find(i => (i.asin === product.asin) || (i.id === product.id))) {
       return Swal.fire({
         title: 'Already in Bag',
         text: 'This item is already in your cart.',
@@ -118,7 +118,7 @@ const PopularProduct = () => {
               </div>
               <Zoom>
                 <img
-                  src={product.image_url || "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"}
+                  src={product.image || product.image_url || "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"}
                   alt={product.title}
                   className="w-full h-auto max-h-[500px] object-contain mix-blend-multiply transition-transform hover:scale-105 duration-500"
                   onError={(e) => { e.target.onerror = null; e.target.src = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"; }}
